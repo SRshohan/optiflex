@@ -1,5 +1,6 @@
 <script>
 	import { toast } from 'svelte-sonner';
+	import { getIdToken } from 'firebase/auth';
 
 	import { onMount, getContext, tick } from 'svelte';
 	import { goto } from '$app/navigation';
@@ -7,6 +8,7 @@
 
 	import { getBackendConfig } from '$lib/apis';
 	import { ldapUserSignIn, getSessionUser, userSignIn, userSignUp } from '$lib/apis/auths';
+	import { auth, googleProvider, githubProvider, signInWithPopup } from '$lib/firebase';
 
 	import { WEBUI_API_BASE_URL, WEBUI_BASE_URL } from '$lib/constants';
 	import { WEBUI_NAME, config, user, socket } from '$lib/stores';
@@ -138,6 +140,21 @@
 	}
 
 	onMount(async () => {
+		// Fetch backend config including oauth providers
+		const backendConfig = await fetch(`${WEBUI_API_BASE_URL}/auths/config`).then(r => r.json()).catch(() => ({}));
+		if (backendConfig?.oauth?.providers) {
+			await config.update(cfg => ({
+				...cfg,
+				oauth: {
+					...cfg?.oauth,
+					providers: {
+						...cfg?.oauth?.providers,
+						...backendConfig.oauth.providers
+					}
+				}
+			}));
+		}
+
 		if ($user !== undefined) {
 			const redirectPath = querystringValue('redirect') || '/';
 			goto(redirectPath);
@@ -153,6 +170,36 @@
 			onboarding = $config?.onboarding ?? false;
 		}
 	});
+
+	async function loginWithGoogle() {
+		try {
+			const result = await signInWithPopup(auth, googleProvider);
+			const idToken = await getIdToken(result.user);
+			const sessionUser = await fetch(`${WEBUI_API_BASE_URL}/auths/firebase-login`, {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ id_token: idToken })
+			}).then(r => r.json());
+			await setSessionUser(sessionUser);
+		} catch (error) {
+			toast.error(error.message);
+		}
+	}
+
+	async function loginWithGithub() {
+		try {
+			const result = await signInWithPopup(auth, githubProvider);
+			const idToken = await getIdToken(result.user);
+			const sessionUser = await fetch(`${WEBUI_API_BASE_URL}/auths/firebase-login`, {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ id_token: idToken })
+			}).then(r => r.json());
+			await setSessionUser(sessionUser);
+		} catch (error) {
+			toast.error(error.message);
+		}
+	}
 </script>
 
 <svelte:head>
@@ -372,9 +419,7 @@
 								{#if $config?.oauth?.providers?.google}
 									<button
 										class="flex justify-center items-center bg-gray-700/5 hover:bg-gray-700/10 dark:bg-gray-100/5 dark:hover:bg-gray-100/10 dark:text-gray-300 dark:hover:text-white transition w-full rounded-full font-medium text-sm py-2.5"
-										on:click={() => {
-											window.location.href = `${WEBUI_BASE_URL}/oauth/google/login`;
-										}}
+										on:click={loginWithGoogle}
 									>
 										<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" class="size-6 mr-3">
 											<path
@@ -422,9 +467,7 @@
 								{#if $config?.oauth?.providers?.github}
 									<button
 										class="flex justify-center items-center bg-gray-700/5 hover:bg-gray-700/10 dark:bg-gray-100/5 dark:hover:bg-gray-100/10 dark:text-gray-300 dark:hover:text-white transition w-full rounded-full font-medium text-sm py-2.5"
-										on:click={() => {
-											window.location.href = `${WEBUI_BASE_URL}/oauth/github/login`;
-										}}
+										on:click={loginWithGithub}
 									>
 										<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="size-6 mr-3">
 											<path
