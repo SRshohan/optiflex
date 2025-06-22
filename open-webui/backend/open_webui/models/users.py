@@ -40,6 +40,9 @@ class User(Base):
 
 class UserSettings(BaseModel):
     ui: Optional[dict] = {}
+    subscription: Optional[str] = "free"  # "free" or "pro"
+    spend_limit: Optional[float] = 0.0  # Monthly spend limit in USD
+    monthly_spend: Optional[float] = 0.0  # Current monthly spend
     model_config = ConfigDict(extra="allow")
     pass
 
@@ -56,7 +59,7 @@ class UserModel(BaseModel):
     created_at: int  # timestamp in epoch
 
     api_key: Optional[str] = None
-    settings: Optional[UserSettings] = None
+    settings: Optional[UserSettings] = UserSettings()
     info: Optional[dict] = None
 
     oauth_sub: Optional[str] = None
