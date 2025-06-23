@@ -1066,7 +1066,8 @@ async def get_auth_config(request: Request):
         "oauth": {
             "providers": {
                 "google": True,
-                "github": True
+                "github": True,
+                "firebase": True  # Add Firebase as a provider
             }
         }
     }
@@ -1079,61 +1080,82 @@ async def firebase_login(request: Request, response: Response):
     if not id_token:
         raise HTTPException(400, "Missing id_token")
     try:
+        # Verify Firebase token
         decoded_token = firebase_auth.verify_id_token(id_token)
         email = decoded_token.get("email")
         name = decoded_token.get("name", email)
         picture = decoded_token.get("picture")
+        
         if not email:
             raise HTTPException(400, "No email in Firebase token")
-        # Lookup or create user in your DB
-        user = Auths.get_user_by_email(email)
+        
+        # Lookup user in database using Users table directly
+        user = Users.get_user_by_email(email)
+        
         if not user:
+            # Create new user if doesn't exist
             user_count = Users.get_num_users()
-            role = "admin" if user_count == 0 else "user"  # Always set to 'user' for social logins
+            # Use DEFAULT_USER_ROLE from config, fallback to "user" for social logins
+            default_role = request.app.state.config.DEFAULT_USER_ROLE
+            role = "admin" if user_count == 0 else (default_role if default_role != "pending" else "user")
+            
             user = Auths.insert_new_auth(
                 email=email,
-                password=str(uuid.uuid4()),  # random password
+                password=str(uuid.uuid4()),  # random password for social login
                 name=name,
                 profile_image_url=picture,
                 role=role,
             )
+            
+            if not user:
+                raise HTTPException(500, "Failed to create user")
         else:
-            # Promote 'pending' users to 'user' on social login (unless already admin)
+            # Update existing user if needed
             if user.role == "pending":
-                if user.role != "admin":
-                    Users.update_user_by_id(user.id, {"role": "user"})
-                    user = Auths.get_user_by_email(email)  # refresh user object
-        user = Auths.authenticate_user_by_email(email)
-        if user:
-            expires_delta = parse_duration(request.app.state.config.JWT_EXPIRES_IN)
-            expires_at = None
-            if expires_delta:
-                expires_at = int(time.time()) + int(expires_delta.total_seconds())
-            token = create_token(
-                data={"id": user.id},
-                expires_delta=expires_delta,
-            )
-            response.set_cookie(
-                key="token",
-                value=token,
-                expires=(datetime.datetime.fromtimestamp(expires_at, datetime.timezone.utc) if expires_at else None),
-                httponly=True,
-                samesite=WEBUI_AUTH_COOKIE_SAME_SITE,
-                secure=WEBUI_AUTH_COOKIE_SECURE,
-            )
-            user_permissions = get_permissions(user.id, request.app.state.config.USER_PERMISSIONS)
-            return {
-                "token": token,
-                "token_type": "Bearer",
-                "expires_at": expires_at,
-                "id": user.id,
-                "email": user.email,
-                "name": user.name,
-                "role": user.role,
-                "profile_image_url": user.profile_image_url,
-                "permissions": user_permissions,
-            }
-        else:
-            raise HTTPException(400, "User creation or authentication failed.")
+                # Promote pending users to active role on social login
+                default_role = request.app.state.config.DEFAULT_USER_ROLE
+                new_role = "user" if default_role == "pending" else default_role
+                Users.update_user_by_id(user.id, {"role": new_role})
+                user = Users.get_user_by_email(email)  # refresh user object
+        
+        # Create JWT token (no need to authenticate since we have the user)
+        expires_delta = parse_duration(request.app.state.config.JWT_EXPIRES_IN)
+        expires_at = None
+        
+        if expires_delta:
+            expires_at = int(time.time()) + int(expires_delta.total_seconds())
+        
+        token = create_token(
+            data={"id": user.id},
+            expires_delta=expires_delta,
+        )
+        
+        # Set secure cookie
+        response.set_cookie(
+            key="token",
+            value=token,
+            expires=(datetime.datetime.fromtimestamp(expires_at, datetime.timezone.utc) if expires_at else None),
+            httponly=True,
+            samesite=WEBUI_AUTH_COOKIE_SAME_SITE,
+            secure=WEBUI_AUTH_COOKIE_SECURE,
+        )
+        
+        # Get user permissions
+        user_permissions = get_permissions(user.id, request.app.state.config.USER_PERMISSIONS)
+        
+        # Return user data
+        return {
+            "token": token,
+            "token_type": "Bearer",
+            "expires_at": expires_at,
+            "id": user.id,
+            "email": user.email,
+            "name": user.name,
+            "role": user.role,
+            "profile_image_url": user.profile_image_url,
+            "permissions": user_permissions,
+        }
+        
     except Exception as e:
-        raise HTTPException(401, f"Invalid Firebase token: {e}")
+        log.error(f"Firebase authentication error: {e}")
+        raise HTTPException(401, f"Invalid Firebase token: {str(e)}")

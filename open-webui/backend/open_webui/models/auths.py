@@ -170,6 +170,19 @@ class AuthsTable:
         except Exception:
             return None
 
+    def get_user_by_email(self, email: str) -> Optional[UserModel]:
+        """Get user by email from the auth table"""
+        log.info(f"get_user_by_email: {email}")
+        try:
+            with get_db() as db:
+                auth = db.query(Auth).filter_by(email=email, active=True).first()
+                if auth:
+                    user = Users.get_user_by_id(auth.id)
+                    return user
+                return None
+        except Exception:
+            return None
+
     def update_user_password_by_id(self, id: str, new_password: str) -> bool:
         try:
             with get_db() as db:
