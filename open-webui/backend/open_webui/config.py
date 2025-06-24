@@ -13,7 +13,7 @@ from urllib.parse import urlparse
 import requests
 from pydantic import BaseModel
 from sqlalchemy import JSON, Column, DateTime, Integer, func
-
+from dotenv import load_dotenv
 from open_webui.env import (
     DATA_DIR,
     DATABASE_URL,
@@ -44,7 +44,10 @@ logging.getLogger("uvicorn.access").addFilter(EndpointFilter())
 ####################################
 # Config helpers
 ####################################
+load_dotenv("../../.env")
 
+print("WEBUI_NAME", os.environ.get("WEBUI_NAME"))
+print("WEBUI URL", os.environ.get("WEBUI_URL"))
 
 # Function to run the alembic migrations
 def run_migrations():
@@ -287,7 +290,7 @@ JWT_EXPIRES_IN = PersistentConfig(
 ####################################
 # OAuth config
 ####################################
-
+print("ENABLE_OAUTH_SIGNUP", os.environ.get("ENABLE_OAUTH_SIGNUP"))
 
 ENABLE_OAUTH_SIGNUP = PersistentConfig(
     "ENABLE_OAUTH_SIGNUP",

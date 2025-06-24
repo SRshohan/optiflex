@@ -140,7 +140,7 @@
 	}
 
 	onMount(async () => {
-		// Fetch backend config including oauth providers
+		// 1. Fetch backend config (including OAuth providers)
 		const backendConfig = await fetch(`${WEBUI_API_BASE_URL}/auths/config`).then(r => r.json()).catch(() => ({}));
 		if (backendConfig?.oauth?.providers) {
 			await config.update(cfg => ({
@@ -155,15 +155,20 @@
 			}));
 		}
 
+		// 2. If user is already set, redirect to home (or redirect path)
 		if ($user !== undefined) {
 			const redirectPath = querystringValue('redirect') || '/';
 			goto(redirectPath);
 		}
+
+		// 3. Handle OAuth callback (if present in URL hash)
 		await checkOauthCallback();
 
+		// 4. Set UI loaded state and logo
 		loaded = true;
 		setLogoImage();
 
+		// 5. If trusted header auth or auth is disabled, auto sign in
 		if (($config?.features.auth_trusted_header ?? false) || $config?.features.auth === false) {
 			await signInHandler();
 		} else {
@@ -171,40 +176,40 @@
 		}
 	});
 
-	async function loginWithGoogle() {
-		try {
-			const result = await signInWithPopup(auth, googleProvider);
-			const idToken = await getIdToken(result.user);
-			const sessionUser = await fetch(`${WEBUI_API_BASE_URL}/auths/firebase-login`, {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ id_token: idToken })
-			}).then(r => r.json());
-			await setSessionUser(sessionUser);
-		} catch (error) {
-			toast.error(error.message);
-		}
-	}
+	// async function loginWithGoogle() {
+	// 	try {
+	// 		const result = await signInWithPopup(auth, googleProvider);
+	// 		const idToken = await getIdToken(result.user);
+	// 		const sessionUser = await fetch(`${WEBUI_API_BASE_URL}/auths/firebase-login`, {
+	// 			method: 'POST',
+	// 			headers: { 'Content-Type': 'application/json' },
+	// 			body: JSON.stringify({ id_token: idToken })
+	// 		}).then(r => r.json());
+	// 		await setSessionUser(sessionUser);
+	// 	} catch (error) {
+	// 		toast.error(error.message);
+	// 	}
+	// }
 
-	async function loginWithGithub() {
-		try {
-			const result = await signInWithPopup(auth, githubProvider);
-			const idToken = await getIdToken(result.user);
-			const sessionUser = await fetch(`${WEBUI_API_BASE_URL}/auths/firebase-login`, {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ id_token: idToken })
-			}).then(r => r.json());
-			await setSessionUser(sessionUser);
-		} catch (error) {
-			toast.error(error.message);
-		}
-	}
+	// async function loginWithGithub() {
+	// 	try {
+	// 		const result = await signInWithPopup(auth, githubProvider);
+	// 		const idToken = await getIdToken(result.user);
+	// 		const sessionUser = await fetch(`${WEBUI_API_BASE_URL}/auths/firebase-login`, {
+	// 			method: 'POST',
+	// 			headers: { 'Content-Type': 'application/json' },
+	// 			body: JSON.stringify({ id_token: idToken })
+	// 		}).then(r => r.json());
+	// 		await setSessionUser(sessionUser);
+	// 	} catch (error) {
+	// 		toast.error(error.message);
+	// 	}
+	// }
 </script>
 
 <svelte:head>
 	<title>
-		{`${$WEBUI_NAME}`}
+		{`${WEBUI_NAME}`}
 	</title>
 </svelte:head>
 
@@ -266,9 +271,9 @@
 							<div class="mb-1">
 								<div class=" text-2xl font-medium">
 									{#if $config?.onboarding ?? false}
-										{$i18n.t(`Get started with {{WEBUI_NAME}}`, { WEBUI_NAME: $WEBUI_NAME })}
+										{$i18n.t(`Get started with {{WEBUI_NAME}}`, {WEBUI_NAME: $WEBUI_NAME })}
 									{:else if mode === 'ldap'}
-										{$i18n.t(`Sign in to {{WEBUI_NAME}} with LDAP`, { WEBUI_NAME: $WEBUI_NAME })}
+										{$i18n.t(`Sign in to {{WEBUI_NAME}} with LDAP`, { WEBUI_NAME: $WEBUI_NAME  })}
 									{:else if mode === 'signin'}
 										{$i18n.t(`Sign in to {{WEBUI_NAME}}`, { WEBUI_NAME: $WEBUI_NAME })}
 									{:else}
@@ -419,7 +424,9 @@
 								{#if $config?.oauth?.providers?.google}
 									<button
 										class="flex justify-center items-center bg-gray-700/5 hover:bg-gray-700/10 dark:bg-gray-100/5 dark:hover:bg-gray-100/10 dark:text-gray-300 dark:hover:text-white transition w-full rounded-full font-medium text-sm py-2.5"
-										on:click={loginWithGoogle}
+										on:click={() => {
+											window.location.href = `${WEBUI_BASE_URL}/oauth/google/login`;
+										}}
 									>
 										<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" class="size-6 mr-3">
 											<path
@@ -467,7 +474,9 @@
 								{#if $config?.oauth?.providers?.github}
 									<button
 										class="flex justify-center items-center bg-gray-700/5 hover:bg-gray-700/10 dark:bg-gray-100/5 dark:hover:bg-gray-100/10 dark:text-gray-300 dark:hover:text-white transition w-full rounded-full font-medium text-sm py-2.5"
-										on:click={loginWithGithub}
+										on:click={() => {
+											window.location.href = `${WEBUI_BASE_URL}/oauth/github/login`;
+										}}
 									>
 										<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="size-6 mr-3">
 											<path

@@ -5,8 +5,8 @@ import datetime
 import logging
 from aiohttp import ClientSession
 from fastapi import APIRouter, Request, Response, HTTPException, status, Depends
-from firebase_admin import auth as firebase_auth, credentials, initialize_app
-import firebase_admin
+# from firebase_admin import auth as firebase_auth, credentials, initialize_app
+# import firebase_admin
 
 from open_webui.models.auths import (
     AddUserForm,
@@ -58,6 +58,7 @@ from ssl import CERT_NONE, CERT_REQUIRED, PROTOCOL_TLS
 
 from ldap3 import Server, Connection, NONE, Tls
 from ldap3.utils.conv import escape_filter_chars
+from fastapi.responses import JSONResponse
 
 router = APIRouter()
 
@@ -65,9 +66,9 @@ log = logging.getLogger(__name__)
 log.setLevel(SRC_LOG_LEVELS["MAIN"])
 
 # Initialize Firebase Admin SDK if not already initialized
-if not firebase_admin._apps:
-    cred = credentials.Certificate("serviceAccountKey.json")  # <-- Set your path here
-    firebase_admin.initialize_app(cred)
+# if not firebase_admin._apps:
+#     cred = credentials.Certificate("serviceAccountKey.json")  # <-- Set your path here
+#     firebase_admin.initialize_app(cred)
 
 ############################
 # GetSessionUser
@@ -1067,95 +1068,95 @@ async def get_auth_config(request: Request):
             "providers": {
                 "google": True,
                 "github": True,
-                "firebase": True  # Add Firebase as a provider
+                "microsoft": True,
             }
         }
     }
 
 
-@router.post("/firebase-login")
-async def firebase_login(request: Request, response: Response):
-    data = await request.json()
-    id_token = data.get("id_token")
-    if not id_token:
-        raise HTTPException(400, "Missing id_token")
-    try:
-        # Verify Firebase token
-        decoded_token = firebase_auth.verify_id_token(id_token)
-        email = decoded_token.get("email")
-        name = decoded_token.get("name", email)
-        picture = decoded_token.get("picture")
+# @router.post("/firebase-login")
+# async def firebase_login(request: Request, response: Response):
+#     data = await request.json()
+#     id_token = data.get("id_token")
+#     if not id_token:
+#         raise HTTPException(400, "Missing id_token")
+#     try:
+#         # Verify Firebase token
+#         decoded_token = firebase_auth.verify_id_token(id_token)
+#         email = decoded_token.get("email")
+#         name = decoded_token.get("name", email)
+#         picture = decoded_token.get("picture")
         
-        if not email:
-            raise HTTPException(400, "No email in Firebase token")
+#         if not email:
+#             raise HTTPException(400, "No email in Firebase token")
         
-        # Lookup user in database using Users table directly
-        user = Users.get_user_by_email(email)
+#         # Lookup user in database using Users table directly
+#         user = Users.get_user_by_email(email)
         
-        if not user:
-            # Create new user if doesn't exist
-            user_count = Users.get_num_users()
-            # Use DEFAULT_USER_ROLE from config, fallback to "user" for social logins
-            default_role = request.app.state.config.DEFAULT_USER_ROLE
-            role = "admin" if user_count == 0 else (default_role if default_role != "pending" else "user")
+#         if not user:
+#             # Create new user if doesn't exist
+#             user_count = Users.get_num_users()
+#             # Use DEFAULT_USER_ROLE from config, fallback to "user" for social logins
+#             default_role = request.app.state.config.DEFAULT_USER_ROLE
+#             role = "admin" if user_count == 0 else (default_role if default_role != "pending" else "user")
             
-            user = Auths.insert_new_auth(
-                email=email,
-                password=str(uuid.uuid4()),  # random password for social login
-                name=name,
-                profile_image_url=picture,
-                role=role,
-            )
+#             user = Auths.insert_new_auth(
+#                 email=email,
+#                 password=str(uuid.uuid4()),  # random password for social login
+#                 name=name,
+#                 profile_image_url=picture,
+#                 role=role,
+#             )
             
-            if not user:
-                raise HTTPException(500, "Failed to create user")
-        else:
-            # Update existing user if needed
-            if user.role == "pending":
-                # Promote pending users to active role on social login
-                default_role = request.app.state.config.DEFAULT_USER_ROLE
-                new_role = "user" if default_role == "pending" else default_role
-                Users.update_user_by_id(user.id, {"role": new_role})
-                user = Users.get_user_by_email(email)  # refresh user object
+#             if not user:
+#                 raise HTTPException(500, "Failed to create user")
+#         else:
+#             # Update existing user if needed
+#             if user.role == "pending":
+#                 # Promote pending users to active role on social login
+#                 default_role = request.app.state.config.DEFAULT_USER_ROLE
+#                 new_role = "user" if default_role == "pending" else default_role
+#                 Users.update_user_by_id(user.id, {"role": new_role})
+#                 user = Users.get_user_by_email(email)  # refresh user object
         
-        # Create JWT token (no need to authenticate since we have the user)
-        expires_delta = parse_duration(request.app.state.config.JWT_EXPIRES_IN)
-        expires_at = None
+#         # Create JWT token (no need to authenticate since we have the user)
+#         expires_delta = parse_duration(request.app.state.config.JWT_EXPIRES_IN)
+#         expires_at = None
         
-        if expires_delta:
-            expires_at = int(time.time()) + int(expires_delta.total_seconds())
+#         if expires_delta:
+#             expires_at = int(time.time()) + int(expires_delta.total_seconds())
         
-        token = create_token(
-            data={"id": user.id},
-            expires_delta=expires_delta,
-        )
+#         token = create_token(
+#             data={"id": user.id},
+#             expires_delta=expires_delta,
+#         )
         
-        # Set secure cookie
-        response.set_cookie(
-            key="token",
-            value=token,
-            expires=(datetime.datetime.fromtimestamp(expires_at, datetime.timezone.utc) if expires_at else None),
-            httponly=True,
-            samesite=WEBUI_AUTH_COOKIE_SAME_SITE,
-            secure=WEBUI_AUTH_COOKIE_SECURE,
-        )
+#         # Set secure cookie
+#         response.set_cookie(
+#             key="token",
+#             value=token,
+#             expires=(datetime.datetime.fromtimestamp(expires_at, datetime.timezone.utc) if expires_at else None),
+#             httponly=True,
+#             samesite=WEBUI_AUTH_COOKIE_SAME_SITE,
+#             secure=WEBUI_AUTH_COOKIE_SECURE,
+#         )
         
-        # Get user permissions
-        user_permissions = get_permissions(user.id, request.app.state.config.USER_PERMISSIONS)
+#         # Get user permissions
+#         user_permissions = get_permissions(user.id, request.app.state.config.USER_PERMISSIONS)
         
-        # Return user data
-        return {
-            "token": token,
-            "token_type": "Bearer",
-            "expires_at": expires_at,
-            "id": user.id,
-            "email": user.email,
-            "name": user.name,
-            "role": user.role,
-            "profile_image_url": user.profile_image_url,
-            "permissions": user_permissions,
-        }
+#         # Return user data
+#         return {
+#             "token": token,
+#             "token_type": "Bearer",
+#             "expires_at": expires_at,
+#             "id": user.id,
+#             "email": user.email,
+#             "name": user.name,
+#             "role": user.role,
+#             "profile_image_url": user.profile_image_url,
+#             "permissions": user_permissions,
+#         }
         
-    except Exception as e:
-        log.error(f"Firebase authentication error: {e}")
-        raise HTTPException(401, f"Invalid Firebase token: {str(e)}")
+#     except Exception as e:
+#         log.error(f"Firebase authentication error: {e}")
+#         raise HTTPException(401, f"Invalid Firebase token: {str(e)}")

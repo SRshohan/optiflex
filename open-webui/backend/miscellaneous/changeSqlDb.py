@@ -13,6 +13,7 @@ def delete_user_by_email(email):
     cursor = conn.cursor()
     try:
         cursor.execute("DELETE FROM auth WHERE email = ?", (email,))
+        cursor.execute("DELETE FROM user WHERE email = ?", (email,))
         conn.commit()
         deleted = cursor.rowcount > 0
     finally:
