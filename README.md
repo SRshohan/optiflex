@@ -1,4 +1,4 @@
-# Setting Up Open WebUI Backend on Windows (Python 3.11)
+# Setting Up Optiflex Backend on Windows (Python 3.11)
 
 ## 1. Install Python 3.11
 - Download Python 3.11 for Windows from the [official Python website](https://www.python.org/downloads/release/python-3110/).
