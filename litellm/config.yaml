@@ -1,5 +1,6 @@
 general_settings:
   master_key: "sk-12345"
+  salt_key: "sk-12345"
   database_url: "postgresql://llmproxy:dbpassword9090@db:5432/litellm"
   # highlight-start
   # This section enables the Admin UI for the specified email addresses
