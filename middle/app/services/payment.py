@@ -1,9 +1,10 @@
 import stripe
 import os
 from flask import Flask, request, redirect
+from flask_cors import CORS
 
 app = Flask(__name__)
-
+CORS(app)
 stripe.api_key = os.environ.get("STRIPE_SECRET_KEY", "sk_test_51RnVkeRoIzbn9VW93cGgiTl3K3XuncMdCP2D3WkEEKc2qLGiAe4V2gBHKRSAOdTKgzBBZY3CTqFOwNDHqzUgmP7900Yv2TTFvH")
 STRIPE_WEBHOOK_SECRET = os.environ.get("STRIPE_WEBHOOK_SECRET", "whsec_e33ed9d908019d2b044b89c8fe14725e2a26c29fb9785b8138802333e3f840bc")
 pro_product_id = "prod_Sixq5Bk1SPx82Q"
@@ -26,6 +27,7 @@ def create_checkout_session(user_email: str):
             success_url=request.host_url + 'success', # URL for successful payment
             cancel_url=request.host_url + 'cancel',   # URL for canceled payment
         )
+        print(f"Checkout session: {checkout_session.url}")
         return checkout_session
     except Exception as e:
         print(f"Error creating checkout session: {e}")
@@ -58,9 +60,10 @@ def is_user_subscribed(user_email: str) -> bool:
 def start_checkout(user_email: str):
     """An endpoint to create a checkout session and redirect the user."""
     session = create_checkout_session(user_email)
+    print(f"Checkout session: {session.url}")
     if session:
         # Redirect the user to the Stripe Checkout page
-        return redirect(session.url, code=303)
+        return {"checkout_url": session.url}
     return "Error creating checkout session.", 500
 
 
@@ -93,21 +96,6 @@ def handle_stripe_webhook():
                  print(f"Verification failed for {customer_email}.")
 
     return 'Success', 200
-
-def is_user_subscribed(user_email: str) -> bool:
-    # Find the customer by email
-    customers = stripe.Customer.list(email=user_email).data
-    if not customers:
-        return False
-    customer_id = customers[0].id
-
-    # List active subscriptions for this customer
-    subscriptions = stripe.Subscription.list(customer=customer_id, status="all").data
-    for sub in subscriptions:
-        if sub.status in ["active", "trialing"]:
-            return True
-    return False
-
 
 
 # Simple routes for success and cancel pages
