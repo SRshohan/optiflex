@@ -125,10 +125,8 @@ FROM_INIT_PY = os.environ.get("FROM_INIT_PY", "False").lower() == "true"
 if FROM_INIT_PY:
     PACKAGE_DATA = {"version": importlib.metadata.version("open-webui")}
 else:
-    try:
-        PACKAGE_DATA = json.loads((BASE_DIR / "package.json").read_text())
-    except Exception:
-        PACKAGE_DATA = {"version": "0.0.0"}
+    PACKAGE_DATA = json.loads((BASE_DIR / "package.json").read_text())
+
 
 VERSION = PACKAGE_DATA["version"]
 INSTANCE_ID = os.environ.get("INSTANCE_ID", str(uuid4()))
@@ -153,45 +151,54 @@ def parse_section(section):
     return items
 
 
-try:
-    changelog_path = BASE_DIR / "CHANGELOG.md"
+
+changelog_path = BASE_DIR / "CHANGELOG.md"
+if changelog_path.exists():
     with open(str(changelog_path.absolute()), "r", encoding="utf8") as file:
         changelog_content = file.read()
+# else:
+#     changelog_content = (pkgutil.get_data("open_webui", "CHANGELOG.md") or b"").decode()
 
-except Exception:
-    changelog_content = (pkgutil.get_data("open_webui", "CHANGELOG.md") or b"").decode()
 
-# Convert markdown content to HTML
-html_content = markdown.markdown(changelog_content)
+#changelog_content = (pkgutil.get_data("open_webui", "CHANGELOG.md") or b"").decode()
 
-# Parse the HTML content
-soup = BeautifulSoup(html_content, "html.parser")
+else:
+    changelog_content = ""
 
-# Initialize JSON structure
-changelog_json = {}
+if changelog_content:
+    # Convert markdown content to HTML
+    html_content = markdown.markdown(changelog_content)
 
-# Iterate over each version
-for version in soup.find_all("h2"):
-    version_number = version.get_text().strip().split(" - ")[0][1:-1]  # Remove brackets
-    date = version.get_text().strip().split(" - ")[1]
+    # Parse the HTML content
+    soup = BeautifulSoup(html_content, "html.parser")
 
-    version_data = {"date": date}
+    # Initialize JSON structure
+    changelog_json = {}
 
-    # Find the next sibling that is a h3 tag (section title)
-    current = version.find_next_sibling()
+    # Iterate over each version
+    for version in soup.find_all("h2"):
+        version_number = version.get_text().strip().split(" - ")[0][1:-1]  # Remove brackets
+        date = version.get_text().strip().split(" - ")[1]
 
-    while current and current.name != "h2":
-        if current.name == "h3":
-            section_title = current.get_text().lower()  # e.g., "added", "fixed"
-            section_items = parse_section(current.find_next_sibling("ul"))
-            version_data[section_title] = section_items
+        version_data = {"date": date}
 
-        # Move to the next element
-        current = current.find_next_sibling()
+        # Find the next sibling that is a h3 tag (section title)
+        current = version.find_next_sibling()
 
-    changelog_json[version_number] = version_data
+        while current and current.name != "h2":
+            if current.name == "h3":
+                section_title = current.get_text().lower()  # e.g., "added", "fixed"
+                section_items = parse_section(current.find_next_sibling("ul"))
+                version_data[section_title] = section_items
 
-CHANGELOG = changelog_json
+            # Move to the next element
+            current = current.find_next_sibling()
+
+        changelog_json[version_number] = version_data
+
+    CHANGELOG = changelog_json
+else:
+    CHANGELOG = {}
 
 ####################################
 # SAFE_MODE
