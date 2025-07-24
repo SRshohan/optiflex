@@ -49,7 +49,7 @@ start_windows.bat
 **You can now access the backend at** [http://localhost:8080](http://localhost:8080)
 
 
-### 7. Update 
+
 
 # Open WebUI: Direct Connections API Usage Guide
 
