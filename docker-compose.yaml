@@ -1,0 +1,35 @@
+# Place this file in your project's ROOT directory
+
+version: "3.9"
+
+services:
+  # OpenWebUI Backend Service
+  backend:
+    build:
+      # Corrected Path: Now points into the open-webui sub-directory
+      context: ./open-webui/backend
+    restart: always
+    environment:
+      LITELLM_API_URL: "http://litellm:4000"
+    volumes:
+      # Corrected Path: Mounts the correct backend directory
+      - ./open-webui/backend:/app
+
+  # OpenWebUI Frontend Service
+  frontend:
+    build:
+      # Corrected Path: The build context is now the open-webui directory
+      context: ./open-webui
+      # This file is located at open-webui/Dockerfile.frontend
+      dockerfile: Dockerfile.frontend
+    restart: always
+    ports:
+      # Expose the frontend to your VPS's public IP
+      - "5173:5173"
+    depends_on:
+      - backend
+
+# Connect to the network created by the LiteLLM docker-compose
+networks:
+  default:
+    external: true
