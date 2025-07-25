@@ -1,0 +1,21 @@
+# open-webui/Dockerfile.frontend
+# This Dockerfile should be in the open-webui directory
+
+FROM node:20-alpine
+
+# Set the working directory inside the container
+WORKDIR /app
+
+# Copy all necessary frontend files from the open-webui directory
+# This includes package.json, src, static, etc.
+COPY . .
+
+# Install dependencies and build the frontend
+RUN npm install
+RUN npm run build
+
+# Expose the port the app runs on
+EXPOSE 5173
+
+# Command to run the app in production mode
+CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0"]
