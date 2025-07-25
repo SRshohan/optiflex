@@ -1,0 +1,6 @@
+user_email,model,total_spend,total_prompt_tokens,total_completion_tokens,total_tokens
+mugleeisback@gmail.com,claude-3-5-sonnet-latest,0.019734,1873,941,2814
+mugleeisback@gmail.com,claude-3-7-sonnet-latest,0.012123,1441,520,1961
+sohanrahman182@gmail.com,claude-3-5-sonnet-latest,0.033198000000000005,4431,1327,5758
+,claude-3-5-sonnet-20240620,0.0004350000000000001,85,12,97
+,anthropic/claude-2,0.0,0,0,0

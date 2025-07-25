@@ -5,11 +5,11 @@ import datetime
 import logging
 import stripe
 from aiohttp import ClientSession
-from fastapi import FastAPI, Request, Response, HTTPException, status, Depends
+from fastapi import APIRouter, Request, Response, HTTPException, status, Depends
 from firebase_admin import auth as firebase_auth, credentials, initialize_app
 import os
 import requests
-
+from pydantic import BaseModel
 
 # from open_webui.models.auths import (
 #     AddUserForm,
@@ -29,7 +29,7 @@ from open_webui.utils.auth import get_verified_user
 from open_webui.utils.access_control import has_permission
 from open_webui.constants import ERROR_MESSAGES
 
-router = FastAPI()
+router = APIRouter()
 
 LITELLM_API_URL = os.environ.get("LITELLM_API_URL", "http://127.0.0.1:4000")
 LITELLM_MASTER_KEY = os.environ.get("LITELLM_MASTER_KEY", "sk-1234")
@@ -38,6 +38,32 @@ stripe.api_key = os.environ.get("STRIPE_SECRET_KEY", "sk_test_51RnVkeRoIzbn9VW93
 STRIPE_WEBHOOK_SECRET = os.environ.get("STRIPE_WEBHOOK_SECRET", "whsec_e33ed9d908019d2b044b89c8fe14725e2a26c29fb9785b8138802333e3f840bc")
 
 
+class EmailRequest(BaseModel):
+    user_email: str
+
+
+# Create a user in LiteLLM
+def create_user_in_litellm(user_email: str, headers: dict):
+    """
+    Creates a user in LiteLLM for a given user email.
+    """
+    payload = {
+        "user_email": user_email,
+        "user_role": "internal_user",
+        "max_parallel_requests": 5,
+    }
+
+    response = requests.post(f"{LITELLM_API_URL}/user/new", json=payload, headers=headers)
+
+    if response.status_code == 200:
+        print(f"Successfully created LiteLLM user for {user_email}.")
+        user_id = response.json()["user_id"]
+        return user_id
+    else:
+        print(f"Error creating LiteLLM user for {user_email}: {response.text}")
+        return None
+
+# Create a virtual key in LiteLLM
 def create_virtual_key(user_id: str, plan: str = "pro", user_email: str = "admin@example.com") -> str:
     """
     Creates a virtual key in LiteLLM for a given user and plan.
@@ -49,6 +75,8 @@ def create_virtual_key(user_id: str, plan: str = "pro", user_email: str = "admin
     Returns:
         The generated LiteLLM virtual key.
     """
+
+    
     print(f"Creating LiteLLM key for user '{user_id}' with plan '{plan}'...")
 
     # Define budget and tier based on the plan
@@ -57,16 +85,19 @@ def create_virtual_key(user_id: str, plan: str = "pro", user_email: str = "admin
         "pro": 50.0,      # $50 budget
         "custom": 200.0    # $200 budget
     }
-    budget = budgets.get(plan, 0.0)
 
     headers = {
         "Authorization": f"Bearer {LITELLM_MASTER_KEY}",
         "Content-Type": "application/json"
     }
+
+    user_id = create_user_in_litellm(user_email, headers)
+    print("user_id from LiteLLM: ", user_id)
     
-    payload = { "key_alias":user_id,
-        "models": ["gpt-4o", "gemini-1.5-pro", "claude-3-haiku"],
-        "max_budget": budget.get(plan, 0.0),
+    payload = { "user_id":user_id,
+        "budget_id":"starter",
+        "models": ["gemini/gemini-2.5-flash", "xai/grok-3-mini", "gpt-4.1-mini"],
+        # "max_budget": budgets.get(plan, 0.0),
         "duration": "30d",
         "metadata": {
             "saas_user_id": user_id,
@@ -104,11 +135,13 @@ def create_virtual_key(user_id: str, plan: str = "pro", user_email: str = "admin
 #         print(f"Error creating checkout session: {e}")
 #         return None
 
-@router.post("/user/plan/update", response_model=UserSettings, name="update_user_settings_by_session_user")
+
+# Update user settings by session user
+@router.post("/user/plan/update", name="update_user_settings_by_session_user")
 async def update_user_settings_by_session_user(
     request: Request, user=Depends(get_verified_user)
 ):  
-    
+   
     form_data = {
         "ui": {
             "directConnections": {
@@ -129,7 +162,8 @@ async def update_user_settings_by_session_user(
             }
             },
             "webSearch": None
-        }
+        },
+        "additionalProp1":{}
     }
     updated_user_settings = form_data
     if (
@@ -153,6 +187,7 @@ async def update_user_settings_by_session_user(
             detail=ERROR_MESSAGES.USER_NOT_FOUND,
         )
 
+# Check if a user has an active subscription
 def is_user_subscribed(user_email: str) -> bool:
     """Checks if a user has an active subscription."""
     try:
@@ -173,20 +208,23 @@ def is_user_subscribed(user_email: str) -> bool:
         print(f"Error checking subscription: {e}")
         return False
 
+
+# Create a checkout session
 @router.post("/checkout/stripe-webhook")
-async def create_checkout_session(user_email: str, request: Request, user=Depends(get_verified_user)):
+async def create_checkout_session(user_email: EmailRequest, request: Request, user=Depends(get_verified_user)):
     base_url = os.environ.get("BASE_URL", "http://localhost:5000")
 
     try:
         price_id = "price_1RnVuMRoIzbn9VW9UJ5PimsV"
         checkout_session = stripe.checkout.Session.create(
-            customer_email=user_email,
+            customer_email=user_email.user_email,
             line_items=[{"price": price_id, "quantity": 1}],
             mode="subscription",
-            success_url=base_url + 'update_user_settings_by_session_user', # URL for successful payment
+            success_url="http://localhost:5173/success", # URL for successful payment
             cancel_url=base_url + '/checkout/cancel',   # URL for canceled payment
         )
-        return checkout_session
+        print(f"Checkout session: {checkout_session.url}")
+        return {"checkout_url": checkout_session.url}
     
     except Exception as e:
         print(f"Error creating checkout session: {e}")
