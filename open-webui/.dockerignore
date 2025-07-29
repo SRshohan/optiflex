@@ -16,7 +16,7 @@ yarn-error.log*
 /frontend/build
 
 # SvelteKit
-.svelte-kit
+# .svelte-kit
 
 # Python
 __pycache__/

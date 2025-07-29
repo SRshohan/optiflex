@@ -1,43 +1,26 @@
 version: '3.9'
 
 services:
-  nginx:
-    image: nginx:latest
+  open-webui:
+    build:
+      # Use the 'open-webui' folder as the source for the build.
+      context: ./open-webui
+      # Specify our new production Dockerfile.
+      dockerfile: Dockerfile.prod
     ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf
-      - /etc/letsencrypt:/etc/letsencrypt
-    depends_on:
-      - frontend
-      - backend
-    restart: always
-
-  frontend:
-    build:
-      context: ./open-webui
-      dockerfile: Dockerfile.frontend
+      # Connect port 8080 on your VPS to port 8080 inside the container.
+      - "8080:8080"
     environment:
-      - VITE_API_BASE_URL=/api/v1
-    depends_on:
-      - backend
-    restart: on-failure
-
-  backend:
-    build:
-      context: ./open-webui
-      dockerfile: ./backend/Dockerfile
-    environment:
+      # Tell the backend where to find your LiteLLM service.
       - LITELLM_API_URL=http://litellm:4000
-    volumes:
-      - ./open-webui/backend:/app
-    depends_on:
-      - litellm
-    restart: on-failure
+    networks:
+      # Connect this container to the network used by LiteLLM.
+      - litellm_network
+    restart: unless-stopped
 
 networks:
   litellm_network:
+    # Tell Docker this network is created externally.
     name: litellm_network
     external: true
 
