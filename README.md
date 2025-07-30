@@ -12,6 +12,7 @@ cd open-webui\backend
 ## 3. Check Python Version
 Make sure you are using Python 3.11.x:
 ```sh
+
 python --version
 ```
 You should see output like:

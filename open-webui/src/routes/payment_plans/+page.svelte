@@ -1,33 +1,56 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
+	import { WEBUI_API_BASE_URL } from '$lib/constants';
 
-    async function getUserEmail() {
-        const token = localStorage.getItem('token');
+	const token = localStorage.getItem('token');
+
+    async function getUserEmail(token: string) {
+		alert('Attempting to get user email');
+		alert(`Token from local storage: ${token}`);
         if (!token) {
+			alert('No token found');
             return null;
         }
-        const res = await fetch('http://127.0.0.1:8080/api/v1/auths', {
+		try {
+		alert(`Fetching user email from ${WEBUI_API_BASE_URL}/auths`);
+        const res = await fetch(`${WEBUI_API_BASE_URL}/auths/`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${token}`
             }
         });
-        const data = await res.json();
-        console.log(data);
-        return data.email;
+
+		if (!res.ok) {
+			console.error('Failed to get user email:', res.status);
+			const errorText = await res.text();
+			console.error('Failed to get user email errortext: ' + errorText);
+			return null;
+		}
+			const data = await res.json();
+			alert(`User email Successfully found: ${data}`);
+			return data.email;
+		} catch (error) {
+			console.error('Error getting user email:', error);
+			return null;
+		}
     }
 
 	async function handleUpgrade(plan: string) {
 		if (plan === 'pro') {
-			const token = localStorage.getItem('token'); // Get the user's OpenWebUI token
+			// const token = localStorage.getItem('token'); // Get the user's OpenWebUI token
+			alert(`Token plan upgrade: ${token}`);
 			if (!token) {
 				alert('You must be logged in to upgrade.');
 				return;
 			}
-			const userEmail = await getUserEmail();
-            console.log(userEmail);
-			const res = await fetch(`http://127.0.0.1:8080/api/v1/payment/checkout/stripe-webhook`, {
+			const userEmail = await getUserEmail(token);
+			if (!userEmail) {
+				alert('Failed to get user email');
+				return;
+			}
+            alert(userEmail);
+			const res = await fetch(`${WEBUI_API_BASE_URL}/payment/checkout/stripe-webhook`, {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
@@ -39,7 +62,7 @@
 			});
 			if (res.ok) {
 				const data = await res.json();
-                console.log(data);
+                alert(data);
 				if (data.checkout_url) {
 					// Redirect to Stripe Checkout
 					window.location.href = data.checkout_url;
@@ -69,6 +92,7 @@
 .pricing-root {
 	min-height: 100vh;
 	background: #181c23;
+	overflow-y: auto; /* Allow vertical scrolling if content is too tall */
 }
 .pricing-header {
 	text-align: center;

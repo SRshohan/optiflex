@@ -211,7 +211,7 @@ def is_user_subscribed(user_email: str) -> bool:
 
 # Create a checkout session
 @router.post("/checkout/stripe-webhook")
-async def create_checkout_session(user_email: EmailRequest, request: Request, user=Depends(get_verified_user)):
+async def create_checkout_session(user_email: EmailRequest, user=Depends(get_verified_user)):
     base_url = os.environ.get("BASE_URL", "http://localhost:5000")
 
     try:

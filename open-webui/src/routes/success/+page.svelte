@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-
+	import { WEBUI_API_BASE_URL } from '$lib/constants';
 	let status: 'idle' | 'loading' | 'success' | 'error' = 'idle';
 	let message = '';
 
@@ -14,7 +14,7 @@
 		}
 		status = 'loading';
 		try {
-			const res = await fetch('http://localhost:8080/api/v1/payment/user/plan/update', {
+			const res = await fetch(`${WEBUI_API_BASE_URL}/payment/user/plan/update`, {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
