@@ -4,7 +4,18 @@ import { browser, dev } from '$app/environment';
 export const APP_NAME = 'Optiflex';
 
 export const WEBUI_HOSTNAME = browser ? (dev ? `${location.hostname}:8080` : ``) : '';
-export const WEBUI_BASE_URL = browser ? (dev ? `http://${WEBUI_HOSTNAME}` : ``) : ``;
+// export const WEBUI_BASE_URL = browser ? (dev ? `http://${WEBUI_HOSTNAME}` : ``) : ``;
+// 👇 Add this flag to control the base URL
+const FORCE_LOCAL = true;
+
+export const WEBUI_BASE_URL = browser
+  ? (FORCE_LOCAL
+      ? `http://localhost:8080`
+      : dev
+        ? `http://${location.hostname}:8080`
+        : `${location.origin}`)
+  : '';
+
 export const WEBUI_API_BASE_URL = `${WEBUI_BASE_URL}/api/v1`;
 
 export const OLLAMA_API_BASE_URL = `${WEBUI_BASE_URL}/ollama`;

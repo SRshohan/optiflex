@@ -82,7 +82,7 @@ def create_virtual_key(user_id: str, plan: str = "pro", user_email: str = "admin
     # Define budget and tier based on the plan
     budgets = {
         "starter": 10.0,  # $10 budget
-        "pro": 50.0,      # $50 budget
+        "pro": 20.0,      # $50 budget
         "custom": 200.0    # $200 budget
     }
 
@@ -91,16 +91,22 @@ def create_virtual_key(user_id: str, plan: str = "pro", user_email: str = "admin
         "Content-Type": "application/json"
     }
 
-    user_id = create_user_in_litellm(user_email, headers)
-    print("user_id from LiteLLM: ", user_id)
+    litellm_user_id = create_user_in_litellm(user_email, headers)
+    if not litellm_user_id:
+        # The error is already printed in the called function.
+        # Raise an exception to stop the process.
+        raise Exception("Failed to create or retrieve user in LiteLLM.")
+
+    print(f"Retrieved LiteLLM user ID: {litellm_user_id}")
     
-    payload = { "user_id":user_id,
-        "budget_id":"starter",
-        "models": ["gemini/gemini-2.5-flash", "xai/grok-3-mini", "gpt-4.1-mini"],
+    payload = { 
+        "user_id": litellm_user_id, # Use the ID from LiteLLM for the key owner
+        "budget_id": "starter",
+        "models": ["gemini/gemini-1.5-flash", "xai/grok-1.5-mini", "gpt-4o-mini"],
         # "max_budget": budgets.get(plan, 0.0),
         "duration": "30d",
         "metadata": {
-            "saas_user_id": user_id,
+            "saas_user_id": user_id, # Use the original Open WebUI user ID for tracking
             "subscription_tier": plan,
             "email": user_email
         }
@@ -211,19 +217,22 @@ def is_user_subscribed(user_email: str) -> bool:
 
 # Create a checkout session
 @router.post("/checkout/stripe-webhook")
-async def create_checkout_session(user_email: EmailRequest, request: Request, user=Depends(get_verified_user)):
-    base_url = os.environ.get("BASE_URL", "http://localhost:5000")
+async def create_checkout_session(user_email: EmailRequest, user=Depends(get_verified_user)):
+    # Use WEBUI_URL for the frontend, which is where Stripe should redirect the user.
+    # The default value points to the typical SvelteKit dev server address.
+    webui_url = os.environ.get("WEBUI_URL", "http://localhost:5173")
+    price_id = os.environ.get("STRIPE_PRICE_ID", "price_1RnVuMRoIzbn9VW9UJ5PimsV")
 
     try:
-        price_id = "price_1RnVuMRoIzbn9VW9UJ5PimsV"
         checkout_session = stripe.checkout.Session.create(
             customer_email=user_email.user_email,
             line_items=[{"price": price_id, "quantity": 1}],
             mode="subscription",
-            success_url="http://localhost:5173/success", # URL for successful payment
-            cancel_url=base_url + '/checkout/cancel',   # URL for canceled payment
+            # This now correctly points to your frontend success page
+            success_url=f"{webui_url}/success",
+            cancel_url=f"{webui_url}/cancel",
         )
-        print(f"Checkout session: {checkout_session.url}")
+        print(f"Checkout session created. Success URL: {checkout_session.success_url}")
         return {"checkout_url": checkout_session.url}
     
     except Exception as e:

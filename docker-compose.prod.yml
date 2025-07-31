@@ -1,0 +1,27 @@
+# Production configuration for Open WebUI
+# This file builds and runs the application in a production-ready state.
+
+services:
+  open-webui:
+    build:
+      # Use the 'open-webui' folder as the source.
+      context: ./open-webui
+      # Use the production Dockerfile which builds both the frontend and backend.
+      dockerfile: Dockerfile.prod
+    ports:
+      # Expose the application's port. You will point a Cloudflare Tunnel to this port.
+      - "8080:8080"
+    environment:
+      # --- TEMPORARY LOCAL PRODUCTION TEST CONFIGURATION ---
+      # For this local test, we use host.docker.internal to allow the container
+      # to connect to a service running on the host machine (your Mac).
+      - LITELLM_API_URL=http://host.docker.internal:4000
+      - WEBUI_URL=http://localhost:8080
+
+      # --- REQUIRED SECRETS (Using values from development) ---
+      - LITELLM_MASTER_KEY=sk-1234
+      - STRIPE_SECRET_KEY=sk_test_51RnVkeRoIzbn9VW93cGgiTl3K3XuncMdCP2D3WkEEKc2qLGiAe4V2gBHKRSAOdTKgzBBZY3CTqFOwNDHqzUgmP7900Yv2TTFvH
+      - STRIPE_PRICE_ID=price_1RnVuMRoIzbn9VW9UJ5PimsV
+      - STRIPE_WEBHOOK_SECRET=whsec_e33ed9d908019d2b044b89c8fe14725e2a26c29fb9785b8138802333e3f840bc
+
+    restart: unless-stopped 

@@ -1,0 +1,39 @@
+services:
+  open-webui:
+    # Use the same build context and Dockerfile as the production setup.
+    # The image will be the same, but we will run it differently.
+    build:
+      context: ./open-webui
+      dockerfile: Dockerfile.prod
+    ports:
+      # Expose the same port
+      - "8080:8080"
+    environment:
+      # For beta/production testing, use the public tunnel URL to reach the LiteLLM service.
+      # Replace the URL below with the one from your ngrok terminal.
+      - LITELLM_API_URL=https://YOUR_UNIQUE_NGROK_URL.ngrok-free.app
+      - LITELLM_MASTER_KEY=sk-1234
+      # This tells the backend where the frontend is running, so it can create correct redirect URLs for Stripe.
+      - WEBUI_URL=http://localhost:5173
+      - BASE_URL=http://localhost:8080
+      - STRIPE_PRICE_ID=price_1RnVuMRoIzbn9VW9UJ5PimsV
+      - STRIPE_SECRET_KEY=sk_test_51RnVkeRoIzbn9VW93cGgiTl3K3XuncMdCP2D3WkEEKc2qLGiAe4V2gBHKRSAOdTKgzBBZY3CTqFOwNDHqzUgmP7900Yv2TTFvH
+      - STRIPE_WEBHOOK_SECRET=whsec_e33ed9d908019d2b044b89c8fe14725e2a26c29fb9785b8138802333e3f840bc
+    networks:
+      - litellm_network
+    volumes:
+      # This is the magic part for development:
+      # It mounts your local 'open-webui' folder into the '/app' directory inside the container.
+      # Any change you save on your machine is instantly available in the container.
+      - ./open-webui:/app
+    command: >
+      sh -c "
+      pip install watchdog &&
+      cd backend &&
+      uvicorn open_webui.main:app --host 0.0.0.0 --port 8080 --reload
+      "
+
+networks:
+  litellm_network:
+    name: litellm_network
+    external: true 

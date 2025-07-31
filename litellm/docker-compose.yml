@@ -1,9 +1,9 @@
 services:
   litellm:
-    build:
-      context: .
-      args:
-        target: runtime
+    # build:
+    #   context: .
+    #   args:
+    #     target: runtime
     image: ghcr.io/berriai/litellm:main-stable
     #########################################
     ## Uncomment these lines to start proxy with a config.yaml file ##

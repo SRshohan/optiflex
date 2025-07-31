@@ -1,0 +1,49 @@
+# Stage 1: Build the frontend
+# We start with a Node.js image to get the 'npm' command. This is a temporary "workshop".
+FROM node:22-alpine AS frontend
+WORKDIR /app
+
+# Copy dependency files first to optimize Docker's cache.
+COPY package.json package-lock.json ./
+# Install all the libraries needed to build the frontend.
+RUN npm install
+
+# Copy the rest of the source code.
+COPY . .
+
+# Run the production build script. This creates the static frontend files in /app/build.
+RUN NODE_OPTIONS=--max-old-space-size=4096 npm run build
+
+# --- End of Stage 1 ---
+
+# Stage 2: Assemble the final image
+# We start fresh with a lean Python image.
+FROM python:3.11-slim
+WORKDIR /app
+
+# Copy the final, built frontend from our temporary "workshop" stage.
+COPY --from=frontend /app/build ./build
+
+# Copy the package.json, which the backend needs to read the app version.
+COPY --from=frontend /app/package.json ./package.json
+
+# Copy the backend source code.
+COPY ./backend ./backend
+
+# Create the data directory that the application needs to store its database.
+RUN mkdir -p /app/backend/data
+
+# Install the Python backend's dependencies.
+RUN pip install -r backend/requirements.txt
+
+# Make the start script executable.
+RUN chmod +x backend/start.sh
+
+# Document that the application inside will be listening on this port.
+EXPOSE 8080
+
+# The command to run when the container starts.
+CMD ["bash", "backend/start.sh"]
+
+
+

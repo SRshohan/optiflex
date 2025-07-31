@@ -12,6 +12,7 @@ cd open-webui\backend
 ## 3. Check Python Version
 Make sure you are using Python 3.11.x:
 ```sh
+
 python --version
 ```
 You should see output like:
@@ -201,3 +202,102 @@ Below is an example configuration for generating a virtual key in LiteLLM:
 ---
 
 For more advanced usage, see the LiteLLM docs or your SaaS backend logic for dynamic key generation. 
+
+
+
+# Stripe Webhook Setup Guide
+
+## Overview
+This section explains how to set up and test webhooks for Stripe, which are crucial for handling payment events and user subscriptions.
+
+---
+
+### **The Core Problem: Stripe Can't See Your `localhost`**
+
+First, let's establish the fundamental problem.
+*   When a payment happens, Stripe's servers need to tell your backend application about it. They do this by sending an HTTP request called a **webhook**.
+*   Your backend, running with `sh dev.sh`, is listening on an address like `http://localhost:8080`.
+*   The `localhost` address is only visible *to your computer*. Stripe's servers on the internet have no way to find or connect to it. It's like trying to mail a letter to someone by only writing "my house" as the address.
+
+So, the challenge is: **How do we create a secure, temporary bridge from the public internet to our local backend server?**
+
+### **The Solution: The Stripe CLI and Webhook Forwarding**
+
+The official and standard way to solve this is by using the **Stripe CLI (Command Line Interface)**.
+
+The Stripe CLI is a powerful developer tool that does two key things for you:
+
+1.  **It provides a secure tunnel:** It has a command that connects to Stripe's servers, creates a temporary public URL, and forwards any webhook traffic sent to that URL directly to your `localhost`.
+2.  **It lets you simulate events:** You can use it to trigger fake events (like a successful payment) without having to use a real credit card, which makes testing incredibly fast.
+
+Here is my suggestion for how to set this up, step-by-step.
+
+---
+
+### **Suggested Step-by-Step Guide**
+
+#### **Step 1: Install the Stripe CLI**
+
+First, you need to install the tool itself. Open your terminal on your local machine.
+
+*   **If you use Homebrew on macOS (most common):**
+    ```bash
+    brew install stripe/stripe-cli/stripe
+    ```
+*   **If you're on Linux or Windows:** Follow the official, easy-to-use instructions on the [Stripe CLI website](https://stripe.com/docs/stripe-cli).
+
+#### **Step 2: Authenticate the CLI with Your Stripe Account**
+
+Next, you need to link the CLI to your Stripe account. This is a one-time setup.
+
+1.  Run the following command in your terminal:
+    ```bash
+    stripe login
+    ```
+2.  This command will print a URL. Copy and paste it into your browser.
+3.  Your browser will ask you to log in to Stripe and grant access to the CLI. Click "Allow".
+4.  You'll get a confirmation, and your terminal will now be connected to your Stripe account.
+
+#### **Step 3: Start Your Local Backend Server**
+
+This is the step you already know. In a separate terminal window:
+1.  Navigate to the `open-webui/backend` directory.
+2.  Run `sh dev.sh` to start the Python server.
+3.  Make a note of the port it's running on (it's almost certainly `8080`).
+
+#### **Step 4: Start the Stripe Webhook Tunnel**
+
+This is the main event. In the terminal where you have the Stripe CLI installed:
+
+1.  Run the following command:
+    ```bash
+    stripe listen --forward-to localhost:8080/api/v1/webhooks/stripe
+    ```
+
+Let's break down that command:
+*   `stripe listen`: This tells the CLI to start listening for webhook events.
+*   `--forward-to`: This tells the CLI where to send the events it receives.
+*   `localhost:8080`: This is the address of your local backend server.
+*   `/api/v1/webhooks/stripe`: This is the specific API endpoint within your backend code that is designed to process incoming webhooks from Stripe.
+
+When you run this, the Stripe CLI will output a webhook signing secret that looks like `whsec_...`. Your application needs this key to verify that the webhooks are actually from Stripe. You'll likely need to set this as an environment variable (e.g., `STRIPE_WEBHOOK_SECRET`) for your backend to use.
+
+#### **Step 5: Test by Triggering a Fake Event**
+
+Now you have a tunnel running. How do you test it?
+
+Open a **third** terminal window. Use the Stripe CLI to trigger a test event. For example, to simulate a successful payment:
+
+```bash
+stripe trigger payment_intent.succeeded
+```
+
+**What will happen:**
+1.  The `stripe trigger` command tells Stripe's servers to create a fake "payment succeeded" event.
+2.  Stripe's servers will send a webhook for this event to your `stripe listen` process.
+3.  Your `stripe listen` process will receive the webhook and instantly forward it to `http://localhost:8080/api/v1/webhooks/stripe`.
+4.  You should see activity in the terminal window where your `dev.sh` server is running, as it processes the request.
+
+This setup allows you to fully test your payment integration locally without deploying anything or using real credit card data. It's the standard, professional workflow for Stripe development. 
+
+
