@@ -50,7 +50,7 @@ start_windows.bat
 **You can now access the backend at** [http://localhost:8080](http://localhost:8080)
 
 
-### 7. Update 
+
 
 # Open WebUI: Direct Connections API Usage Guide
 
@@ -204,6 +204,7 @@ Below is an example configuration for generating a virtual key in LiteLLM:
 For more advanced usage, see the LiteLLM docs or your SaaS backend logic for dynamic key generation. 
 
 
+
 # Stripe Webhook Setup Guide
 
 ## Overview
@@ -298,3 +299,5 @@ stripe trigger payment_intent.succeeded
 4.  You should see activity in the terminal window where your `dev.sh` server is running, as it processes the request.
 
 This setup allows you to fully test your payment integration locally without deploying anything or using real credit card data. It's the standard, professional workflow for Stripe development. 
+
+
