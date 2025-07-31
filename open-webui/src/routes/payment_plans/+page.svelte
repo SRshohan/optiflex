@@ -5,14 +5,12 @@
 	const token = localStorage.getItem('token');
 
     async function getUserEmail(token: string) {
-		alert('Attempting to get user email');
-		alert(`Token from local storage: ${token}`);
         if (!token) {
 			alert('No token found');
             return null;
         }
 		try {
-		alert(`Fetching user email from ${WEBUI_API_BASE_URL}/auths`);
+		alert(`Fetching user email from ${WEBUI_API_BASE_URL}/auths/`);
         const res = await fetch(`${WEBUI_API_BASE_URL}/auths/`, {
             method: 'GET',
             headers: {
@@ -28,7 +26,6 @@
 			return null;
 		}
 			const data = await res.json();
-			alert(`User email Successfully found: ${data}`);
 			return data.email;
 		} catch (error) {
 			console.error('Error getting user email:', error);
@@ -39,7 +36,6 @@
 	async function handleUpgrade(plan: string) {
 		if (plan === 'pro') {
 			// const token = localStorage.getItem('token'); // Get the user's OpenWebUI token
-			alert(`Token plan upgrade: ${token}`);
 			if (!token) {
 				alert('You must be logged in to upgrade.');
 				return;
@@ -49,7 +45,6 @@
 				alert('Failed to get user email');
 				return;
 			}
-            alert(userEmail);
 			const res = await fetch(`${WEBUI_API_BASE_URL}/payment/checkout/stripe-webhook`, {
 				method: 'POST',
 				headers: {
@@ -62,7 +57,6 @@
 			});
 			if (res.ok) {
 				const data = await res.json();
-                alert(data);
 				if (data.checkout_url) {
 					// Redirect to Stripe Checkout
 					window.location.href = data.checkout_url;
