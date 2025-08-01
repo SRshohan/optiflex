@@ -12,8 +12,8 @@ services:
       - "8080:8080"
     environment:
       # Tell the backend where to find your LiteLLM service.
-      - LITELLM_API_URL=http://127.0.0.1:4000
-      - BASE_URL=http://127.0.0.1:8080
+      - LITELLM_API_URL=https://proxy-server.optiflex.ai
+      - BASE_URL=https://webui.optiflex.ai
     networks:
       # Connect this container to the network used by LiteLLM.
       - litellm_network

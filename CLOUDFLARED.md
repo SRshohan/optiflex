@@ -306,3 +306,6 @@ cloudflared tunnel delete your-tunnel-name
 - Configure caching rules
 
 Your cloudflared tunnel with custom domain is now ready to use!
+
+
+Master Key = M1xcoff33
