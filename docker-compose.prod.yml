@@ -15,8 +15,9 @@ services:
       # --- TEMPORARY LOCAL PRODUCTION TEST CONFIGURATION ---
       # For this local test, we use host.docker.internal to allow the container
       # to connect to a service running on the host machine (your Mac).
-      - LITELLM_API_URL=http://host.docker.internal:4000
-      - WEBUI_URL=http://localhost:8080
+      - LITELLM_API_URL=https://proxy-server.optiflex.ai
+      - WEBUI_URL=https://www.optiflex.ai
+      - CORS_ALLOW_ORIGIN=https://www.optiflex.ai
 
       # --- REQUIRED SECRETS (Using values from development) ---
       - LITELLM_MASTER_KEY=sk-1234
