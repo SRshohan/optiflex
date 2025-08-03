@@ -1,0 +1,14 @@
+version: '3.8'
+services:
+  dashboard:
+    build:
+      context: ./middle
+      dockerfile: Dockerfile.dashboard
+    ports:
+      - "8501:8501"
+    networks:
+      - litellm_network
+
+networks:
+  litellm_network:
+    external: true
