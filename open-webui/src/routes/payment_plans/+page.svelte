@@ -52,7 +52,8 @@
 					'Authorization': `Bearer ${token}`
 				},
                 body: JSON.stringify({
-                    user_email: userEmail
+                    user_email: userEmail,
+					plan: plan
                 })
 			});
 			if (res.ok) {

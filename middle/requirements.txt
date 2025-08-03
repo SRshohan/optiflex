@@ -1,5 +1,4 @@
-fastapi
-uvicorn[standard]
-python-dotenv
-stripe
-requests 
+streamlit
+pandas
+psycopg2-binary
+plotly

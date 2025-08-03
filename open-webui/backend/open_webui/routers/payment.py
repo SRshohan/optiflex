@@ -11,19 +11,6 @@ import os
 import requests
 from pydantic import BaseModel
 
-# from open_webui.models.auths import (
-#     AddUserForm,
-#     ApiKey,
-#     Auths,
-#     Token,
-#     LdapForm,
-#     SigninForm,
-#     SigninResponse,
-#     SignupForm,
-#     UpdatePasswordForm,
-#     UpdateProfileForm,
-#     UserResponse,
-# )
 from open_webui.models.users import Users, UserSettings
 from open_webui.utils.auth import get_verified_user
 from open_webui.utils.access_control import has_permission
