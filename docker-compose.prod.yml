@@ -18,7 +18,7 @@ services:
       - LITELLM_API_URL=https://proxy-server.optiflex.ai
       - WEBUI_URL=https://www.optiflex.ai
       - CORS_ALLOW_ORIGIN=https://www.optiflex.ai
-      - PLAN_TEST=free
+      - PLAN_TEST=pro
       # --- REQUIRED SECRETS (Using values from development) ---
       - LITELLM_MASTER_KEY=sk-1234
       - STRIPE_SECRET_KEY=sk_test_51RnVkeRoIzbn9VW93cGgiTl3K3XuncMdCP2D3WkEEKc2qLGiAe4V2gBHKRSAOdTKgzBBZY3CTqFOwNDHqzUgmP7900Yv2TTFvH
