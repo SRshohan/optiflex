@@ -110,7 +110,7 @@ WEBUI_NAME = os.environ.get("WEBUI_NAME", "Optiflex")
 if WEBUI_NAME != "Optiflex":
     WEBUI_NAME += " (Optiflex)"
 
-# WEBUI_FAVICON_URL = "https://openwebui.com/favicon.png"
+WEBUI_FAVICON_URL = ""
 
 TRUSTED_SIGNATURE_KEY = os.environ.get("TRUSTED_SIGNATURE_KEY", "")
 
