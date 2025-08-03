@@ -23,11 +23,50 @@ LITELLM_MASTER_KEY = os.environ.get("LITELLM_MASTER_KEY", "sk-1234")
 
 stripe.api_key = os.environ.get("STRIPE_SECRET_KEY", "sk_test_51RnVkeRoIzbn9VW93cGgiTl3K3XuncMdCP2D3WkEEKc2qLGiAe4V2gBHKRSAOdTKgzBBZY3CTqFOwNDHqzUgmP7900Yv2TTFvH")
 STRIPE_WEBHOOK_SECRET = os.environ.get("STRIPE_WEBHOOK_SECRET", "whsec_e33ed9d908019d2b044b89c8fe14725e2a26c29fb9785b8138802333e3f840bc")
-
+PLAN_TEST = os.environ.get("PLAN_TEST", "free")
 
 class EmailRequest(BaseModel):
     user_email: str
 
+def check_user_in_litellm(email):
+    """
+    Check if user exists in LiteLLM and get their subscription status
+    """
+    try:
+        # LiteLLM API endpoint to get user info
+        url = f"{LITELLM_API_URL}/user/info"  # or your LiteLLM URL
+        
+        headers = {
+            "Authorization": f"Bearer {LITELLM_MASTER_KEY}",  # Your LiteLLM master key
+            "Content-Type": "application/json"
+        }
+        
+        # Method 1: Try to get user by email
+        params = {"email": email}
+        response = requests.get(url, headers=headers, params=params)
+        
+        if response.status_code == 200:
+            user_data = response.json()
+            return {
+                "exists": True,
+                "user_data": user_data
+            }
+        elif response.status_code == 404:
+            return {
+                "exists": False,
+                "user_data": None
+            }
+        else:
+            return {
+                "exists": False,
+                "error": f"API error: {response.status_code}"
+            }
+            
+    except Exception as e:
+        return {
+            "exists": False,
+            "error": f"Connection error: {str(e)}"
+        }
 
 # Create a user in LiteLLM
 def create_user_in_litellm(user_email: str, headers: dict):
@@ -51,7 +90,7 @@ def create_user_in_litellm(user_email: str, headers: dict):
         return None
 
 # Create a virtual key in LiteLLM
-def create_virtual_key(user_id: str, plan: str = "pro", user_email: str = "admin@example.com") -> str:
+def create_virtual_key(user_id: str, plan: str = "free", user_email: str = "admin@example.com") -> str:
     """
     Creates a virtual key in LiteLLM for a given user and plan.
 
@@ -68,9 +107,9 @@ def create_virtual_key(user_id: str, plan: str = "pro", user_email: str = "admin
 
     # Define budget and tier based on the plan
     budgets = {
-        "starter": 10.0,  # $10 budget
-        "pro": 20.0,      # $50 budget
-        "custom": 200.0    # $200 budget
+        "starter": {"budget": 10.0, "duration": "30d", "models": ["gemini/gemini-2.5-flash", "xai/grok-3-mini", "gpt-4.1-mini"]},  # $10 budget
+        "pro": {"budget": 20.0, "duration": "30d", "models": ["gemini/gemini-2.5-flash", "xai/grok-3", "gpt-4.1-mini", "xai/grok-3-mini,"]},      # $50 budget
+        "superultra": {"budget": 200.0, "duration": "30d", "models": ["gemini/gemini-2.5-flash", "xai/grok-4", "gpt-4.1-mini", "claude-4-sonnet-20250514", "claude-4-opus-20250514", "	gemini/gemini-2.0-pro-exp-02-05"]}    # $200 budget
     }
 
     headers = {
@@ -78,20 +117,25 @@ def create_virtual_key(user_id: str, plan: str = "pro", user_email: str = "admin
         "Content-Type": "application/json"
     }
 
-    litellm_user_id = create_user_in_litellm(user_email, headers)
-    if not litellm_user_id:
-        # The error is already printed in the called function.
-        # Raise an exception to stop the process.
-        raise Exception("Failed to create or retrieve user in LiteLLM.")
+    # Check if user exists in LiteLLM
+    user_data = check_user_in_litellm(user_email)
+
+    if user_data["exists"]:
+        litellm_user_id = user_data["user_data"]["user_id"]
+    else:
+        # Create user in LiteLLM
+        litellm_user_id = create_user_in_litellm(user_email, headers)
+        if not litellm_user_id:
+            raise Exception("Failed to create or retrieve user in LiteLLM.")
 
     print(f"Retrieved LiteLLM user ID: {litellm_user_id}")
     
     payload = { 
         "user_id": litellm_user_id, # Use the ID from LiteLLM for the key owner
-        "budget_id": "starter",
-        "models": ["gemini/gemini-1.5-flash", "xai/grok-1.5-mini", "gpt-4o-mini"],
-        # "max_budget": budgets.get(plan, 0.0),
-        "duration": "30d",
+        "budget_id": PLAN_TEST,
+        "models": budgets.get(plan, {}).get("models", []),
+        # "max_budget": budgets.get(plan, {}).get("budget", 0.0),
+        "duration": budgets.get(plan, {}).get("duration", "30d"),
         "metadata": {
             "saas_user_id": user_id, # Use the original Open WebUI user ID for tracking
             "subscription_tier": plan,

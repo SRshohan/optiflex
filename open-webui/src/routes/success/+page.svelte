@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { WEBUI_API_BASE_URL } from '$lib/constants';
+	import { goto } from '$app/navigation';
 	let status: 'idle' | 'loading' | 'success' | 'error' = 'idle';
 	let message = '';
 
@@ -26,9 +27,11 @@
 			if (res.ok) {
 				status = 'success';
 				message = 'Your account has been upgraded!';
+				goto('/');
+				return;
 			} else {
 				status = 'error';
-				message = 'Failed to update settings: ' + (data.detail || 'Unknown error');
+				message = 'Failed to update settings';
 			}
 		} catch (err) {
 			status = 'error';

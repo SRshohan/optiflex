@@ -8,7 +8,8 @@ services:
       - "8501:8501"
     networks:
       - litellm_network
-
+    environment:
+      - HOST_NAME=litellm_db
 networks:
   litellm_network:
     external: true

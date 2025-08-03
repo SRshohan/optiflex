@@ -238,17 +238,17 @@
 					Couldn't find your language?
 					<a
 						class=" text-gray-300 font-medium underline"
-						href="https://github.com/open-webui/open-webui/blob/main/docs/CONTRIBUTING.md#-translations-and-internationalization"
+						href="mailto:sales@optiflex.ai"
 						target="_blank"
 					>
-						Help us translate Optiflex!
+					Let us know!
 					</a>
 				</div>
 			{/if}
 
 			<div>
 				<div class=" py-0.5 flex w-full justify-between">
-					<div class=" self-center text-xs font-medium">{$i18n.t('Notifications')}</div>
+					<!-- <div class=" self-center text-xs font-medium">{$i18n.t('Notifications')}</div> -->
 
 					<button
 						class="p-1 px-3 text-xs flex rounded-sm transition"
@@ -257,11 +257,11 @@
 						}}
 						type="button"
 					>
-						{#if notificationEnabled === true}
+						<!-- {#if notificationEnabled === true}
 							<span class="ml-2 self-center">{$i18n.t('On')}</span>
 						{:else}
 							<span class="ml-2 self-center">{$i18n.t('Off')}</span>
-						{/if}
+						{/if} -->
 					</button>
 				</div>
 			</div>
