@@ -4,6 +4,9 @@ import pandas as pd
 import plotly.express as px
 from datetime import datetime, timedelta
 import json
+import os
+
+HOST_NAME = os.getenv("HOST_NAME", "localhost")
 
 # Page config
 st.set_page_config(
@@ -15,7 +18,7 @@ st.set_page_config(
 # Load users from JSON file
 def load_users():
     try:
-        with open('user.json', 'r') as f:
+        with open('./user.json', 'r') as f:
             return json.load(f)
     except FileNotFoundError:
         return {}
@@ -31,9 +34,327 @@ def get_db_connection():
         dbname="litellm",
         user="llmproxy", 
         password="dbpassword9090",
-        host="db",
+        host=HOST_NAME,
         port=5432
     )
+
+# Get budget information for users
+def get_user_budget_info():
+    try:
+        conn = get_db_connection()
+        cur = conn.cursor()
+        
+        # Get budget table info with model_max_budget
+        cur.execute("""
+            SELECT 
+                budget_id,
+                max_budget,
+                soft_budget,
+                budget_duration,
+                model_max_budget,
+                created_at
+            FROM "LiteLLM_BudgetTable"
+            ORDER BY created_at DESC
+        """)
+        budgets = cur.fetchall()
+        
+        # Get user usage from SpendLogs
+        cur.execute("""
+            SELECT 
+                u.user_email,
+                s.model,
+                SUM(s.spend) as total_spend,
+                COUNT(*) as request_count,
+                MAX(s."startTime") as last_request
+            FROM "LiteLLM_SpendLogs" s
+            JOIN "LiteLLM_UserTable" u ON s."user" = u.user_id
+            WHERE s."user" IS NOT NULL AND s."user" != ''
+            GROUP BY u.user_email, s.model
+            ORDER BY u.user_email, total_spend DESC
+        """)
+        user_usage = cur.fetchall()
+        
+        # Get recent spend data for budget tracking
+        cur.execute("""
+            SELECT 
+                u.user_email,
+                s.model,
+                s.spend,
+                s."startTime",
+                s."status"
+            FROM "LiteLLM_SpendLogs" s
+            JOIN "LiteLLM_UserTable" u ON s."user" = u.user_id
+            WHERE s."user" IS NOT NULL AND s."user" != ''
+            ORDER BY s."startTime" DESC
+            LIMIT 100
+        """)
+        recent_spend = cur.fetchall()
+        
+        cur.close()
+        conn.close()
+        
+        return budgets, user_usage, recent_spend
+        
+    except Exception as e:
+        st.error(f"Error getting budget info: {e}")
+        return [], [], []
+
+# Calculate budget alerts for users with model-specific budgets
+def calculate_budget_alerts(budgets, user_usage, recent_spend):
+    alerts = []
+    
+    if not budgets:
+        return alerts  # No budgets configured
+    
+    # Process each budget
+    for budget in budgets:
+        budget_id, max_budget, soft_budget, duration, model_max_budget, created = budget
+        
+        # Handle NULL values
+        max_budget = max_budget if max_budget is not None else 0
+        soft_budget = soft_budget if soft_budget is not None else 0
+        
+        # Parse model_max_budget (it's stored as JSON)
+        model_budgets = {}
+        if model_max_budget:
+            try:
+                if isinstance(model_max_budget, str):
+                    import json
+                    model_budgets = json.loads(model_max_budget)
+                else:
+                    model_budgets = model_max_budget
+            except:
+                model_budgets = {}
+        
+        # Check each user's usage against both global and model-specific budgets
+        for usage in user_usage:
+            user_email, model, total_spend, request_count, last_request = usage
+            
+            # Handle NULL values in usage
+            total_spend = total_spend if total_spend is not None else 0
+            request_count = request_count if request_count is not None else 0
+            
+            # Check global budget
+            global_alert_level = "none"
+            global_percentage = 0
+            
+            if max_budget > 0:
+                global_percentage = (total_spend / max_budget) * 100
+                if total_spend >= max_budget:
+                    global_alert_level = "exceeded"
+                elif soft_budget > 0 and total_spend >= soft_budget:
+                    global_alert_level = "warning"
+                elif global_percentage >= 80:
+                    global_alert_level = "high"
+                elif global_percentage >= 60:
+                    global_alert_level = "medium"
+            
+            # Check model-specific budget
+            model_alert_level = "none"
+            model_percentage = 0
+            model_max = 0
+            model_soft = 0
+            
+            if model in model_budgets:
+                model_config = model_budgets[model]
+                model_max = model_config.get('max_budget', 0)
+                model_soft = model_config.get('soft_budget', 0)
+                
+                if model_max > 0:
+                    model_percentage = (total_spend / model_max) * 100
+                    if total_spend >= model_max:
+                        model_alert_level = "exceeded"
+                    elif model_soft > 0 and total_spend >= model_soft:
+                        model_alert_level = "warning"
+                    elif model_percentage >= 80:
+                        model_alert_level = "high"
+                    elif model_percentage >= 60:
+                        model_alert_level = "medium"
+            
+            # Use the higher alert level (model-specific takes precedence)
+            final_alert_level = model_alert_level if model_alert_level != "none" else global_alert_level
+            final_percentage = model_percentage if model_alert_level != "none" else global_percentage
+            final_max_budget = model_max if model_alert_level != "none" else max_budget
+            final_soft_budget = model_soft if model_alert_level != "none" else soft_budget
+            
+            if final_alert_level != "none":
+                alerts.append({
+                    'user_email': user_email,
+                    'model': model,
+                    'total_spend': total_spend,
+                    'max_budget': final_max_budget,
+                    'soft_budget': final_soft_budget,
+                    'percentage_used': final_percentage,
+                    'alert_level': final_alert_level,
+                    'request_count': request_count,
+                    'last_request': last_request,
+                    'budget_id': budget_id,
+                    'is_model_specific': model_alert_level != "none",
+                    'global_percentage': global_percentage,
+                    'model_percentage': model_percentage
+                })
+    
+    return alerts
+
+# Display budget alerts
+def show_budget_alerts(alerts):
+    if not alerts:
+        st.success("✅ All users are within budget limits")
+        return
+    
+    st.subheader("🚨 Budget Alerts")
+    
+    # Group alerts by level
+    exceeded = [a for a in alerts if a['alert_level'] == 'exceeded']
+    warnings = [a for a in alerts if a['alert_level'] == 'warning']
+    high = [a for a in alerts if a['alert_level'] == 'high']
+    medium = [a for a in alerts if a['alert_level'] == 'medium']
+    
+    # Show exceeded budgets first
+    if exceeded:
+        st.error(" BUDGET EXCEEDED")
+        for alert in exceeded:
+            budget_type = "Model-Specific" if alert['is_model_specific'] else "Global"
+            with st.expander(f"❌ {alert['user_email']} - {alert['model']} (${alert['total_spend']:.2f}/{alert['max_budget']:.2f}) - {budget_type}"):
+                col1, col2 = st.columns(2)
+                with col1:
+                    st.metric("Spent", f"${alert['total_spend']:.2f}")
+                    st.metric("Budget", f"${alert['max_budget']:.2f}")
+                    st.metric("Budget Type", budget_type)
+                with col2:
+                    st.metric("Requests", alert['request_count'])
+                    st.metric("Last Request", alert['last_request'].strftime('%Y-%m-%d %H:%M') if alert['last_request'] else 'N/A')
+                    st.metric("Usage %", f"{alert['percentage_used']:.1f}%")
+                
+                # Progress bar showing overage
+                overage = alert['total_spend'] - alert['max_budget']
+                st.progress(1.0)
+                st.error(f"💰 ${overage:.2f} OVER BUDGET")
+                
+                # Show both global and model percentages if applicable
+                if alert['is_model_specific'] and alert['global_percentage'] > 0:
+                    st.info(f"Global budget usage: {alert['global_percentage']:.1f}%")
+    
+    # Show warning budgets
+    if warnings:
+        st.warning("⚠️ SOFT BUDGET WARNING")
+        for alert in warnings:
+            budget_type = "Model-Specific" if alert['is_model_specific'] else "Global"
+            with st.expander(f"⚠️ {alert['user_email']} - {alert['model']} (${alert['total_spend']:.2f}/{alert['max_budget']:.2f}) - {budget_type}"):
+                col1, col2 = st.columns(2)
+                with col1:
+                    st.metric("Spent", f"${alert['total_spend']:.2f}")
+                    st.metric("Soft Limit", f"${alert['soft_budget']:.2f}")
+                    st.metric("Budget Type", budget_type)
+                with col2:
+                    st.metric("Remaining", f"${alert['max_budget'] - alert['total_spend']:.2f}")
+                    st.metric("Usage %", f"{alert['percentage_used']:.1f}%")
+                
+                # Progress bar
+                progress = min(alert['total_spend'] / alert['max_budget'], 1.0)
+                st.progress(progress)
+    
+    # Show high usage
+    if high:
+        st.info("📈 HIGH USAGE (80%+)")
+        for alert in high:
+            budget_type = "Model-Specific" if alert['is_model_specific'] else "Global"
+            with st.expander(f" {alert['user_email']} - {alert['model']} ({alert['percentage_used']:.1f}%) - {budget_type}"):
+                col1, col2 = st.columns(2)
+                with col1:
+                    st.metric("Spent", f"${alert['total_spend']:.2f}")
+                    st.metric("Remaining", f"${alert['max_budget'] - alert['total_spend']:.2f}")
+                    st.metric("Budget Type", budget_type)
+                with col2:
+                    st.metric("Usage %", f"{alert['percentage_used']:.1f}%")
+                    st.metric("Requests", alert['request_count'])
+                
+                # Progress bar
+                progress = alert['total_spend'] / alert['max_budget']
+                st.progress(progress)
+    
+    # Show medium usage
+    if medium:
+        st.info("📊 MEDIUM USAGE (60%+)")
+        for alert in medium:
+            budget_type = "Model-Specific" if alert['is_model_specific'] else "Global"
+            with st.expander(f" {alert['user_email']} - {alert['model']} ({alert['percentage_used']:.1f}%) - {budget_type}"):
+                col1, col2 = st.columns(2)
+                with col1:
+                    st.metric("Spent", f"${alert['total_spend']:.2f}")
+                    st.metric("Remaining", f"${alert['max_budget'] - alert['total_spend']:.2f}")
+                    st.metric("Budget Type", budget_type)
+                with col2:
+                    st.metric("Usage %", f"{alert['percentage_used']:.1f}%")
+                    st.metric("Requests", alert['request_count'])
+                
+                # Progress bar
+                progress = alert['total_spend'] / alert['max_budget']
+                st.progress(progress)
+
+# Show budget configuration
+def show_budget_config(budgets):
+    if not budgets:
+        st.info("💰 No budgets configured yet")
+        st.write("To set up budgets, use the LiteLLM API or admin interface")
+        return
+    
+    st.subheader("💰 Budget Configuration")
+    
+    for budget in budgets:
+        budget_id, max_budget, soft_budget, duration, model_max_budget, created = budget
+        
+        # Handle NULL values
+        max_budget = max_budget if max_budget is not None else 0
+        soft_budget = soft_budget if soft_budget is not None else 0
+        
+        # Parse model_max_budget
+        model_budgets = {}
+        if model_max_budget:
+            try:
+                if isinstance(model_max_budget, str):
+                    import json
+                    model_budgets = json.loads(model_max_budget)
+                else:
+                    model_budgets = model_max_budget
+            except:
+                model_budgets = {}
+        
+        col1, col2, col3 = st.columns(3)
+        
+        with col1:
+            st.metric("Budget ID", budget_id)
+            st.metric("Global Max Budget", f"${max_budget:.2f}" if max_budget else "Not set")
+        
+        with col2:
+            st.metric("Global Soft Budget", f"${soft_budget:.2f}" if soft_budget else "Not set")
+            st.metric("Duration", duration if duration else "Not set")
+        
+        with col3:
+            st.metric("Created", created.strftime('%Y-%m-%d') if created else "Unknown")
+            st.metric("Model Budgets", len(model_budgets))
+        
+        # Show model-specific budgets
+        if model_budgets:
+            st.subheader("🤖 Model-Specific Budgets")
+            for model, config in model_budgets.items():
+                model_max = config.get('max_budget', 0)
+                model_soft = config.get('soft_budget', 0)
+                model_duration = config.get('budget_duration', 'Not set')
+                tpm_limit = config.get('tpm_limit', 'Not set')
+                rpm_limit = config.get('rpm_limit', 'Not set')
+                
+                col1, col2, col3, col4 = st.columns(4)
+                with col1:
+                    st.write(f"**{model}**")
+                    st.write(f"Max: ${model_max:.2f}")
+                with col2:
+                    st.write(f"Soft: ${model_soft:.2f}")
+                with col3:
+                    st.write(f"Duration: {model_duration}")
+                with col4:
+                    st.write(f"TPM: {tpm_limit}")
+                    st.write(f"RPM: {rpm_limit}")
 
 # Sign-in page
 def login():
@@ -86,6 +407,20 @@ def dashboard():
         """, unsafe_allow_html=True)
     
     try:
+        # Get budget information
+        budgets, user_usage, recent_spend = get_user_budget_info()
+        
+        # Show budget configuration
+        show_budget_config(budgets)
+        
+        # Calculate alerts
+        alerts = calculate_budget_alerts(budgets, user_usage, recent_spend)
+        
+        # Show budget alerts
+        show_budget_alerts(alerts)
+        
+        st.markdown("---")
+        
         conn = get_db_connection()
         
         # Get users and models for filters

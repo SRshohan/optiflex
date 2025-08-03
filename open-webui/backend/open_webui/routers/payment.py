@@ -68,15 +68,16 @@ def create_virtual_key(user_id: str, plan: str = "pro", user_email: str = "admin
 
     # Define budget and tier based on the plan
     budgets = {
-        "starter": 10.0,  # $10 budget
-        "pro": 20.0,      # $50 budget
-        "custom": 200.0    # $200 budget
+        "starter": {"budget": 10.0, "duration": "30d", "models": ["gemini/gemini-2.5-flash", "xai/grok-3-mini", "gpt-4.1-mini"]},  # $10 budget
+        "pro": {"budget": 20.0, "duration": "30d", "models": ["gemini/gemini-2.5-flash", "xai/grok-3", "gpt-4.1-mini", "xai/grok-3-mini,"]},      # $50 budget
+        "superultra": {"budget": 200.0, "duration": "30d", "models": ["gemini/gemini-2.5-flash", "xai/grok-4", "gpt-4.1-mini", "claude-4-sonnet-20250514", "claude-4-opus-20250514", "	gemini/gemini-2.0-pro-exp-02-05"]}    # $200 budget
     }
 
     headers = {
         "Authorization": f"Bearer {LITELLM_MASTER_KEY}",
         "Content-Type": "application/json"
     }
+
 
     litellm_user_id = create_user_in_litellm(user_email, headers)
     if not litellm_user_id:
@@ -88,10 +89,10 @@ def create_virtual_key(user_id: str, plan: str = "pro", user_email: str = "admin
     
     payload = { 
         "user_id": litellm_user_id, # Use the ID from LiteLLM for the key owner
-        "budget_id": "starter",
-        "models": ["gemini/gemini-1.5-flash", "xai/grok-1.5-mini", "gpt-4o-mini"],
-        # "max_budget": budgets.get(plan, 0.0),
-        "duration": "30d",
+        "budget_id": plan,
+        "models": budgets.get(plan, {}).get("models", []),
+        # "max_budget": budgets.get(plan, {}).get("budget", 0.0),
+        "duration": budgets.get(plan, {}).get("duration", "30d"),
         "metadata": {
             "saas_user_id": user_id, # Use the original Open WebUI user ID for tracking
             "subscription_tier": plan,
