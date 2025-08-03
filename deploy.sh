@@ -1,10 +1,17 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-echo "⭑ Pulling latest code…"
-git -C /home/user1/optiflex/optiflex pull
+# —— Configuration ——  
+PROJECT_DIR="/home/user1/optiflex/optiflex"
+COMPOSE_FILE="${PROJECT_DIR}/docker-compose.prod.yml"
+
+# —— Deploy steps ——  
+echo "⭑ Pulling latest code into ${PROJECT_DIR}…"
+cd "${PROJECT_DIR}"
+git pull
 
 echo "⭑ Building and restarting containers…"
-docker-compose -f /home/user1/optiflex/optiflex/docker-compose.prod.yml up -d --build
+sudo docker-compose -f "${COMPOSE_FILE}" up -d --build 
 
-echo "✔ Deploy complete!"
+echo "✔ Deploy complete! $(date '+%Y-%m-%d %H:%M:%S')"
+
