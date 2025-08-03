@@ -215,19 +215,19 @@
 			$user?.permissions?.features?.direct_tool_servers &&
 			$config?.features?.direct_tool_servers)
 			? [
-					{
-						id: 'tools',
-						title: 'Tools',
-						keywords: [
-							'addconnection',
-							'add connection',
-							'managetools',
-							'manage tools',
-							'manage tool servers',
-							'managetoolservers',
-							'settings'
-						]
-					}
+					// {
+					// 	id: 'tools',
+					// 	title: 'Tools',
+					// 	keywords: [
+					// 		'addconnection',
+					// 		'add connection',
+					// 		'managetools',
+					// 		'manage tools',
+					// 		'manage tool servers',
+					// 		'managetoolservers',
+					// 		'settings'
+					// 	]
+					// }
 				]
 			: []),
 
