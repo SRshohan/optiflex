@@ -20,7 +20,7 @@ services:
       - CORS_ALLOW_ORIGIN=https://www.optiflex.ai
       - PLAN_TEST=pro
       # --- REQUIRED SECRETS (Using values from development) ---
-      - LITELLM_MASTER_KEY=sk-1234
+      - LITELLM_MASTER_KEY=M1xcoff33
       - STRIPE_SECRET_KEY=sk_test_51RnVkeRoIzbn9VW93cGgiTl3K3XuncMdCP2D3WkEEKc2qLGiAe4V2gBHKRSAOdTKgzBBZY3CTqFOwNDHqzUgmP7900Yv2TTFvH
       - STRIPE_PRICE_ID=price_1RnVuMRoIzbn9VW9UJ5PimsV
       - STRIPE_WEBHOOK_SECRET=whsec_e33ed9d908019d2b044b89c8fe14725e2a26c29fb9785b8138802333e3f840bc
