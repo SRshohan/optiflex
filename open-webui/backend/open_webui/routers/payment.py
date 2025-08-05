@@ -121,6 +121,7 @@ def create_virtual_key(user_id: str, plan: str = "free", user_email: str = "admi
     # Check if user exists in LiteLLM
     user_data = check_user_in_litellm(user_email)
 
+    print(f"User data: {user_data}")
     if user_data["exists"]:
         litellm_user_id = user_data["user_data"]["user_id"]
     else:
