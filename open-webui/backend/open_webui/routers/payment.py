@@ -40,21 +40,20 @@ def check_user_in_litellm(email):
             "Authorization": f"Bearer {LITELLM_MASTER_KEY}", 
             "Content-Type": "application/json"
         }
-        
-        # Get all users and filter by email
-        response = requests.get(url, headers=headers)
+        # Use the correct API parameter for email filtering
+        payload = {"user_email": email}
+        response = requests.get(url, json=payload, headers=headers)
         
         if response.status_code == 200:
             user_data = response.json()
             
-            # Filter users by email
-            matching_users = [user for user in user_data.get("users", []) if user.get("user_email") == email]
-            
-            if matching_users:
-                # Return the first matching user
+            # Check if any users were returned
+            users = user_data.get("users", [])
+            if users:
+                # Return the first user (API already filtered by email)
                 return {
                     "exists": True,
-                    "user_data": matching_users[0]
+                    "user_data": users[0]
                 }
             else:
                 return {
@@ -124,11 +123,10 @@ def create_virtual_key(user_id: str, plan: str = "free", user_email: str = "admi
 
     # Check if user exists in LiteLLM
     user_data = check_user_in_litellm(user_email)
-    print(f"User data from LiteLLM: {user_data}")
 
     if user_data["exists"]:
         # Now user_data["user_data"] is the actual user object
-        litellm_user_id = user_data["user_data"]["user_id"]
+        litellm_user_id = user_data["users"][0]["user_id"]
         print(f"Found existing user in LiteLLM: {litellm_user_id}")
     else:
         # Create user in LiteLLM
