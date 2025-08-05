@@ -43,7 +43,7 @@ def check_user_in_litellm(email):
         
         # Method 1: Try to get user by email
         params = {"user_id": email}
-        response = requests.get(url, headers=headers, params=params)
+        response = requests.get(url, json=params, headers=headers)
         
         if response.status_code == 200:
             user_data = response.json()
