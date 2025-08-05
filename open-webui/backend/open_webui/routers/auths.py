@@ -5,6 +5,7 @@ import datetime
 import logging
 from aiohttp import ClientSession
 from fastapi import APIRouter, Request, Response, HTTPException, status, Depends
+from fastapi.responses import JSONResponse
 from firebase_admin import auth as firebase_auth, credentials, initialize_app
 import firebase_admin
 

@@ -9,12 +9,11 @@ services:
       # Expose the same port
       - "8080:8080"
     environment:
-      # For beta/production testing, use the public tunnel URL to reach the LiteLLM service.
-      # Replace the URL below with the one from your ngrok terminal.
+      # For development, use localhost to reach the LiteLLM service
       - LITELLM_API_URL=http://localhost:4000
       - LITELLM_MASTER_KEY=sk-1234
       # This tells the backend where the frontend is running, so it can create correct redirect URLs for Stripe.
-      - WEBUI_URL=http://localhost:8080
+      - WEBUI_URL=http://localhost:5173
       - PLAN_TEST=pro
       - STRIPE_PRICE_ID=price_1RnVuMRoIzbn9VW9UJ5PimsV
       - STRIPE_SECRET_KEY=sk_test_51RnVkeRoIzbn9VW93cGgiTl3K3XuncMdCP2D3WkEEKc2qLGiAe4V2gBHKRSAOdTKgzBBZY3CTqFOwNDHqzUgmP7900Yv2TTFvH
@@ -26,6 +25,12 @@ services:
       # It mounts your local 'open-webui' folder into the '/app' directory inside the container.
       # Any change you save on your machine is instantly available in the container.
       - ./open-webui:/app
+    command: >
+      bash -c "
+        cd /app/backend &&
+        uvicorn open_webui.main:app --host 0.0.0.0 --port 8080 --reload --log-level debug
+      "
+    restart: unless-stopped
 
 networks:
   litellm_network:
