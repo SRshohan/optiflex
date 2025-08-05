@@ -34,10 +34,10 @@ def check_user_in_litellm(email):
     """
     try:
         # LiteLLM API endpoint to get user info
-        url = f"{LITELLM_API_URL}/user/info"  # or your LiteLLM URL
+        url = f"{LITELLM_API_URL}/user/list"  
         
         headers = {
-            "Authorization": f"Bearer {LITELLM_MASTER_KEY}",  # Your LiteLLM master key
+            "Authorization": f"Bearer {LITELLM_MASTER_KEY}", 
             "Content-Type": "application/json"
         }
         
@@ -108,7 +108,7 @@ def create_virtual_key(user_id: str, plan: str = "free", user_email: str = "admi
     # Define budget and tier based on the plan
     budgets = {
         "starter": {"budget": 10.0, "duration": "30d", "models": ["gemini/gemini-2.5-flash", "xai/grok-3-mini", "gpt-4.1-mini"]},  # $10 budget
-        "pro": {"budget": 20.0, "duration": "30d", "models": ["gemini/gemini-2.5-flash", "xai/grok-3", "gpt-4.1-mini", "xai/grok-3-mini"]},      # $50 budget
+        "pro": {"budget": 20.0, "duration": "30d", "models": ["gemini/gemini-2.5-flash", "xai/grok-3", "gpt-4.1-mini", "xai/grok-3-mini", "xai/grok-4-0709", "claude-4-sonnet-20250514", "claude-4-opus-20250514", "gemini/gemini-2.5-pro", "openai/gpt-4o"]},      # $50 budget
         "superultra": {"budget": 200.0, "duration": "30d", "models": ["gemini/gemini-2.5-flash", "xai/grok-4", "gpt-4.1-mini", "claude-4-sonnet-20250514", "claude-4-opus-20250514", "	gemini/gemini-2.0-pro-exp-02-05"]}    # $200 budget
     }
 

@@ -2,27 +2,46 @@ version: '3.9'
 
 services:
   open-webui:
-    build:
-      # Use the 'open-webui' folder as the source for the build.
-      context: ./open-webui
-      # Specify our new production Dockerfile.
-      dockerfile: Dockerfile.prod
-    ports:
-      # Connect port 8080 on your VPS to port 8080 inside the container.
-      - "8080:8080"
-    environment:
-      # Tell the backend where to find your LiteLLM service.
-      - LITELLM_API_URL=https://proxy-server.optiflex.ai
-      - BASE_URL=https://webui.optiflex.ai
-    networks:
-      # Connect this container to the network used by LiteLLM.
-      - litellm_network
-    restart: unless-stopped
+    #  Use a pre-built image instead of building every time ---
+    # The 'build:' section has been removed.
+    # Replace 'your-webui-image:latest' with the actual name of your image on the VPS.
+    image: optiflex-open-webui:latest
 
+    restart: unless-stopped
+    ports:
+      # KEPT: This connects your VPS port to the container port.
+      - "8080:8080"
+
+    #  Add volumes for your code and persistent data ---
+    volumes:
+      # This "live links" your backend code for instant updates.
+      - ./open-webui/backend:/app/backend
+      # This uses a named volume to ensure your user data is never lost.
+      - webui_data:/app/backend/data
+
+    # KEPT: Your environment variables are essential for the application to run.
+    environment:
+      - LITELLM_API_URL=https://proxy-server.optiflex.ai
+      - WEBUI_URL=https://www.optiflex.ai
+      - CORS_ALLOW_ORIGIN=https://www.optiflex.ai
+      - PLAN_TEST=pro
+      # --- REQUIRED SECRETS (Using values from development) ---
+      - LITELLM_MASTER_KEY=M1xcoff33
+      - STRIPE_SECRET_KEY=sk_test_51RnVkeRoIzbn9VW93cGgiTl3K3XuncMdCP2D3WkEEKc2qLGiAe4V2gBHKRSAOdTKgzBBZY3CTqFOwNDHqzUgmP7900Yv2TTFvH
+      - STRIPE_PRICE_ID=price_1RnVuMRoIzbn9VW9UJ5PimsV
+      - STRIPE_WEBHOOK_SECRET=whsec_e33ed9d908019d2b044b89c8fe14725e2a26c29fb9785b8138802333e3f840bc
+    networks:
+      - litellm_network
+
+# --- CHANGE 3: Define the persistent data volume ---
+# This section formally creates the named volume 'webui_data'.
+volumes:
+  webui_data:
+    driver: local
+
+# KEPT: This defines the external network.
 networks:
   litellm_network:
-    # Tell Docker this network is created externally.
     name: litellm_network
     external: true
-
 
