@@ -23,7 +23,7 @@ LITELLM_MASTER_KEY = os.environ.get("LITELLM_MASTER_KEY", "sk-1234")
 
 stripe.api_key = os.environ.get("STRIPE_SECRET_KEY", "sk_test_51RnVkeRoIzbn9VW93cGgiTl3K3XuncMdCP2D3WkEEKc2qLGiAe4V2gBHKRSAOdTKgzBBZY3CTqFOwNDHqzUgmP7900Yv2TTFvH")
 STRIPE_WEBHOOK_SECRET = os.environ.get("STRIPE_WEBHOOK_SECRET", "whsec_e33ed9d908019d2b044b89c8fe14725e2a26c29fb9785b8138802333e3f840bc")
-PLAN_TEST = os.environ.get("PLAN_TEST", "free")
+PLAN_TEST = os.environ.get("PLAN_TEST", "pro")
 
 class EmailRequest(BaseModel):
     user_email: str
@@ -33,29 +33,34 @@ def check_user_in_litellm(email):
     Check if user exists in LiteLLM and get their subscription status
     """
     try:
-        # LiteLLM API endpoint to get user info
-        url = f"{LITELLM_API_URL}/user/info"  # or your LiteLLM URL
+        # LiteLLM API endpoint to get user list
+        url = f"{LITELLM_API_URL}/user/list"  
         
         headers = {
             "Authorization": f"Bearer {LITELLM_MASTER_KEY}", 
             "Content-Type": "application/json"
         }
         
-        # Method 1: Try to get user by email
-        params = {"user_id": email}
-        response = requests.get(url, json=params, headers=headers)
+        # Use the correct API parameter for email filtering
+        params = {"user_email": email}
+        response = requests.get(url, params=params, headers=headers)
         
         if response.status_code == 200:
             user_data = response.json()
-            return {
-                "exists": True,
-                "user_data": user_data
-            }
-        elif response.status_code == 404:
-            return {
-                "exists": False,
-                "user_data": None
-            }
+            
+            # Check if any users were returned
+            users = user_data.get("users", [])
+            if users:
+                # Return the first user (API already filtered by email)
+                return {
+                    "exists": True,
+                    "user_data": users[0]
+                }
+            else:
+                return {
+                    "exists": False,
+                    "user_data": None
+                }
         else:
             return {
                 "exists": False,
@@ -80,11 +85,15 @@ def create_user_in_litellm(user_email: str, headers: dict):
         "user_id": user_email
     }
 
+    print(f"Creating user with payload: {payload}")
     response = requests.post(f"{LITELLM_API_URL}/user/new", json=payload, headers=headers)
+    print(f"User creation response status: {response.status_code}")
+    print(f"User creation response: {response.text}")
 
     if response.status_code == 200:
         print(f"Successfully created LiteLLM user for {user_email}.")
         user_id = response.json()["user_id"]
+        print(f"LiteLLM user ID: {user_id}")
         return user_id
     else:
         print(f"Error creating LiteLLM user for {user_email}: {response.text}")
@@ -145,6 +154,7 @@ def create_virtual_key(user_id: str, plan: str = "free", user_email: str = "admi
         }
     }
 
+    print(f"Creating key with payload: {payload}")
     response = requests.post(f"{LITELLM_API_URL}/key/generate", json=payload, headers=headers)
 
     if response.status_code == 200:
@@ -153,6 +163,7 @@ def create_virtual_key(user_id: str, plan: str = "free", user_email: str = "admi
         return key_data["key"]
     else:
         print(f"Error creating LiteLLM key: {response.text}")
+        print(f"Response status: {response.status_code}")
         raise Exception("Failed to create LiteLLM virtual key.") 
 
 # --- Stripe Functions ---
