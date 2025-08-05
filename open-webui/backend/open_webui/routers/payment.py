@@ -34,32 +34,28 @@ def check_user_in_litellm(email):
     """
     try:
         # LiteLLM API endpoint to get user info
-        url = f"{LITELLM_API_URL}/user/list"  
+        url = f"{LITELLM_API_URL}/user/info"  # or your LiteLLM URL
         
         headers = {
             "Authorization": f"Bearer {LITELLM_MASTER_KEY}", 
             "Content-Type": "application/json"
         }
-        # Use the correct API parameter for email filtering
-        payload = {"user_email": email}
-        response = requests.get(url, json=payload, headers=headers)
+        
+        # Method 1: Try to get user by email
+        params = {"user_id": email}
+        response = requests.get(url, headers=headers, params=params)
         
         if response.status_code == 200:
             user_data = response.json()
-            
-            # Check if any users were returned
-            users = user_data.get("users", [])
-            if users:
-                # Return the first user (API already filtered by email)
-                return {
-                    "exists": True,
-                    "user_data": users[0]
-                }
-            else:
-                return {
-                    "exists": False,
-                    "user_data": None
-                }
+            return {
+                "exists": True,
+                "user_data": user_data
+            }
+        elif response.status_code == 404:
+            return {
+                "exists": False,
+                "user_data": None
+            }
         else:
             return {
                 "exists": False,
@@ -81,6 +77,7 @@ def create_user_in_litellm(user_email: str, headers: dict):
         "user_email": user_email,
         "user_role": "internal_user",
         "max_parallel_requests": 5,
+        "user_id": user_email
     }
 
     response = requests.post(f"{LITELLM_API_URL}/user/new", json=payload, headers=headers)
@@ -125,12 +122,9 @@ def create_virtual_key(user_id: str, plan: str = "free", user_email: str = "admi
     user_data = check_user_in_litellm(user_email)
 
     if user_data["exists"]:
-        # Now user_data["user_data"] is the actual user object
-        litellm_user_id = user_data["users"][0]["user_id"]
-        print(f"Found existing user in LiteLLM: {litellm_user_id}")
+        litellm_user_id = user_data["user_data"]["user_id"]
     else:
         # Create user in LiteLLM
-        print(f"Creating new user in LiteLLM for: {user_email}")
         litellm_user_id = create_user_in_litellm(user_email, headers)
         if not litellm_user_id:
             raise Exception("Failed to create or retrieve user in LiteLLM.")
