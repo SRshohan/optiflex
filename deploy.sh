@@ -7,11 +7,11 @@ COMPOSE_FILE="${PROJECT_DIR}/docker-compose.prod.yml"
 
 # —— Deploy steps ——  
 echo "⭑ Pulling latest code into ${PROJECT_DIR}…"
-cd "${PROJECT_DIR}"
-git pull
+cd "${PROJECT_DIR}" || exit 
+git pull origin main
 
 echo "⭑ Building and restarting containers…"
-sudo docker-compose -f "${COMPOSE_FILE}" up -d --build 
+sudo docker-compose up -d 
 
 echo "✔ Deploy complete! $(date '+%Y-%m-%d %H:%M:%S')"
 
