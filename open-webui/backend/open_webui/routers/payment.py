@@ -41,21 +41,26 @@ def check_user_in_litellm(email):
             "Content-Type": "application/json"
         }
         
-        # Method 1: Try to get user by email
-        params = {"email": email}
-        response = requests.get(url, headers=headers, params=params)
+        # Get all users and filter by email
+        response = requests.get(url, headers=headers)
         
         if response.status_code == 200:
             user_data = response.json()
-            return {
-                "exists": True,
-                "user_data": user_data
-            }
-        elif response.status_code == 404:
-            return {
-                "exists": False,
-                "user_data": None
-            }
+            
+            # Filter users by email
+            matching_users = [user for user in user_data.get("users", []) if user.get("user_email") == email]
+            
+            if matching_users:
+                # Return the first matching user
+                return {
+                    "exists": True,
+                    "user_data": matching_users[0]
+                }
+            else:
+                return {
+                    "exists": False,
+                    "user_data": None
+                }
         else:
             return {
                 "exists": False,
@@ -119,11 +124,15 @@ def create_virtual_key(user_id: str, plan: str = "free", user_email: str = "admi
 
     # Check if user exists in LiteLLM
     user_data = check_user_in_litellm(user_email)
+    print(f"User data from LiteLLM: {user_data}")
 
     if user_data["exists"]:
+        # Now user_data["user_data"] is the actual user object
         litellm_user_id = user_data["user_data"]["user_id"]
+        print(f"Found existing user in LiteLLM: {litellm_user_id}")
     else:
         # Create user in LiteLLM
+        print(f"Creating new user in LiteLLM for: {user_email}")
         litellm_user_id = create_user_in_litellm(user_email, headers)
         if not litellm_user_id:
             raise Exception("Failed to create or retrieve user in LiteLLM.")
