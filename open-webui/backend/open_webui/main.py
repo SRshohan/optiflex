@@ -1713,13 +1713,13 @@ async def get_manifest_json():
             "orientation": "any",
             "icons": [
                 {
-                    "src": "/static/logo.png",
+                    "src": "/static/favicon.png",
                     "type": "image/png",
                     "sizes": "500x500",
                     "purpose": "any",
                 },
                 {
-                    "src": "/static/logo.png",
+                    "src": "/static/favicon.png",
                     "type": "image/png",
                     "sizes": "500x500",
                     "purpose": "maskable",
