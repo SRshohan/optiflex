@@ -22,7 +22,7 @@ You will need **two terminals** open simultaneously.
 **Terminal 1: Start the Backend**
 ```bash
 # From the project root directory
-docker-compose -f docker-compose.yaml -f docker-compose.dev.yml up
+docker-compose -f docker-compose.yaml -f docker-compose.prod.yml up
 ```
 *Leave this running. You will see live logs from your Python application here.*
 
