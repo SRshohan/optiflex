@@ -97,7 +97,7 @@ Create a configuration file `~/.cloudflared/config.yml`:
 
 ```yaml
 tunnel: your-tunnel-name
-credentials-file: /path/to/your/cert.pem
+credentials-file: /path/to/your/created_file.json (Full path)
 
 ingress:
   # Route all traffic to your local application
@@ -306,3 +306,6 @@ cloudflared tunnel delete your-tunnel-name
 - Configure caching rules
 
 Your cloudflared tunnel with custom domain is now ready to use!
+
+
+Master Key = M1xcoff33

@@ -21,6 +21,7 @@
 	import Code from '$lib/components/icons/Code.svelte';
 	import UserGroup from '$lib/components/icons/UserGroup.svelte';
 	import SignOut from '$lib/components/icons/SignOut.svelte';
+	import Payment from '$lib/components/icons/Payment.svelte';
 
 	const i18n = getContext('i18n');
 
@@ -89,7 +90,26 @@
 				<div class=" self-center truncate">{$i18n.t('Settings')}</div>
 			</button>
 
+			<!-- Adding a button to upgrade to pro -->
 			<button
+				class="flex rounded-md py-1.5 px-3 w-full hover:bg-gray-50 dark:hover:bg-gray-800 transition"
+				on:click={async () => {
+					goto('/payment_plans');
+					show = false;
+
+					if ($mobile) {
+						showSidebar.set(false);
+					}
+				}}
+			>
+				<div class=" self-center mr-3">
+					<Payment className="w-5 h-5" strokeWidth="1.5" />
+				</div>
+				<div class=" self-center truncate">{$i18n.t('Upgrade to Pro')}</div>
+			</button>
+
+
+			<!-- <button
 				class="flex rounded-md py-1.5 px-3 w-full hover:bg-gray-50 dark:hover:bg-gray-800 transition"
 				on:click={() => {
 					dispatch('show', 'archived-chat');
@@ -104,7 +124,7 @@
 					<ArchiveBox className="size-5" strokeWidth="1.5" />
 				</div>
 				<div class=" self-center truncate">{$i18n.t('Archived Chats')}</div>
-			</button>
+			</button> -->
 
 			{#if role === 'admin'}
 				<button
@@ -146,7 +166,7 @@
 				<hr class=" border-gray-100 dark:border-gray-800 my-1 p-0" />
 
 				<!-- {$i18n.t('Help')} -->
-				<DropdownMenu.Item
+				<!-- <DropdownMenu.Item
 					class="flex gap-2 items-center py-1.5 px-3 text-sm select-none w-full cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 rounded-md transition"
 					id="chat-share-button"
 					on:click={() => {
@@ -156,10 +176,10 @@
 				>
 					<QuestionMarkCircle className="size-5" />
 					<div class="flex items-center">{$i18n.t('Documentation')}</div>
-				</DropdownMenu.Item>
+				</DropdownMenu.Item> -->
 
 				<!-- Releases -->
-				<DropdownMenu.Item
+				<!-- <DropdownMenu.Item
 					class="flex gap-2 items-center py-1.5 px-3 text-sm select-none w-full cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 rounded-md transition"
 					id="menu-item-releases"
 					on:click={() => {
@@ -169,7 +189,7 @@
 				>
 					<Map className="size-5" />
 					<div class="flex items-center">{$i18n.t('Releases')}</div>
-				</DropdownMenu.Item>
+				</DropdownMenu.Item> -->
 
 				<DropdownMenu.Item
 					class="flex gap-2 items-center py-1.5 px-3 text-sm select-none w-full cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 rounded-md transition"

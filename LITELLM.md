@@ -128,3 +128,39 @@ For additional support or troubleshooting:
 - Check OptiFlex documentation
 - Review system logs for error messages
 - Contact system administrator for network-related issues
+
+
+### /budget/new (Create a new budget Litellm)
+
+bash```
+
+{
+  "budget_id": "pro",
+  "max_budget": 20.0,
+  "soft_budget": 0,
+  "max_parallel_requests": 10,
+  "tpm_limit": 100000,
+  "rpm_limit": 100,
+  "budget_duration": "30d",       
+  "model_max_budget": {
+    "gemini-2.5-flash": {
+      "max_budget": 7.0,
+      "budget_duration": "1d",
+      "tpm_limit": 40000,
+      "rpm_limit": 50
+    },
+    "grok-3": {
+      "max_budget": 6.0,
+      "budget_duration": "1d",
+      "tpm_limit": 30000,
+      "rpm_limit": 40
+    },
+    "gpt-4.1-mini": {
+      "max_budget": 4.0,
+      "budget_duration": "1d",
+      "tpm_limit": 20000,
+      "rpm_limit": 30
+    }
+  }
+}
+```

@@ -1,15 +1,14 @@
-version: "3.11"
 services:
   litellm:
-    build:
-      context: .
-      args:
-        target: runtime
+    # build:
+    #   context: .
+    #   args:
+    #     target: runtime
     image: ghcr.io/berriai/litellm:main-stable
     #########################################
     ## Uncomment these lines to start proxy with a config.yaml file ##
     # volumes:
-    #  - ./config.yaml:/app/config.yaml <<- this is missing in the docker-compose file currently
+    #  - ./config.yaml:/app/config.yaml  # <<- this is missing in the docker-compose file currently
     # command:
     #  - "--config=/app/config.yaml"
     ##############################################
@@ -28,6 +27,8 @@ services:
       timeout: 10s   # Health check command times out after 10 seconds
       retries: 3     # Retry up to 3 times if health check fails
       start_period: 40s  # Wait 40 seconds after container start before beginning health checks
+    networks:
+      - litellm_network
 
   db:
     image: postgres:16
@@ -46,6 +47,8 @@ services:
       interval: 1s
       timeout: 5s
       retries: 10
+    networks:
+      - litellm_network
 
   prometheus:
     image: prom/prometheus
@@ -59,6 +62,12 @@ services:
       - "--storage.tsdb.path=/prometheus"
       - "--storage.tsdb.retention.time=15d"
     restart: always
+    networks:
+      - litellm_network
+
+networks:
+  litellm_network:
+    name: litellm_network
 
 volumes:
   prometheus_data:

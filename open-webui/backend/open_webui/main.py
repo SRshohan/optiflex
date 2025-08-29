@@ -85,6 +85,7 @@ from open_webui.routers import (
     tools,
     users,
     utils,
+    payment,
 )
 
 from open_webui.routers.retrieval import (
@@ -540,7 +541,7 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(
-    title="Open WebUI",
+    title="Optiflex",
     docs_url="/docs" if ENV == "dev" else None,
     openapi_url="/openapi.json" if ENV == "dev" else None,
     redoc_url=None,
@@ -1165,7 +1166,7 @@ app.include_router(
     evaluations.router, prefix="/api/v1/evaluations", tags=["evaluations"]
 )
 app.include_router(utils.router, prefix="/api/v1/utils", tags=["utils"])
-
+app.include_router(payment.router, prefix="/api/v1/payment", tags=["payment"])
 
 try:
     audit_level = AuditLevel(AUDIT_LOG_LEVEL)
@@ -1656,7 +1657,7 @@ async def get_app_changelog():
 @app.get("/api/usage")
 async def get_current_usage(user=Depends(get_verified_user)):
     """
-    Get current usage statistics for Open WebUI.
+    Get current usage statistics for Optiflex.
     This is an experimental endpoint and subject to change.
     """
     try:
@@ -1705,20 +1706,20 @@ async def get_manifest_json():
         return {
             "name": app.state.WEBUI_NAME,
             "short_name": app.state.WEBUI_NAME,
-            "description": "Open WebUI is an open, extensible, user-friendly interface for AI that adapts to your workflow.",
+            "description": "Optiflex is an open, extensible, user-friendly interface for AI that adapts to your workflow.",
             "start_url": "/",
             "display": "standalone",
             "background_color": "#343541",
             "orientation": "any",
             "icons": [
                 {
-                    "src": "/static/logo.png",
+                    "src": "/static/favicon.png",
                     "type": "image/png",
                     "sizes": "500x500",
                     "purpose": "any",
                 },
                 {
-                    "src": "/static/logo.png",
+                    "src": "/static/favicon.png",
                     "type": "image/png",
                     "sizes": "500x500",
                     "purpose": "maskable",

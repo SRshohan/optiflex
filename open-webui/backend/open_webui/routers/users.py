@@ -246,6 +246,7 @@ async def update_user_settings_by_session_user(
 async def get_user_info_by_session_user(user=Depends(get_verified_user)):
     user = Users.get_user_by_id(user.id)
     if user:
+        print(f"User info: {user.info}")
         return user.info
     else:
         raise HTTPException(
@@ -454,3 +455,27 @@ async def delete_user_by_id(user_id: str, user=Depends(get_admin_user)):
         status_code=status.HTTP_403_FORBIDDEN,
         detail=ERROR_MESSAGES.ACTION_PROHIBITED,
     )
+
+############################
+# [NEW] Update User Settings By ID (Admin Only)
+############################
+
+@router.post("/{user_id}/settings/update", response_model=UserSettings)
+async def update_user_settings_by_id_admin(
+    user_id: str,
+    form_data: UserSettings,
+    admin_user=Depends(get_admin_user) # Ensures only admins can call this
+):
+    """
+    Allows an admin to update the settings for a specific user by their ID.
+    """
+    updated_user_settings = form_data.model_dump()
+    user = Users.update_user_settings_by_id(user_id, updated_user_settings)
+
+    if user:
+        return user.settings
+    else:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found.",
+        )

@@ -2,35 +2,35 @@ import Image from '@theme/IdealImage';
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-# Open WebUI with LiteLLM
+# Optiflex with LiteLLM
 
-This guide walks you through connecting Open WebUI to LiteLLM. Using LiteLLM with Open WebUI allows teams to 
-- Access 100+ LLMs on Open WebUI
+This guide walks you through connecting Optiflex to LiteLLM. Using LiteLLM with Optiflex allows teams to 
+- Access 100+ LLMs on Optiflex
 - Track Spend / Usage, Set Budget Limits 
 - Send Request/Response Logs to logging destinations like langfuse, s3, gcs buckets, etc.
-- Set access controls eg. Control what models Open WebUI can access.
+- Set access controls eg. Control what models Optiflex can access.
 
 ## Quickstart
 
 - Make sure to setup LiteLLM with the [LiteLLM Getting Started Guide](https://docs.litellm.ai/docs/proxy/docker_quick_start)
 
 
-## 1. Start LiteLLM & Open WebUI
+## 1. Start LiteLLM & Optiflex
 
-- Open WebUI starts running on [http://localhost:3000](http://localhost:3000)
+- Optiflex starts running on [http://localhost:3000](http://localhost:3000)
 - LiteLLM starts running on [http://localhost:4000](http://localhost:4000)
 
 
 ## 2. Create a Virtual Key on LiteLLM
 
-Virtual Keys are API Keys that allow you to authenticate to LiteLLM Proxy. We will create a Virtual Key that will allow Open WebUI to access LiteLLM.
+Virtual Keys are API Keys that allow you to authenticate to LiteLLM Proxy. We will create a Virtual Key that will allow Optiflex to access LiteLLM.
 
 ### 2.1 LiteLLM User Management Hierarchy
 
 On LiteLLM, you can create Organizations, Teams, Users and Virtual Keys. For this tutorial, we will create a Team and a Virtual Key.
 
 - `Organization` - An Organization is a group of Teams. (US Engineering, EU Developer Tools)
-- `Team` - A Team is a group of Users. (Open WebUI Team, Data Science Team, etc.)
+- `Team` - A Team is a group of Users. (Optiflex Team, Data Science Team, etc.)
 - `User` - A User is an individual user (employee, developer, eg. `krrish@litellm.ai`)
 - `Virtual Key` - A Virtual Key is an API Key that allows you to authenticate to LiteLLM Proxy. A Virtual Key is associated with a User or Team.
 
@@ -46,13 +46,13 @@ Navigate to [http://localhost:4000/ui](http://localhost:4000/ui) and create a ne
 
 Navigate to [http://localhost:4000/ui](http://localhost:4000/ui) and create a new virtual Key. 
 
-LiteLLM allows you to specify what models are available on Open WebUI (by specifying the models the key will have access to).
+LiteLLM allows you to specify what models are available on Optiflex (by specifying the models the key will have access to).
 
 <Image img={require('../../img/create_key_in_team_oweb.gif')} />
 
-## 3. Connect Open WebUI to LiteLLM
+## 3. Connect Optiflex to LiteLLM
 
-On Open WebUI, navigate to Settings -> Connections and create a new connection to LiteLLM
+On Optiflex, navigate to Settings -> Connections and create a new connection to LiteLLM
 
 Enter the following details:
 - URL: `http://localhost:4000` (your litellm proxy base url)
@@ -76,11 +76,11 @@ After making requests, navigate to the `Logs` section in the LiteLLM UI to view 
 
 #### Per-User Tracking
 
-To track spend and usage for each Open WebUI user, configure both Open WebUI and LiteLLM:
+To track spend and usage for each Optiflex user, configure both Optiflex and LiteLLM:
 
-1. **Enable User Info Headers in Open WebUI**
+1. **Enable User Info Headers in Optiflex**
    
-  Set the following environment variable for Open WebUI to enable user information in request headers:
+  Set the following environment variable for Optiflex to enable user information in request headers:
   ```dotenv
   ENABLE_FORWARD_USER_INFO_HEADERS=True
   ```
@@ -105,15 +105,15 @@ To track spend and usage for each Open WebUI user, configure both Open WebUI and
   
   These may offer better readability and easier mental attribution when hosting for a small group of users that you know well.
 
-  Choose based on your needs, but note that in Open WebUI: 
+  Choose based on your needs, but note that in Optiflex: 
   - Users can modify their own usernames
   - Administrators can modify both usernames and emails of any account
 
 
 
-## Render `thinking` content on Open WebUI
+## Render `thinking` content on Optiflex
 
-Open WebUI requires reasoning/thinking content to be rendered with `<think></think>` tags. In order to render this for specific models, you can use the `merge_reasoning_content_in_choices` litellm parameter.
+Optiflex requires reasoning/thinking content to be rendered with `<think></think>` tags. In order to render this for specific models, you can use the `merge_reasoning_content_in_choices` litellm parameter.
 
 Example litellm config.yaml:
 
@@ -127,11 +127,11 @@ model_list:
       merge_reasoning_content_in_choices: true
 ```
 
-### Test it on Open WebUI
+### Test it on Optiflex
 
 On the models dropdown select `thinking-anthropic-claude-3-7-sonnet`
 
 <Image img={require('../../img/litellm_thinking_openweb.gif')} />
 
 ## Additional Resources
-- Running LiteLLM and Open WebUI on Windows Localhost: A Comprehensive Guide [https://www.tanyongsheng.com/note/running-litellm-and-openwebui-on-windows-localhost-a-comprehensive-guide/](https://www.tanyongsheng.com/note/running-litellm-and-openwebui-on-windows-localhost-a-comprehensive-guide/)
+- Running LiteLLM and Optiflex on Windows Localhost: A Comprehensive Guide [https://www.tanyongsheng.com/note/running-litellm-and-openwebui-on-windows-localhost-a-comprehensive-guide/](https://www.tanyongsheng.com/note/running-litellm-and-openwebui-on-windows-localhost-a-comprehensive-guide/)
