@@ -8,6 +8,9 @@
 	import { config, user, socket } from '$lib/stores';
 	import { getBackendConfig } from '$lib/apis';
 	import { goto } from '$app/navigation';
+	import { getIdToken, signInWithPopup } from "firebase/auth";
+	import { auth, googleProvider } from "$lib/firebase.js";
+	import { WEBUI_API_BASE_URL, WEBUI_BASE_URL } from '$lib/constants';
 
 	let { form } = $props();
     let name = $state('');
@@ -50,6 +53,19 @@ const setSessionUser = async (sessionUser) => {
 	}
 };
 
+async function loginWithGoogle(){
+	await signInWithPopup(auth,googleProvider);
+	await auth.onAuthStateChanged(async(user)=>{
+		const idToken = await getIdToken(user);
+		const sessionUser = await fetch(`${WEBUI_API_BASE_URL}/auths/firebase-login`, {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({ id_token: idToken })
+		}).then(r => r.json());
+		console.log("sessionUser",sessionUser)
+		await setSessionUser(sessionUser);
+	})
+}
 	
 </script>
 
@@ -151,7 +167,7 @@ const setSessionUser = async (sessionUser) => {
 							</Button>
 							<button
 								class="flex justify-center items-center bg-gray-700/5 hover:bg-gray-700/10 dark:bg-gray-100/5 dark:hover:bg-gray-100/10 dark:text-gray-300 dark:hover:text-white transition w-full rounded-full font-medium text-sm py-2.5"
-								onclick={()=>{}}
+								onclick={()=>loginWithGoogle()}
 							>
 								<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" class="size-6 mr-3">
 									<path

@@ -197,6 +197,7 @@
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({ id_token: idToken })
 			}).then(r => r.json());
+			console.log("sessionUser",sessionUser)
 			await setSessionUser(sessionUser);
 		} catch (error) {
 			toast.error(error.message);
@@ -269,12 +270,12 @@
 								<div class=" text-2xl font-medium">
 									{#if $config?.onboarding ?? false}
 										{$i18n.t(`Get started with {{WEBUI_NAME}}`, { WEBUI_NAME: $WEBUI_NAME })}
-									{:else if mode === 'ldap'}
-										{$i18n.t(`Sign in to {{WEBUI_NAME}} with LDAP`, { WEBUI_NAME: $WEBUI_NAME })}
+									<!-- {:else if mode === 'ldap'}
+										{$i18n.t(`Sign in to {{WEBUI_NAME}} with LDAP`, { WEBUI_NAME: $WEBUI_NAME })} -->
 									{:else if mode === 'signin'}
 										{$i18n.t(`Sign in to {{WEBUI_NAME}}`, { WEBUI_NAME: $WEBUI_NAME })}
-									{:else}
-										{$i18n.t(`Sign up to {{WEBUI_NAME}}`, { WEBUI_NAME: $WEBUI_NAME })}
+									<!-- {:else}
+										{$i18n.t(`Sign up to {{WEBUI_NAME}}`, { WEBUI_NAME: $WEBUI_NAME })} -->
 									{/if}
 								</div>
 
@@ -354,7 +355,7 @@
 													: $i18n.t('Create Account')}
 										</button>
 
-										{#if $config?.features.enable_signup && !($config?.onboarding ?? false)}
+										<!-- {#if $config?.features.enable_signup && !($config?.onboarding ?? false)}
 											<div class=" mt-4 text-sm text-center">
 												{mode === 'signin'
 													? $i18n.t("Don't have an account?")
@@ -374,7 +375,7 @@
 													{mode === 'signin' ? $i18n.t('Sign up') : $i18n.t('Sign in')}
 												</Button>
 											</div>
-										{/if}
+										{/if} -->
 									{/if}
 								{/if}
 							</div>
@@ -488,7 +489,7 @@
 							</div>
 						{/if}
 
-						{#if $config?.features.enable_ldap && $config?.features.enable_login_form}
+						<!-- {#if $config?.features.enable_ldap && $config?.features.enable_login_form}
 							<div class="mt-2">
 								<button
 									class="flex justify-center items-center text-xs w-full text-center underline"
@@ -506,7 +507,7 @@
 									>
 								</button>
 							</div>
-						{/if}
+						{/if} -->
 					</div>
 				{/if}
 			</div>
