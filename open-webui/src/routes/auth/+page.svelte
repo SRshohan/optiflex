@@ -2,7 +2,7 @@
 	import { toast } from 'svelte-sonner';
 	import { getIdToken } from 'firebase/auth';
 
-	import { onMount, getContext, tick } from 'svelte';
+	import {  getContext, tick } from 'svelte';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
 
@@ -17,18 +17,20 @@
 
 	import Spinner from '$lib/components/common/Spinner.svelte';
 	import OnBoarding from '$lib/components/OnBoarding.svelte';
+	import Input from '$lib/components/ui/Input.svelte';
+	import Button from '$lib/components/ui/Button.svelte';
 
 	const i18n = getContext('i18n');
 
-	let loaded = false;
+	let loaded = $state(false);
 
-	let mode = $config?.features.enable_ldap ? 'ldap' : 'signin';
+	let mode = $derived($config?.features.enable_ldap ? 'ldap' : 'signin');
 
-	let name = '';
-	let email = '';
-	let password = '';
+	let name = $state('');
+	let email = $state('');
+	let password = $state('');
 
-	let ldapUsername = '';
+	let ldapUsername = $state('');
 
 	const querystringValue = (key) => {
 		const querystring = window.location.search;
@@ -114,7 +116,7 @@
 		await setSessionUser(sessionUser);
 	};
 
-	let onboarding = false;
+	let onboarding = $state(false);
 
 	async function setLogoImage() {
 		await tick();
@@ -139,7 +141,7 @@
 		}
 	}
 
-	onMount(async () => {
+	$effect(async () => {
 		// Fetch backend config including oauth providers
 		const backendConfig = await fetch(`${WEBUI_API_BASE_URL}/auths/config`).then(r => r.json()).catch(() => ({}));
 		if (backendConfig?.oauth?.providers) {
@@ -258,7 +260,7 @@
 					<div class="  my-auto pb-10 w-full dark:text-gray-100">
 						<form
 							class=" flex flex-col justify-center"
-							on:submit={(e) => {
+							onsubmit={(e) => {
 								e.preventDefault();
 								submitHandler();
 							}}
@@ -293,6 +295,7 @@
 											<label for="name" class="text-sm font-medium text-left mb-1 block"
 												>{$i18n.t('Name')}</label
 											>
+											<Input value={name} type="text" name="name" id="name" placeHolder="Enter Your Full Name" />
 											<input
 												bind:value={name}
 												type="text"
@@ -326,16 +329,7 @@
 											<label for="email" class="text-sm font-medium text-left mb-1 block"
 												>{$i18n.t('Email')}</label
 											>
-											<input
-												bind:value={email}
-												type="email"
-												id="email"
-												class="my-0.5 w-full text-sm outline-hidden bg-transparent"
-												autocomplete="email"
-												name="email"
-												placeholder={$i18n.t('Enter Your Email')}
-												required
-											/>
+											<Input value={email} type="email" name="email" id="email" placeHolder="Enter Your Email" />
 										</div>
 									{/if}
 
@@ -343,16 +337,8 @@
 										<label for="password" class="text-sm font-medium text-left mb-1 block"
 											>{$i18n.t('Password')}</label
 										>
-										<input
-											bind:value={password}
-											type="password"
-											id="password"
-											class="my-0.5 w-full text-sm outline-hidden bg-transparent"
-											placeholder={$i18n.t('Enter Your Password')}
-											autocomplete="current-password"
-											name="current-password"
-											required
-										/>
+										<Input isAuth={true} value={password} type="password" name="password" id="password" placeHolder="Enter Your Password" />
+										
 									</div>
 								</div>
 							{/if}
@@ -383,10 +369,10 @@
 													? $i18n.t("Don't have an account?")
 													: $i18n.t('Already have an account?')}
 
-												<button
-													class=" font-medium underline"
+												<Button
+													
 													type="button"
-													on:click={() => {
+													onclick={() => {
 														if (mode === 'signin') {
 															mode = 'signup';
 														} else {
@@ -395,7 +381,7 @@
 													}}
 												>
 													{mode === 'signin' ? $i18n.t('Sign up') : $i18n.t('Sign in')}
-												</button>
+												</Button>
 											</div>
 										{/if}
 									{/if}
@@ -419,7 +405,7 @@
 								{#if $config?.oauth?.providers?.google}
 									<button
 										class="flex justify-center items-center bg-gray-700/5 hover:bg-gray-700/10 dark:bg-gray-100/5 dark:hover:bg-gray-100/10 dark:text-gray-300 dark:hover:text-white transition w-full rounded-full font-medium text-sm py-2.5"
-										on:click={loginWithGoogle}
+										onclick={loginWithGoogle}
 									>
 										<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" class="size-6 mr-3">
 											<path
@@ -439,10 +425,11 @@
 										<span>{$i18n.t('Continue with {{provider}}', { provider: 'Google' })}</span>
 									</button>
 								{/if}
-								{#if $config?.oauth?.providers?.microsoft}
+								<p class="text-sm ">Don't have an account? <a href="/signup">Create an Account.</a></p>
+								<!-- {#if $config?.oauth?.providers?.microsoft}
 									<button
 										class="flex justify-center items-center bg-gray-700/5 hover:bg-gray-700/10 dark:bg-gray-100/5 dark:hover:bg-gray-100/10 dark:text-gray-300 dark:hover:text-white transition w-full rounded-full font-medium text-sm py-2.5"
-										on:click={() => {
+										onclick={() => {
 											window.location.href = `${WEBUI_BASE_URL}/oauth/microsoft/login`;
 										}}
 									>
@@ -467,7 +454,7 @@
 								{#if $config?.oauth?.providers?.github}
 									<button
 										class="flex justify-center items-center bg-gray-700/5 hover:bg-gray-700/10 dark:bg-gray-100/5 dark:hover:bg-gray-100/10 dark:text-gray-300 dark:hover:text-white transition w-full rounded-full font-medium text-sm py-2.5"
-										on:click={loginWithGithub}
+										onclick={loginWithGithub}
 									>
 										<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="size-6 mr-3">
 											<path
@@ -481,7 +468,7 @@
 								{#if $config?.oauth?.providers?.oidc}
 									<button
 										class="flex justify-center items-center bg-gray-700/5 hover:bg-gray-700/10 dark:bg-gray-100/5 dark:hover:bg-gray-100/10 dark:text-gray-300 dark:hover:text-white transition w-full rounded-full font-medium text-sm py-2.5"
-										on:click={() => {
+										onclick={() => {
 											window.location.href = `${WEBUI_BASE_URL}/oauth/oidc/login`;
 										}}
 									>
@@ -506,7 +493,7 @@
 											})}</span
 										>
 									</button>
-								{/if}
+								{/if} -->
 							</div>
 						{/if}
 
@@ -515,7 +502,7 @@
 								<button
 									class="flex justify-center items-center text-xs w-full text-center underline"
 									type="button"
-									on:click={() => {
+									onclick={() => {
 										if (mode === 'ldap')
 											mode = ($config?.onboarding ?? false) ? 'signup' : 'signin';
 										else mode = 'ldap';

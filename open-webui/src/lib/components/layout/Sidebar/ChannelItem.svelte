@@ -51,7 +51,7 @@
 	<a
 		class=" w-full flex justify-between"
 		href="/channels/{channel.id}"
-		on:click={() => {
+		onclick={() => {
 			if ($mobile) {
 				showSidebar.set(false);
 			}
@@ -81,14 +81,14 @@
 	{#if $user?.role === 'admin'}
 		<button
 			class="absolute z-10 right-2 invisible group-hover:visible self-center flex items-center dark:text-gray-300"
-			on:click={(e) => {
+			onclick={(e) => {
 				e.stopPropagation();
 				showEditChannelModal = true;
 			}}
 		>
-			<button class="p-0.5 dark:hover:bg-gray-850 rounded-lg touch-auto" on:click={(e) => {}}>
+			<span class="p-0.5 dark:hover:bg-gray-850 rounded-lg touch-auto" onclick={(e) => {}}>
 				<Cog6 className="size-3.5" />
-			</button>
+			</span>
 		</button>
 	{/if}
 </div>
