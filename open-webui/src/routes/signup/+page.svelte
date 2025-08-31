@@ -1,9 +1,11 @@
 <script >
 	import Button from "$lib/components/ui/Button.svelte";
 	import Input from "$lib/components/ui/Input.svelte";
-	import { getContext } from "svelte";
-	import {  WEBUI_BASE_URL } from '$lib/constants';
+	import { getContext, tick } from "svelte";
 	import { enhance } from "$app/forms";
+	import Spinner from "$lib/components/common/Spinner.svelte";
+	import { WEBUI_NAME } from "$lib/stores";
+
 
 	let { form } = $props();
     let name = $state('');
@@ -18,12 +20,13 @@
             passwordMatched=""
         }
     })
-
+	
 	function fieldValidation(){
 		if(password !== confirmPassword){
 			passwordMatched = "Confirm Password and Password should Match"
 		}
 	}
+	
 </script>
 
 <div class="w-full h-screen max-h-[100dvh] text-white relative">
@@ -36,7 +39,7 @@
 					<img
 						id="logo"
 						crossorigin="anonymous"
-						src="{WEBUI_BASE_URL}/static/favicon.png"
+						src="/static/favicon.png"
 						class=" w-6 rounded-full"
 						alt=""
 					/>
@@ -45,10 +48,19 @@
 		</div>
 
 		<div
-			class="fixed bg-transparent min-h-screen w-full flex justify-center font-primary z-50 text-black dark:text-white"
+			class="fixed bg-transparent min-h-screen w-full flex flex-col justify-center font-primary z-50 text-black dark:text-white"
 		>
-			<div class="w-full sm:max-w-md px-10 min-h-screen flex flex-col text-center"> 
-				<div class=" my-auto pb-10 w-full dark:text-gray-100">
+			<div class="mx-auto pb-10 w-full">
+				<div
+					class="flex items-center justify-center gap-3 text-xl sm:text-2xl text-center font-semibold dark:text-gray-200"
+				>
+					<div>
+						{$i18n.t('Sign-Up to {{WEBUI_NAME}}', { WEBUI_NAME: $WEBUI_NAME })}
+					</div>
+				</div>
+			</div>
+			<div class="w-full mx-auto sm:max-w-md px-10 flex flex-col text-center"> 
+				<div class="my-auto pb-10 w-full dark:text-gray-100">
 					<form
 						method="POST"
 						use:enhance
@@ -95,11 +107,11 @@
 						</div>
 
 						{#if form?.error}
-							<p class="text-red-500 text-sm">{form?.error}</p>
+							<p class="text-red-500 text-sm text-left">{form?.error}</p>
 						{/if}
 						<div class="flex flex-col space-y-2">
 							<Button disabled={form?.pending} type="submit">
-								{$i18n.t('Sign up')}
+								{$i18n.t('Register')}
 							</Button>
 							<button
 								class="flex justify-center items-center bg-gray-700/5 hover:bg-gray-700/10 dark:bg-gray-100/5 dark:hover:bg-gray-100/10 dark:text-gray-300 dark:hover:text-white transition w-full rounded-full font-medium text-sm py-2.5"
@@ -122,7 +134,7 @@
 								</svg>
 								<span>{$i18n.t('Sign-Up with {{provider}}', { provider: 'Google' })}</span>
 							</button>
-
+							<p class="text-sm ">Already have an account? <a href="/auth">Log-In.</a></p>
 						</div>
 					</form>
 				</div>
