@@ -1,9 +1,11 @@
 <script>
 	import { hasLetter, hasNumber, validateEmail, validateName } from "$lib/utils/helper";
 	import { getContext } from "svelte";
-
+    
+    const i18n = getContext('i18n');
     let { value = $bindable(""), type,name,id,placeHolder,isAuth = false,className="" } = $props();
-    let hasError = $state("")
+    let hasError = $state("");
+
     $effect(()=>{
         if(type === "email" && validateEmail(value) || isAuth && type === "password" && hasLetter(value) && hasNumber(value) || type === "name" && validateName(value)){
             hasError=""
@@ -23,7 +25,7 @@
              hasError="Password must be 8 Characters long and must contain at least 1 letter and 1 number"
         }
     }
-    const i18n = getContext('i18n');
+    
 </script>
 
 <div class="flex flex-col space-y-2 my-0.5 items-start">

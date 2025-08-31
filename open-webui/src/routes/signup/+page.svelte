@@ -3,9 +3,11 @@
 	import Input from "$lib/components/ui/Input.svelte";
 	import { getContext, tick } from "svelte";
 	import { enhance } from "$app/forms";
-	import Spinner from "$lib/components/common/Spinner.svelte";
 	import { WEBUI_NAME } from "$lib/stores";
-
+	import { toast } from 'svelte-sonner';
+	import { config, user, socket } from '$lib/stores';
+	import { getBackendConfig } from '$lib/apis';
+	import { goto } from '$app/navigation';
 
 	let { form } = $props();
     let name = $state('');
@@ -26,6 +28,28 @@
 			passwordMatched = "Confirm Password and Password should Match"
 		}
 	}
+
+	const querystringValue = (key) => {
+	const querystring = window.location.search;
+	const urlParams = new URLSearchParams(querystring);
+	return urlParams.get(key);
+};
+
+const setSessionUser = async (sessionUser) => {
+	if (sessionUser) {
+		toast.success($i18n.t(`You're now logged in.`));
+		if (sessionUser.token) {
+			localStorage.token = sessionUser.token;
+		}
+		$socket.emit('user-join', { auth: { token: sessionUser.token } });
+		await user.set(sessionUser);
+		await config.set(await getBackendConfig());
+
+		const redirectPath = querystringValue('redirect') || '/';
+		goto(redirectPath);
+	}
+};
+
 	
 </script>
 
@@ -63,7 +87,19 @@
 				<div class="my-auto pb-10 w-full dark:text-gray-100">
 					<form
 						method="POST"
-						use:enhance
+						use:enhance={({ formElement, formData, action, cancel }) => {
+							return async ({ result }) => {
+								console.log("result",result)
+								if (!result) return;
+
+								if (result.type === 'success') {
+									console.log('Success:', result.data);
+									await setSessionUser(result.data);
+								} else if (result.type === 'failure') {
+									console.log('Error:', result?.data?.error);
+								}
+							};
+						}}
 						class="flex flex-col justify-center space-y-2 gap-y-1"
 					>
 						<div class="mb-2">

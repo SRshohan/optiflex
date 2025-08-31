@@ -295,16 +295,7 @@
 											<label for="name" class="text-sm font-medium text-left mb-1 block"
 												>{$i18n.t('Name')}</label
 											>
-											<Input value={name} type="text" name="name" id="name" placeHolder="Enter Your Full Name" />
-											<input
-												bind:value={name}
-												type="text"
-												id="name"
-												class="my-0.5 w-full text-sm outline-hidden bg-transparent"
-												autocomplete="name"
-												placeholder={$i18n.t('Enter Your Full Name')}
-												required
-											/>
+											<Input className="text-black bg-white" bind:value={name} type="text" name="name" id="name" placeHolder="Enter Your Full Name" />
 										</div>
 									{/if}
 
@@ -329,7 +320,7 @@
 											<label for="email" class="text-sm font-medium text-left mb-1 block"
 												>{$i18n.t('Email')}</label
 											>
-											<Input value={email} type="email" name="email" id="email" placeHolder="Enter Your Email" />
+											<Input bind:value={email} type="email" name="email" id="email" placeHolder="Enter Your Email" />
 										</div>
 									{/if}
 
@@ -337,7 +328,7 @@
 										<label for="password" class="text-sm font-medium text-left mb-1 block"
 											>{$i18n.t('Password')}</label
 										>
-										<Input isAuth={true} value={password} type="password" name="password" id="password" placeHolder="Enter Your Password" />
+										<Input isAuth={true} bind:value={password} type="password" name="password" id="password" placeHolder="Enter Your Password" />
 										
 									</div>
 								</div>
