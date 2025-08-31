@@ -91,101 +91,105 @@
 	import Spinner from '../common/Spinner.svelte';
 	import { fade } from 'svelte/transition';
 
-	export let chatIdProp = '';
+	let {chatIdProp = ""} = $props();
 
-	let loading = true;
+	let loading = $state(true);
 
 	const eventTarget = new EventTarget();
-	let controlPane;
-	let controlPaneComponent;
+	let controlPane = $state();
+	let controlPaneComponent = $state();
 
-	let autoScroll = true;
-	let processing = '';
-	let messagesContainerElement: HTMLDivElement;
+	let autoScroll = $state(true);
+	let processing = $state('');
+	let messagesContainerElement: HTMLDivElement = $state<HTMLDivElement>();
 
-	let navbarElement;
+	let navbarElement = $state();
 
-	let showEventConfirmation = false;
-	let eventConfirmationTitle = '';
-	let eventConfirmationMessage = '';
-	let eventConfirmationInput = false;
-	let eventConfirmationInputPlaceholder = '';
-	let eventConfirmationInputValue = '';
-	let eventCallback = null;
+	let showEventConfirmation = $state(false);
+	let eventConfirmationTitle = $state('');
+	let eventConfirmationMessage = $state('');
+	let eventConfirmationInput = $state(false);
+	let eventConfirmationInputPlaceholder = $state('');
+	let eventConfirmationInputValue = $state('');
+	let eventCallback = $state(null);
 
-	let chatIdUnsubscriber: Unsubscriber | undefined;
+	let chatIdUnsubscriber: Unsubscriber | undefined = $state();
 
-	let selectedModels = [''];
-	let atSelectedModel: Model | undefined;
-	let selectedModelIds = [];
-	$: selectedModelIds = atSelectedModel !== undefined ? [atSelectedModel.id] : selectedModels;
+	let selectedModels = $state(['']);
+	let atSelectedModel: Model | undefined = $state();
+	//let selectedModelIds = [];
+	let selectedModelIds = $derived(atSelectedModel !== undefined ? [atSelectedModel.id] : selectedModels);
 
-	let selectedToolIds = [];
-	let selectedFilterIds = [];
-	let imageGenerationEnabled = false;
-	let webSearchEnabled = false;
-	let codeInterpreterEnabled = false;
+	let selectedToolIds = $state([]);
+	let selectedFilterIds = $state([]);
+	let imageGenerationEnabled = $state(false);
+	let webSearchEnabled = $state(false);
+	let codeInterpreterEnabled = $state(false);
 
-	let chat = null;
-	let tags = [];
+	let chat = $state();
+	let tags = $state([]);
 
-	let history = {
+	let history = $state({
 		messages: {},
 		currentId: null
-	};
+	});
 
-	let taskIds = null;
+	let taskIds = $state();
 
 	// Chat Input
-	let prompt = '';
-	let chatFiles = [];
-	let files = [];
-	let params = {};
+	let prompt = $state('');
+	let chatFiles = $state([]);
+	let files = $state([]);
+	let params = $state({});
 
-	$: if (chatIdProp) {
-		(async () => {
-			loading = true;
+	$effect(()=>{
+		if (chatIdProp) {
+			(async () => {
+				loading = true;
 
-			prompt = '';
-			files = [];
-			selectedToolIds = [];
-			selectedFilterIds = [];
-			webSearchEnabled = false;
-			imageGenerationEnabled = false;
+				prompt = '';
+				files = [];
+				selectedToolIds = [];
+				selectedFilterIds = [];
+				webSearchEnabled = false;
+				imageGenerationEnabled = false;
 
-			if (localStorage.getItem(`chat-input${chatIdProp ? `-${chatIdProp}` : ''}`)) {
-				try {
-					const input = JSON.parse(
-						localStorage.getItem(`chat-input${chatIdProp ? `-${chatIdProp}` : ''}`)
-					);
+				if (localStorage.getItem(`chat-input${chatIdProp ? `-${chatIdProp}` : ''}`)) {
+					try {
+						const input = JSON.parse(
+							localStorage.getItem(`chat-input${chatIdProp ? `-${chatIdProp}` : ''}`)
+						);
 
-					if (!$temporaryChatEnabled) {
-						prompt = input.prompt;
-						files = input.files;
-						selectedToolIds = input.selectedToolIds;
-						selectedFilterIds = input.selectedFilterIds;
-						webSearchEnabled = input.webSearchEnabled;
-						imageGenerationEnabled = input.imageGenerationEnabled;
-						codeInterpreterEnabled = input.codeInterpreterEnabled;
-					}
-				} catch (e) {}
-			}
+						if (!$temporaryChatEnabled) {
+							prompt = input.prompt;
+							files = input.files;
+							selectedToolIds = input.selectedToolIds;
+							selectedFilterIds = input.selectedFilterIds;
+							webSearchEnabled = input.webSearchEnabled;
+							imageGenerationEnabled = input.imageGenerationEnabled;
+							codeInterpreterEnabled = input.codeInterpreterEnabled;
+						}
+					} catch (e) {}
+				}
 
-			if (chatIdProp && (await loadChat())) {
-				await tick();
-				loading = false;
-				window.setTimeout(() => scrollToBottom(), 0);
-				const chatInput = document.getElementById('chat-input');
-				chatInput?.focus();
-			} else {
-				await goto('/');
-			}
-		})();
-	}
+				if (chatIdProp && (await loadChat())) {
+					await tick();
+					loading = false;
+					window.setTimeout(() => scrollToBottom(), 0);
+					const chatInput = document.getElementById('chat-input');
+					chatInput?.focus();
+				} else {
+					await goto('/');
+				}
+			})();
+		}
+	})
 
-	$: if (selectedModels && chatIdProp !== '') {
-		saveSessionSelectedModels();
-	}
+	$effect(()=>{
+		if (selectedModels && chatIdProp !== '') {
+			saveSessionSelectedModels();
+		}
+	})
 
 	const saveSessionSelectedModels = () => {
 		if (selectedModels.length === 0 || (selectedModels.length === 1 && selectedModels[0] === '')) {
@@ -195,10 +199,12 @@
 		console.log('saveSessionSelectedModels', selectedModels, sessionStorage.selectedModels);
 	};
 
-	let oldSelectedModelIds = [''];
-	$: if (JSON.stringify(selectedModelIds) !== JSON.stringify(oldSelectedModelIds)) {
-		onSelectedModelIdsChange();
-	}
+	let oldSelectedModelIds = $state(['']);
+	$effect(()=>{
+		if (JSON.stringify(selectedModelIds) !== JSON.stringify(oldSelectedModelIds)) {
+			onSelectedModelIdsChange();
+		}
+	})
 
 	const onSelectedModelIdsChange = () => {
 		if (oldSelectedModelIds.filter((id) => id).length > 0) {
@@ -432,8 +438,8 @@
 		}
 	};
 
-	let pageSubscribe = null;
-	onMount(async () => {
+	let pageSubscribe = $state(null);
+	$effect(async () => {
 		loading = true;
 		console.log('mounted');
 		window.addEventListener('message', onMessageHandler);
@@ -2011,7 +2017,7 @@
 	input={eventConfirmationInput}
 	inputPlaceholder={eventConfirmationInputPlaceholder}
 	inputValue={eventConfirmationInputValue}
-	on:confirm={(e) => {
+	onconfirm={(e) => {
 		if (e.detail) {
 			eventCallback(e.detail);
 		} else {
@@ -2072,7 +2078,7 @@
 								class=" pb-2.5 flex flex-col justify-between w-full flex-auto overflow-auto h-0 max-w-full z-10 scrollbar-hidden"
 								id="messages-container"
 								bind:this={messagesContainerElement}
-								on:scroll={(e) => {
+								onscroll={(e) => {
 									autoScroll =
 										messagesContainerElement.scrollHeight - messagesContainerElement.scrollTop <=
 										messagesContainerElement.clientHeight + 5;
@@ -2129,7 +2135,7 @@
 											}
 										}
 									}}
-									on:upload={async (e) => {
+									onupload={async (e) => {
 										const { type, data } = e.detail;
 
 										if (type === 'web') {
@@ -2140,7 +2146,7 @@
 											await uploadGoogleDriveFile(data);
 										}
 									}}
-									on:submit={async (e) => {
+									onsubmit={async (e) => {
 										if (e.detail || files.length > 0) {
 											await tick();
 											submitPrompt(

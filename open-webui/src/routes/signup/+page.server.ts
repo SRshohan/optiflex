@@ -26,7 +26,6 @@ export const actions = {
 		});
 
 		const result = await response.json();
-		console.log(response);
 
 		if (response.ok) {
 			return { success: true, data: result };

@@ -56,13 +56,15 @@ const setSessionUser = async (sessionUser) => {
 async function loginWithGoogle(){
 	await signInWithPopup(auth,googleProvider);
 	await auth.onAuthStateChanged(async(user)=>{
+
 		const idToken = await getIdToken(user);
+
 		const sessionUser = await fetch(`${WEBUI_API_BASE_URL}/auths/firebase-login`, {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
 			body: JSON.stringify({ id_token: idToken })
 		}).then(r => r.json());
-		console.log("sessionUser",sessionUser)
+		
 		await setSessionUser(sessionUser);
 	})
 }
@@ -109,9 +111,10 @@ async function loginWithGoogle(){
 								if (!result) return;
 
 								if (result.type === 'success') {
-									console.log('Success:', result.data);
+									toast.success($i18n.t(`Registration Successful.`));
 									await setSessionUser(result.data);
 								} else if (result.type === 'failure') {
+									toast.error($i18n.t(`Error: ${result?.data?.error}`));
 									console.log('Error:', result?.data?.error);
 								}
 							};
@@ -158,9 +161,10 @@ async function loginWithGoogle(){
 							{/if}
 						</div>
 
-						{#if form?.error}
+						<!-- {#if form?.error}
 							<p class="text-red-500 text-sm text-left">{form?.error}</p>
-						{/if}
+						{/if} -->
+						<p class="text-sm">By creating an account, you agree with our <a class="text-blue-600" href="/terms">Terms</a> and have read and acknowledge the <a class="text-blue-600" href="/policy">Privacy Policy</a></p>
 						<div class="flex flex-col space-y-2">
 							<Button disabled={form?.pending} type="submit">
 								{$i18n.t('Register')}
