@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { DropdownMenu } from 'bits-ui';
-	import { createEventDispatcher, getContext, onMount } from 'svelte';
+	import { createEventDispatcher, getContext } from 'svelte';
 
-	import { flyAndScale } from '$lib/utils/transitions';
+	// import { flyAndScale } from '$lib/utils/transitions';
 	import { goto } from '$app/navigation';
 	import { fade, slide } from 'svelte/transition';
 
@@ -11,10 +11,10 @@
 
 	import { showSettings, mobile, showSidebar, user } from '$lib/stores';
 
-	import Tooltip from '$lib/components/common/Tooltip.svelte';
-	import ArchiveBox from '$lib/components/icons/ArchiveBox.svelte';
-	import QuestionMarkCircle from '$lib/components/icons/QuestionMarkCircle.svelte';
-	import Map from '$lib/components/icons/Map.svelte';
+	// import Tooltip from '$lib/components/common/Tooltip.svelte';
+	// import ArchiveBox from '$lib/components/icons/ArchiveBox.svelte';
+	// import QuestionMarkCircle from '$lib/components/icons/QuestionMarkCircle.svelte';
+	// import Map from '$lib/components/icons/Map.svelte';
 	import Keyboard from '$lib/components/icons/Keyboard.svelte';
 	import ShortcutsModal from '$lib/components/chat/ShortcutsModal.svelte';
 	import Settings from '$lib/components/icons/Settings.svelte';
@@ -24,17 +24,17 @@
 	import Payment from '$lib/components/icons/Payment.svelte';
 
 	const i18n = getContext('i18n');
+	let { show = false, role="", help = false,className = 'max-w-[240px]',children } = $props()
+	//export let show = false;
+	//export let role = '';
+	//export let help = false;
+	//export let className = 'max-w-[240px]';
 
-	export let show = false;
-	export let role = '';
-	export let help = false;
-	export let className = 'max-w-[240px]';
-
-	let showShortcuts = false;
+	let showShortcuts = $state(false);
 
 	const dispatch = createEventDispatcher();
 
-	let usage = null;
+	let usage = $state(null);
 	const getUsageInfo = async () => {
 		const res = await getUsage(localStorage.token).catch((error) => {
 			console.error('Error fetching usage info:', error);
@@ -47,9 +47,11 @@
 		}
 	};
 
-	$: if (show) {
-		getUsageInfo();
-	}
+	$effect(()=>{
+		if (show) {
+			getUsageInfo();
+		}
+	})
 </script>
 
 <ShortcutsModal bind:show={showShortcuts} />
@@ -62,11 +64,10 @@
 	}}
 >
 	<DropdownMenu.Trigger>
-		<slot />
+		{@render children()}
 	</DropdownMenu.Trigger>
 
-	<slot name="content">
-		<DropdownMenu.Content
+	<DropdownMenu.Content
 			class="w-full {className} text-sm rounded-xl px-1 py-1.5 z-50 bg-white dark:bg-gray-850 dark:text-white shadow-lg font-primary"
 			sideOffset={4}
 			side="bottom"
@@ -75,7 +76,7 @@
 		>
 			<button
 				class="flex rounded-md py-1.5 px-3 w-full hover:bg-gray-50 dark:hover:bg-gray-800 transition"
-				on:click={async () => {
+				onclick={async () => {
 					await showSettings.set(true);
 					show = false;
 
@@ -93,7 +94,7 @@
 			<!-- Adding a button to upgrade to pro -->
 			<button
 				class="flex rounded-md py-1.5 px-3 w-full hover:bg-gray-50 dark:hover:bg-gray-800 transition"
-				on:click={async () => {
+				onclick={async () => {
 					goto('/payment_plans');
 					show = false;
 
@@ -129,7 +130,7 @@
 			{#if role === 'admin'}
 				<button
 					class="flex rounded-md py-1.5 px-3 w-full hover:bg-gray-50 dark:hover:bg-gray-800 transition"
-					on:click={() => {
+					onclick={() => {
 						goto('/playground');
 						show = false;
 
@@ -146,7 +147,7 @@
 
 				<button
 					class="flex rounded-md py-1.5 px-3 w-full hover:bg-gray-50 dark:hover:bg-gray-800 transition"
-					on:click={() => {
+					onclick={() => {
 						goto('/admin');
 						show = false;
 
@@ -194,7 +195,7 @@
 				<DropdownMenu.Item
 					class="flex gap-2 items-center py-1.5 px-3 text-sm select-none w-full cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 rounded-md transition"
 					id="chat-share-button"
-					on:click={() => {
+					onclick={() => {
 						showShortcuts = !showShortcuts;
 						show = false;
 					}}
@@ -208,7 +209,7 @@
 
 			<button
 				class="flex rounded-md py-1.5 px-3 w-full hover:bg-gray-50 dark:hover:bg-gray-800 transition"
-				on:click={async () => {
+				onclick={async () => {
 					const res = await userSignOut();
 					user.set(null);
 					localStorage.removeItem('token');
@@ -264,5 +265,7 @@
 				<div class="flex items-center">Profile</div>
 			</DropdownMenu.Item> -->
 		</DropdownMenu.Content>
-	</slot>
+	<!-- <slot name="content">
+		
+	</slot> -->
 </DropdownMenu.Root>

@@ -22,8 +22,8 @@
 
 	const i18n = getContext('i18n');
 
-	export let show = false;
-
+	// export let show = false;
+	let { show = $bindable(false) } = $props()
 	interface SettingsTab {
 		id: string;
 		title: string;
@@ -466,9 +466,9 @@
 		// }
 	];
 
-	let search = '';
-	let visibleTabs = searchData.map((tab) => tab.id);
-	let searchDebounceTimeout;
+	let search = $state('');
+	let visibleTabs = $derived(searchData.map((tab) => tab.id));
+	let searchDebounceTimeout = $state();
 
 	const searchSettings = (query: string): string[] => {
 		const lowerCaseQuery = query.toLowerCase().trim();
@@ -505,7 +505,7 @@
 		);
 	};
 
-	let selectedTab = 'general';
+	let selectedTab = $state('general');
 
 	// Function to handle sideways scrolling
 	const scrollHandler = (event) => {
@@ -532,11 +532,13 @@
 		}
 	};
 
-	$: if (show) {
-		addScrollListener();
-	} else {
-		removeScrollListener();
-	}
+	$effect(()=>{
+		if (show) {
+			addScrollListener();
+		} else {
+			removeScrollListener();
+		}
+	}) 
 </script>
 
 <Modal size="xl" bind:show>
@@ -546,7 +548,7 @@
 			<button
 				aria-label={$i18n.t('Close settings modal')}
 				class="self-center"
-				on:click={() => {
+				onclick={() => {
 					show = false;
 				}}
 			>
@@ -573,7 +575,7 @@
 								${($settings?.highContrastMode ?? false) ? 'placeholder-gray-800' : ''}`}
 						bind:value={search}
 						id="search-input-settings-modal"
-						on:input={searchDebounceHandler}
+						oninput={searchDebounceHandler}
 						placeholder={$i18n.t('Search')}
 					/>
 				</div>
@@ -594,7 +596,7 @@
 											? 'hover:bg-gray-200 dark:hover:bg-gray-800'
 											: 'text-gray-300 dark:text-gray-600 hover:text-gray-700 dark:hover:text-white'
 								}`}
-								on:click={() => {
+								onclick={() => {
 									selectedTab = 'general';
 								}}
 							>
@@ -630,7 +632,7 @@
 											? 'hover:bg-gray-200 dark:hover:bg-gray-800'
 											: 'text-gray-300 dark:text-gray-600 hover:text-gray-700 dark:hover:text-white'
 								}`}
-								on:click={() => {
+								onclick={() => {
 									selectedTab = 'interface';
 								}}
 							>
@@ -667,7 +669,7 @@
 											? 'hover:bg-gray-200 dark:hover:bg-gray-800'
 											: 'text-gray-300 dark:text-gray-600 hover:text-gray-700 dark:hover:text-white'
 								}`}
-									on:click={() => {
+									onclick={() => {
 										selectedTab = 'connections';
 									}}
 								>
@@ -703,7 +705,7 @@
 											? 'hover:bg-gray-200 dark:hover:bg-gray-800'
 											: 'text-gray-300 dark:text-gray-600 hover:text-gray-700 dark:hover:text-white'
 								}`}
-									on:click={() => {
+									onclick={() => {
 										selectedTab = 'tools';
 									}}
 								>
@@ -740,7 +742,7 @@
 											? 'hover:bg-gray-200 dark:hover:bg-gray-800'
 											: 'text-gray-300 dark:text-gray-600 hover:text-gray-700 dark:hover:text-white'
 								}`}
-								on:click={() => {
+								onclick={() => {
 									selectedTab = 'personalization';
 								}}
 							>
@@ -764,7 +766,7 @@
 											? 'hover:bg-gray-200 dark:hover:bg-gray-800'
 											: 'text-gray-300 dark:text-gray-600 hover:text-gray-700 dark:hover:text-white'
 								}`}
-								on:click={() => {
+								onclick={() => {
 									selectedTab = 'audio';
 								}}
 							>
@@ -801,7 +803,7 @@
 											? 'hover:bg-gray-200 dark:hover:bg-gray-800'
 											: 'text-gray-300 dark:text-gray-600 hover:text-gray-700 dark:hover:text-white'
 								}`}
-								on:click={() => {
+								onclick={() => {
 									selectedTab = 'chats';
 								}}
 							>
@@ -837,7 +839,7 @@
 											? 'hover:bg-gray-200 dark:hover:bg-gray-800'
 											: 'text-gray-300 dark:text-gray-600 hover:text-gray-700 dark:hover:text-white'
 								}`}
-								on:click={() => {
+								onclick={() => {
 									selectedTab = 'account';
 								}}
 							>
@@ -873,7 +875,7 @@
 											? 'hover:bg-gray-200 dark:hover:bg-gray-800'
 											: 'text-gray-300 dark:text-gray-600 hover:text-gray-700 dark:hover:text-white'
 								}`}
-								on:click={() => {
+								onclick={() => {
 									selectedTab = 'about';
 								}}
 							>
@@ -907,7 +909,7 @@
 						class="px-0.5 py-1 min-w-fit rounded-lg flex-1 md:flex-none md:mt-auto flex text-left transition {$settings?.highContrastMode
 							? 'hover:bg-gray-200 dark:hover:bg-gray-800'
 							: 'text-gray-300 dark:text-gray-600 hover:text-gray-700 dark:hover:text-white'}"
-						on:click={async (e) => {
+						onclick={async (e) => {
 							e.preventDefault();
 							await goto('/admin/settings');
 							show = false;

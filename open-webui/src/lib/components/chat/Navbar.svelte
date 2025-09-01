@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { getContext } from 'svelte';
-	import { toast } from 'svelte-sonner';
+	// import { toast } from 'svelte-sonner';
 
 	import {
 		WEBUI_NAME,
@@ -16,8 +16,8 @@
 		user
 	} from '$lib/stores';
 
-	import { slide } from 'svelte/transition';
-	import { page } from '$app/stores';
+	// import { slide } from 'svelte/transition';
+	// import { page } from '$app/stores';
 
 	import ShareChatModal from '../chat/ShareChatModal.svelte';
 	import ModelSelector from '../chat/ModelSelector.svelte';
@@ -25,24 +25,24 @@
 	import Menu from '$lib/components/layout/Navbar/Menu.svelte';
 	import UserMenu from '$lib/components/layout/Sidebar/UserMenu.svelte';
 	import MenuLines from '../icons/MenuLines.svelte';
-	import AdjustmentsHorizontal from '../icons/AdjustmentsHorizontal.svelte';
+	// import AdjustmentsHorizontal from '../icons/AdjustmentsHorizontal.svelte';
 
 	import PencilSquare from '../icons/PencilSquare.svelte';
 	import Banner from '../common/Banner.svelte';
 
 	const i18n = getContext('i18n');
+	let {initNewChat,chat,history,selectedModels, title = $WEBUI_NAME,shareEnabled = false,showModelSelector = true} = $props()
+	// export let initNewChat: Function;
+	// export let title: string = $WEBUI_NAME;
+	// export let shareEnabled: boolean = false;
 
-	export let initNewChat: Function;
-	export let title: string = $WEBUI_NAME;
-	export let shareEnabled: boolean = false;
+	// export let chat;
+	// export let history;
+	// export let selectedModels;
+	// export let showModelSelector = true;
 
-	export let chat;
-	export let history;
-	export let selectedModels;
-	export let showModelSelector = true;
-
-	let showShareChatModal = false;
-	let showDownloadChatModal = false;
+	let showShareChatModal = $state(false);
+	let showDownloadChatModal = $state(false);
 </script>
 
 <ShareChatModal bind:show={showShareChatModal} chatId={$chatId} />
@@ -50,7 +50,7 @@
 <button
 	id="new-chat-button"
 	class="hidden"
-	on:click={() => {
+	onclick={() => {
 		initNewChat();
 	}}
 	aria-label="New Chat"
@@ -72,7 +72,7 @@
 					<button
 						id="sidebar-toggle-button"
 						class="cursor-pointer px-2 py-2 flex rounded-xl hover:bg-gray-50 dark:hover:bg-gray-850 transition"
-						on:click={() => {
+						onclick={() => {
 							showSidebar.set(!$showSidebar);
 						}}
 						aria-label="Toggle Sidebar"
@@ -88,7 +88,7 @@
 								class=" flex {$showSidebar
 									? 'md:hidden'
 									: ''} cursor-pointer px-2 py-2 rounded-xl text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-850 transition"
-								on:click={() => {
+								onclick={() => {
 									initNewChat();
 								}}
 								aria-label="New Chat"
@@ -101,11 +101,7 @@
 					{/if}
 				</div>
 
-				<div
-					class="flex-1 overflow-hidden max-w-full py-0.5
-			{$showSidebar ? 'ml-1' : ''}
-			"
-				>
+				<div class="flex-1 overflow-hidden max-w-full py-0.5 {$showSidebar ? 'ml-1' : ''}">
 					{#if showModelSelector}
 						<ModelSelector bind:selectedModels showSetDefault={!shareEnabled} />
 					{/if}
@@ -148,7 +144,7 @@
 						</Menu>
 					{/if}
 
-					<Tooltip content={$i18n.t('Controls')}>
+					<!-- <Tooltip content={$i18n.t('Controls')}>
 						<button
 							class=" flex cursor-pointer px-2 py-2 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-850 transition"
 							on:click={async () => {
@@ -160,7 +156,7 @@
 								<AdjustmentsHorizontal className=" size-5" strokeWidth="0.5" />
 							</div>
 						</button>
-					</Tooltip>
+					</Tooltip> -->
 
 					{#if $user !== undefined && $user !== null}
 						<UserMenu
@@ -177,7 +173,7 @@
 								class="select-none flex rounded-xl p-1.5 w-full hover:bg-gray-50 dark:hover:bg-gray-850 transition"
 								aria-label="User Menu"
 							>
-								<div class=" self-center">
+								<div class="self-center">
 									<img
 										src={$user?.profile_image_url}
 										class="size-6 object-cover rounded-full"
