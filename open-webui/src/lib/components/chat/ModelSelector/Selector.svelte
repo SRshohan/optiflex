@@ -11,7 +11,7 @@
 	import { createEventDispatcher, onMount, getContext, tick } from 'svelte';
 	import { goto } from '$app/navigation';
 
-	import { deleteModel, getOllamaVersion, pullModel, unloadModel } from '$lib/apis/ollama';
+	import { deleteModel, pullModel, unloadModel } from '$lib/apis/ollama';
 
 	import {
 		user,
@@ -72,7 +72,7 @@
 	let selectedTag = '';
 	let selectedConnectionType = '';
 
-	let ollamaVersion = null;
+	//let ollamaVersion = null;
 	let selectedModelIdx = 0;
 
 	const fuse = new Fuse(
@@ -288,7 +288,7 @@
 	};
 
 	onMount(async () => {
-		ollamaVersion = await getOllamaVersion(localStorage.token).catch((error) => false);
+		//ollamaVersion = await getOllamaVersion(localStorage.token).catch((error) => false);
 
 		if (items) {
 			tags = items
@@ -524,7 +524,7 @@
 					</div>
 				{/each}
 
-				{#if !(searchValue.trim() in $MODEL_DOWNLOAD_POOL) && searchValue && ollamaVersion && $user?.role === 'admin'}
+				{#if !(searchValue.trim() in $MODEL_DOWNLOAD_POOL) && searchValue && $user?.role === 'admin'}
 					<Tooltip
 						content={$i18n.t(`Pull "{{searchValue}}" from Ollama.com`, {
 							searchValue: searchValue

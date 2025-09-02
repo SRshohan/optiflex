@@ -11,7 +11,7 @@ export const getModels = async (
 	base: boolean = false
 ) => {
 	let error = null;
-	const res = await fetch(`${WEBUI_BASE_URL}/api/models${base ? '/base' : ''}`, {
+	const res = fetch(`${WEBUI_BASE_URL}/api/models${base ? '/base' : ''}`, {
 		method: 'GET',
 		headers: {
 			Accept: 'application/json',
@@ -35,6 +35,7 @@ export const getModels = async (
 
 	let models = res?.data ?? [];
 
+	console.time('getModels');
 	if (connections && !base) {
 		let localModels = [];
 
@@ -73,8 +74,8 @@ export const getModels = async (
 							);
 						} else {
 							requests.push(
-								(async () => {
-									return await getOpenAIModelsDirect(url, OPENAI_API_KEYS[idx])
+								(() => {
+									return getOpenAIModelsDirect(url, OPENAI_API_KEYS[idx])
 										.then((res) => {
 											return res;
 										})
@@ -108,8 +109,12 @@ export const getModels = async (
 				const response = responses[idx];
 				const apiConfig = OPENAI_API_CONFIGS[idx.toString()] ?? {};
 
-				let models = Array.isArray(response) ? response : (response?.data ?? []);
-				models = models.map((model) => ({ ...model, openai: { id: model.id }, urlIdx: idx }));
+				let responseModels = Array.isArray(response) ? response : (response?.data ?? []);
+				responseModels = responseModels.map((model) => ({
+					...model,
+					openai: { id: model.id },
+					urlIdx: idx
+				}));
 
 				const prefixId = apiConfig.prefix_id;
 				if (prefixId) {
@@ -145,6 +150,7 @@ export const getModels = async (
 
 		models = Object.values(modelsMap);
 	}
+	console.timeLog('getModels', 'after fetch');
 
 	return models;
 };
