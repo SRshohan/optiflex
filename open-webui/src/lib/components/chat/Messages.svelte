@@ -22,30 +22,7 @@
 	const i18n = getContext('i18n');
 	let { className = 'h-full flex pt-8',chatId = '',user = $_user,history = {},prompt,selectedModels,atSelectedModel,sendPrompt,continueResponse,regenerateResponse,
 	mergeResponses,chatActionHandler,showMessage = () => {},submitMessage = () => {},addMessages= () => {},readOnly = false,bottomPadding = false,autoScroll } = $props()
-	// export let className = 'h-full flex pt-8';
-
-	// export let chatId = '';
-	// export let user = $_user;
-
-	// export let prompt;
-	// export let history = {};
-	// export let selectedModels;
-	// export let atSelectedModel;
-
-	// export let sendPrompt: Function;
-	// export let continueResponse: Function;
-	// export let regenerateResponse: Function;
-	// export let mergeResponses: Function;
-
-	// export let chatActionHandler: Function;
-	// export let showMessage: Function = () => {};
-	// export let submitMessage: Function = () => {};
-	// export let addMessages: Function = () => {};
-
-	// export let readOnly = false;
-
-	// export let bottomPadding = false;
-	// export let autoScroll;
+	
 
 	let messagesCount = $state(20);
 	let messagesLoading = $state(false);
