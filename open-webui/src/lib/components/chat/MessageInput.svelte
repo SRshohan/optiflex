@@ -740,7 +740,7 @@
 															files.splice(fileIdx, 1);
 															files = files;
 														}}
-														on:click={() => {
+														onclick={() => {
 															console.log(file);
 														}}
 													/>
@@ -1295,7 +1295,7 @@
 															class="translate-y-[0.5px] flex gap-1 items-center text-gray-600 dark:text-gray-300 hover:text-gray-700 dark:hover:text-gray-200 rounded-lg p-1 self-center transition"
 															aria-label="Available Tools"
 															type="button"
-															on:click={() => {
+															onclick={() => {
 																showTools = !showTools;
 															}}
 														>
@@ -1311,7 +1311,8 @@
 												{#each toggleFilters as filter, filterIdx (filter.id)}
 													<Tooltip content={filter?.description} placement="top">
 														<button
-															onclick|preventDefault={() => {
+															onclick={(e) => {
+																e.preventDefault()
 																if (selectedFilterIds.includes(filter.id)) {
 																	selectedFilterIds = selectedFilterIds.filter(
 																		(id) => id !== filter.id
@@ -1352,7 +1353,7 @@
 												{#if showWebSearchButton}
 													<Tooltip content={$i18n.t('Search the internet')} placement="top">
 														<button
-															onclick|preventDefault={() => (webSearchEnabled = !webSearchEnabled)}
+															onclick={(e) => {e.preventDefault();webSearchEnabled = !webSearchEnabled}}
 															type="button"
 															class="px-2 @xl:px-2.5 py-2 flex gap-1.5 items-center text-sm rounded-full transition-colors duration-300 focus:outline-hidden max-w-full overflow-hidden hover:bg-gray-50 dark:hover:bg-gray-800 {webSearchEnabled ||
 															($settings?.webSearch ?? false) === 'always'
@@ -1371,8 +1372,9 @@
 												{#if showImageGenerationButton}
 													<Tooltip content={$i18n.t('Generate an image')} placement="top">
 														<button
-															onclick|preventDefault={() =>
-																(imageGenerationEnabled = !imageGenerationEnabled)}
+															onclick={(e) =>
+																{e.preventDefault()
+																imageGenerationEnabled = !imageGenerationEnabled}}
 															type="button"
 															class="px-2 @xl:px-2.5 py-2 flex gap-1.5 items-center text-sm rounded-full transition-colors duration-300 focus:outline-hidden max-w-full overflow-hidden hover:bg-gray-50 dark:hover:bg-gray-800 {imageGenerationEnabled
 																? ' text-sky-500 dark:text-sky-300 bg-sky-50 dark:bg-sky-200/5'
@@ -1390,8 +1392,9 @@
 												{#if showCodeInterpreterButton}
 													<Tooltip content={$i18n.t('Execute code for analysis')} placement="top">
 														<button
-															onclick|preventDefault={() =>
-																(codeInterpreterEnabled = !codeInterpreterEnabled)}
+															onclick={(e) =>
+																{e.preventDefault();
+																codeInterpreterEnabled = !codeInterpreterEnabled}}
 															type="button"
 															class="px-2 @xl:px-2.5 py-2 flex gap-1.5 items-center text-sm rounded-full transition-colors duration-300 focus:outline-hidden max-w-full overflow-hidden hover:bg-gray-50 dark:hover:bg-gray-800 {codeInterpreterEnabled
 																? ' text-sky-500 dark:text-sky-300 bg-sky-50 dark:bg-sky-200/5'
