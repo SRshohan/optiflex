@@ -1,0 +1,21 @@
+The project was initially built on svelte 4. So to future proof,cleaner reactivity, smaller runtime and better performance we started to migrate it to svelte 5.
+
+The Changes:
+
+    New Reactivity Model (Runes):
+        In Svelte 4, reactivity relies on $: labels and store syntax, which can sometimes feel magical and confusing to newcomers.
+        Svelte 5’s runes ($state, $derived, $effect, etc.) make reactivity explicit and more predictable.
+
+    Cleaner, Smaller Runtime:
+        Svelte 5 produces smaller compiled output.
+        More efficient updates, leading to faster apps with less JavaScript shipped to the browser.
+
+    Consistency Across Ecosystem
+        SvelteKit, adapters, and tools are moving toward Svelte 5 support as the default.
+        Future libraries and community packages will optimize for Svelte 5 patterns.
+
+
+Problem Faced:
+
+    Changing old props to new porps rune and old reactivity to new $state and $derived, had to do all of this one by one manually as there was'nt any pattern to automate it.
+    

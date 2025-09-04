@@ -1,4 +1,4 @@
-import { WEBUI_API_BASE_URL, WEBUI_BASE_URL } from '$lib/constants';
+import { WEBUI_PROXY_URL, WEBUI_BASE_URL } from '$lib/constants';
 import { convertOpenApiToToolPayload } from '$lib/utils';
 import { getOpenAIModelsDirect } from './openai';
 
@@ -12,7 +12,7 @@ export const getModels = async (
 ) => {
 	let error = null;
 	// console.time('getModels');
-	const res = fetch(`${WEBUI_BASE_URL}/api/models${base ? '/base' : ''}`, {
+	const res = await fetch(`${WEBUI_BASE_URL}/api/models${base ? '/base' : ''}`, {
 		method: 'GET',
 		headers: {
 			Accept: 'application/json',
@@ -33,6 +33,7 @@ export const getModels = async (
 	if (error) {
 		throw error;
 	}
+	console.log('inside getmodal', res);
 
 	let models = res?.data ?? [];
 

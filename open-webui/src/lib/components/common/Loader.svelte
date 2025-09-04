@@ -2,7 +2,7 @@
 	import { createEventDispatcher, onDestroy, onMount } from 'svelte';
 	const dispatch = createEventDispatcher();
 
-	let loaderElement: HTMLElement;
+	let loaderElement: HTMLElement ;
 
 	let observer;
 	let intervalId;

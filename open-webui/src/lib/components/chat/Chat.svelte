@@ -76,7 +76,7 @@
 	import Spinner from '../common/Spinner.svelte';
 	import { fade } from 'svelte/transition';
 
-	let {chatIdProp = ""} = $props();
+	let { chatIdProp = ""  } = $props();
 
 	let loading = $state(true);
 
@@ -99,7 +99,7 @@
 
 	let chatIdUnsubscriber: Unsubscriber | undefined = $state();
 
-	let selectedModels = $state(['']);
+	let selectedModels = $state([]);
 	let atSelectedModel: Model | undefined = $state();
 	let selectedModelIds = $derived(atSelectedModel !== undefined ? [atSelectedModel.id] : selectedModels);
 
@@ -179,7 +179,7 @@
 			return;
 		}
 		sessionStorage.selectedModels = JSON.stringify(selectedModels);
-		console.log('saveSessionSelectedModels', selectedModels, sessionStorage.selectedModels);
+		//console.log('saveSessionSelectedModels', selectedModels, sessionStorage.selectedModels);
 	};
 
 	let oldSelectedModelIds = $state(['']);
@@ -422,7 +422,8 @@
 	};
 
 	let pageSubscribe = $state(null);
-	$effect(async () => {
+	
+	onMount(async () => {
 		loading = true;
 		console.log('mounted');
 		window.addEventListener('message', onMessageHandler);
@@ -2133,13 +2134,14 @@
 												await uploadGoogleDriveFile(data);
 											}
 										}}
-										onsubmit={async (e) => {
-											if (e.detail || files.length > 0) {
+										submit={async (e) => {
+											console.log("submitted",e);
+											if (e || files.length > 0) {
 												await tick();
 												submitPrompt(
 													($settings?.richTextInput ?? true)
-														? e.detail.replaceAll('\n\n', '\n')
-														: e.detail
+														? e.replaceAll('\n\n', '\n')
+														: e
 												);
 											}
 										}}

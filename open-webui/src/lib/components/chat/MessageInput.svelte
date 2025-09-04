@@ -84,7 +84,7 @@
 	
 	let { onChange,createMessagePair,stopResponse,autoScroll = $bindable(false),atSelectedModel = $bindable(),selectedModels,transparentBackground = false,
 		history,taskIds = null,prompt = $bindable(''),files = $bindable([]),toolServers = [],selectedToolIds = $bindable([]),selectedFilterIds = $bindable([]), imageGenerationEnabled = $bindable(false),
-		webSearchEnabled = $bindable(false),codeInterpreterEnabled = $bindable(false),placeholder = ''
+		webSearchEnabled = $bindable(false),codeInterpreterEnabled = $bindable(false),placeholder = '',submit
 	 } = $props()
 	
 
@@ -635,7 +635,7 @@
 									document.getElementById('chat-input')?.focus();
 
 									if ($settings?.speechAutoSend ?? false) {
-										dispatch('submit', prompt);
+										submit(prompt);
 									}
 								}}
 							/>
@@ -646,7 +646,9 @@
 							onsubmit={(e) => {
 								e.preventDefault()
 								// check if selectedModels support image input
-								dispatch('submit', prompt);
+								// onsubmit
+								// console.log("submitted",prompt);
+								submit(prompt)
 							}}
 						>
 							<div
@@ -909,7 +911,7 @@
 																if (enterPressed) {
 																	e.preventDefault();
 																	if (prompt !== '' || files.length > 0) {
-																		dispatch('submit', prompt);
+																		submit(prompt)
 																	}
 																}
 															}
@@ -1116,7 +1118,7 @@
 
 														// Submit the prompt when Enter key is pressed
 														if ((prompt !== '' || files.length > 0) && enterPressed) {
-															dispatch('submit', prompt);
+															submit(prompt);
 														}
 													}
 												}

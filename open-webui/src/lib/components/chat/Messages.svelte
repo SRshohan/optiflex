@@ -16,8 +16,8 @@
 	import Spinner from '../common/Spinner.svelte';
 
 	const i18n = getContext('i18n');
-	let { className = 'h-full flex pt-8',chatId = '',user = $_user,history = {},prompt,selectedModels,atSelectedModel,sendPrompt,continueResponse,regenerateResponse,
-	mergeResponses,chatActionHandler,showMessage = () => {},submitMessage = () => {},addMessages= () => {},readOnly = false,bottomPadding = false,autoScroll } = $props()
+	let { className = 'h-full flex pt-8',chatId = '',user = $_user,history = $bindable({}),prompt = $bindable(),selectedModels,atSelectedModel,sendPrompt,continueResponse,regenerateResponse,
+	mergeResponses,chatActionHandler,showMessage = () => {},submitMessage = () => {},addMessages= () => {},readOnly = false,bottomPadding = false,autoScroll = $bindable() } = $props()
 	
 
 	let messagesCount = $state(20);

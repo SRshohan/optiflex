@@ -23,11 +23,10 @@
 		config
 	} from '$lib/stores';
 	import { toast } from 'svelte-sonner';
-	import { capitalizeFirstLetter, sanitizeResponseContent, splitStream } from '$lib/utils';
+	import { splitStream } from '$lib/utils';
 	import { getModels } from '$lib/apis';
 
 	import ChevronDown from '$lib/components/icons/ChevronDown.svelte';
-	import Check from '$lib/components/icons/Check.svelte';
 	import Search from '$lib/components/icons/Search.svelte';
 	import Tooltip from '$lib/components/common/Tooltip.svelte';
 	import Switch from '$lib/components/common/Switch.svelte';
@@ -289,7 +288,7 @@
 
 	onMount(async () => {
 		//ollamaVersion = await getOllamaVersion(localStorage.token).catch((error) => false);
-
+		
 		if (items) {
 			tags = items
 				.filter((item) => !(item.model?.info?.meta?.hidden ?? false))
@@ -357,7 +356,7 @@
 						localStorage.token,
 						$config?.features?.enable_direct_connections && ($settings?.directConnections ?? null)
 					)
-				);
+				);				
 			}}
 			type="button"
 		>

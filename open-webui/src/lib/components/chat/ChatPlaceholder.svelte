@@ -5,7 +5,7 @@
 	import { config, user, models as _models, temporaryChatEnabled } from '$lib/stores';
 	import { getContext } from 'svelte';
 
-	import { blur, fade } from 'svelte/transition';
+	import {  fade } from 'svelte/transition';
 
 	import Suggestions from './Suggestions.svelte';
 	import { sanitizeResponseContent } from '$lib/utils';
@@ -13,12 +13,6 @@
 	import EyeSlash from '$lib/components/icons/EyeSlash.svelte';
 
 	const i18n = getContext('i18n');
-
-	// export let modelIds = [];
-	// export let models = [];
-	// export let atSelectedModel;
-
-	// export let submitPrompt;
 
 	let { modelIds = [], models = [],atSelectedModel, submitPrompt} = $props()
 	let mounted = $state(false);
