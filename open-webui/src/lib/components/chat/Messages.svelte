@@ -2,19 +2,15 @@
 	import { v4 as uuidv4 } from 'uuid';
 	import {
 		chats,
-		// config,
 		settings,
 		user as _user,
-		// mobile,
 		currentChatPage,
 		temporaryChatEnabled
 	} from '$lib/stores';
-	import { tick, getContext, onMount, createEventDispatcher } from 'svelte';
-	// const dispatch = createEventDispatcher();
+	import { tick, getContext} from 'svelte';
 
 	import { toast } from 'svelte-sonner';
 	import { getChatList, updateChatById } from '$lib/apis/chats';
-	// import { copyToClipboard, extractCurlyBraceWords } from '$lib/utils';
 
 	import Loader from '../common/Loader.svelte';
 	import Spinner from '../common/Spinner.svelte';

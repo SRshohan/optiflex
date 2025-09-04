@@ -18,7 +18,7 @@
 	import Spinner from '$lib/components/common/Spinner.svelte';
 	import OnBoarding from '$lib/components/OnBoarding.svelte';
 	import Input from '$lib/components/ui/Input.svelte';
-	import Button from '$lib/components/ui/Button.svelte';
+	// import Button from '$lib/components/ui/Button.svelte';
 
 	const i18n = getContext('i18n');
 

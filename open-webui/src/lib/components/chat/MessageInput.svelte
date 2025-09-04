@@ -15,11 +15,9 @@
 		type Model,
 		mobile,
 		settings,
-		// showSidebar,
 		models,
 		config,
 		showCallOverlay,
-		// tools,
 		user as _user,
 		showControls,
 		TTSWorker
@@ -84,9 +82,9 @@
 
 	let selectedModelIds = $derived(atSelectedModel !== undefined ? [atSelectedModel.id] : selectedModels);
 	
-	let { onChange,createMessagePair,stopResponse,autoScroll = false,atSelectedModel,selectedModels,transparentBackground = false,
-		history,taskIds = null,prompt = '',files = [],toolServers = [],selectedToolIds = [],selectedFilterIds = [], imageGenerationEnabled = false,
-		webSearchEnabled = false,codeInterpreterEnabled = false,placeholder = ''
+	let { onChange,createMessagePair,stopResponse,autoScroll = $bindable(false),atSelectedModel = $bindable(),selectedModels,transparentBackground = false,
+		history,taskIds = null,prompt = $bindable(''),files = $bindable([]),toolServers = [],selectedToolIds = $bindable([]),selectedFilterIds = $bindable([]), imageGenerationEnabled = $bindable(false),
+		webSearchEnabled = $bindable(false),codeInterpreterEnabled = $bindable(false),placeholder = ''
 	 } = $props()
 	
 

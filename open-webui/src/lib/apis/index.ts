@@ -11,6 +11,7 @@ export const getModels = async (
 	base: boolean = false
 ) => {
 	let error = null;
+	// console.time('getModels');
 	const res = fetch(`${WEBUI_BASE_URL}/api/models${base ? '/base' : ''}`, {
 		method: 'GET',
 		headers: {
@@ -35,7 +36,7 @@ export const getModels = async (
 
 	let models = res?.data ?? [];
 
-	console.time('getModels');
+	// console.time('getModels');
 	if (connections && !base) {
 		let localModels = [];
 
@@ -150,8 +151,8 @@ export const getModels = async (
 
 		models = Object.values(modelsMap);
 	}
-	console.timeLog('getModels', 'after fetch');
-
+	// console.timeLog('getModels', 'after fetch');
+	// console.timeLog('reticulating splines');
 	return models;
 };
 

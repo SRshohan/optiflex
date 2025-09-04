@@ -43,22 +43,14 @@
 		copyToClipboard,
 		getMessageContentParts,
 		createMessagesList,
-		// extractSentencesForAudio,
 		promptTemplate,
-		// splitStream,
-		// sleep,
-		// removeDetails,
 		getPromptVariables,
 		processDetails,
 		removeAllDetails
 	} from '$lib/utils';
 
-	// import { generateChatCompletion } from '$lib/apis/ollama';
 	import {
-		// addTagById,
 		createNewChat,
-		// deleteTagById,
-		// deleteTagsById,
 		getAllTags,
 		getChatById,
 		getChatList,
@@ -66,9 +58,8 @@
 		updateChatById
 	} from '$lib/apis/chats';
 	import { generateOpenAIChatCompletion } from '$lib/apis/openai';
-	import { processWeb, processWebSearch, processYoutubeVideo } from '$lib/apis/retrieval';
+	import { processWeb, processYoutubeVideo } from '$lib/apis/retrieval';
 	import { createOpenAITextStream } from '$lib/apis/streaming';
-	// import { queryMemory } from '$lib/apis/memories';
 	import { getAndUpdateUserLocation, getUserSettings } from '$lib/apis/users';
 	import {
 		chatCompleted,
@@ -79,13 +70,9 @@
 	} from '$lib/apis';
 	import { getTools } from '$lib/apis/tools';
 
-	// import Banner from '../common/Banner.svelte';
-	// import Messages from '$lib/components/chat/Messages.svelte';
 	import Navbar from '$lib/components/chat/Navbar.svelte';
 	import ChatControls from './ChatControls.svelte';
 	import EventConfirmDialog from '../common/ConfirmDialog.svelte';
-	// import Placeholder from './Placeholder.svelte';
-	// import NotificationToast from '../NotificationToast.svelte';
 	import Spinner from '../common/Spinner.svelte';
 	import { fade } from 'svelte/transition';
 
@@ -98,7 +85,6 @@
 	let controlPaneComponent = $state();
 
 	let autoScroll = $state(true);
-	// let processing = $state('');
 	let messagesContainerElement: HTMLDivElement = $state<HTMLDivElement>();
 
 	let navbarElement = $state();
@@ -115,7 +101,6 @@
 
 	let selectedModels = $state(['']);
 	let atSelectedModel: Model | undefined = $state();
-	//let selectedModelIds = [];
 	let selectedModelIds = $derived(atSelectedModel !== undefined ? [atSelectedModel.id] : selectedModels);
 
 	let selectedToolIds = $state([]);

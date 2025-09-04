@@ -2,19 +2,14 @@
 	import { DropdownMenu } from 'bits-ui';
 	import { createEventDispatcher, getContext } from 'svelte';
 
-	// import { flyAndScale } from '$lib/utils/transitions';
 	import { goto } from '$app/navigation';
-	import { fade, slide } from 'svelte/transition';
+	import { fade } from 'svelte/transition';
 
 	import { getUsage } from '$lib/apis';
 	import { userSignOut } from '$lib/apis/auths';
 
 	import { showSettings, mobile, showSidebar, user } from '$lib/stores';
 
-	// import Tooltip from '$lib/components/common/Tooltip.svelte';
-	// import ArchiveBox from '$lib/components/icons/ArchiveBox.svelte';
-	// import QuestionMarkCircle from '$lib/components/icons/QuestionMarkCircle.svelte';
-	// import Map from '$lib/components/icons/Map.svelte';
 	import Keyboard from '$lib/components/icons/Keyboard.svelte';
 	import ShortcutsModal from '$lib/components/chat/ShortcutsModal.svelte';
 	import Settings from '$lib/components/icons/Settings.svelte';
@@ -25,10 +20,7 @@
 
 	const i18n = getContext('i18n');
 	let { show = false, role="", help = false,className = 'max-w-[240px]',children } = $props()
-	//export let show = false;
-	//export let role = '';
-	//export let help = false;
-	//export let className = 'max-w-[240px]';
+	
 
 	let showShortcuts = $state(false);
 
