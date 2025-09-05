@@ -32,6 +32,7 @@
 
 	export let prompt = '';
 	export let files = [];
+	export let modelFormHandler
 
 	export let selectedToolIds = [];
 	export let selectedFilterIds = [];
@@ -201,6 +202,7 @@
 				<MessageInput
 					{history}
 					{selectedModels}
+					{modelFormHandler}
 					bind:files
 					bind:prompt
 					bind:autoScroll
@@ -226,9 +228,6 @@
 					}}
 					on:upload={(e) => {
 						dispatch('upload', e.detail);
-					}}
-					on:submit={(e) => {
-						dispatch('submit', e.detail);
 					}}
 				/>
 			</div>

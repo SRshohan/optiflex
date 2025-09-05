@@ -1,15 +1,13 @@
 <script lang="ts">
-	import { createEventDispatcher, tick } from 'svelte';
 	import { Switch } from 'bits-ui';
-	export let state = true;
-	export let id = '';
+	
+	let { state = $bindable(true), id = "",toggleModel,model} = $props()
 
-	const dispatch = createEventDispatcher();
-
-	$: dispatch('change', state);
+	//toggleModel(model);
 </script>
 
 <Switch.Root
+	onCheckedChange={()=>toggleModel(model)}
 	bind:checked={state}
 	{id}
 	class="flex h-5 min-h-5 w-9 shrink-0 cursor-pointer items-center rounded-full px-[3px] mx-[1px] transition  {state

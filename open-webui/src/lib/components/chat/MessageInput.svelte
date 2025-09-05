@@ -79,14 +79,9 @@
 	// export let webSearchEnabled = false;
 	// export let codeInterpreterEnabled = false;
 	// export let placeholder = '';
+	let { onChange,createMessagePair,modelFormHandler,stopResponse,autoScroll = $bindable(false),atSelectedModel = $bindable(),selectedModels,transparentBackground = false,history,taskIds = null,prompt = $bindable(''),files = $bindable([]),toolServers = [],selectedToolIds = $bindable([]),selectedFilterIds = $bindable([]), imageGenerationEnabled = $bindable(false),webSearchEnabled = $bindable(false),codeInterpreterEnabled = $bindable(false),placeholder = '',onUpload} = $props();
 
 	let selectedModelIds = $derived(atSelectedModel !== undefined ? [atSelectedModel.id] : selectedModels);
-	
-	let { onChange,createMessagePair,stopResponse,autoScroll = $bindable(false),atSelectedModel = $bindable(),selectedModels,transparentBackground = false,
-		history,taskIds = null,prompt = $bindable(''),files = $bindable([]),toolServers = [],selectedToolIds = $bindable([]),selectedFilterIds = $bindable([]), imageGenerationEnabled = $bindable(false),
-		webSearchEnabled = $bindable(false),codeInterpreterEnabled = $bindable(false),placeholder = '',submit
-	 } = $props()
-	
 
 	$effect(()=>{
 		onChange({
@@ -635,20 +630,18 @@
 									document.getElementById('chat-input')?.focus();
 
 									if ($settings?.speechAutoSend ?? false) {
-										submit(prompt);
+										modelFormHandler(prompt);
 									}
 								}}
 							/>
 						{/await}
 					{:else}
 						<form
+							method="POST"
 							class="w-full flex flex-col gap-1.5"
-							onsubmit={(e) => {
-								e.preventDefault()
-								// check if selectedModels support image input
-								// onsubmit
-								// console.log("submitted",prompt);
-								submit(prompt)
+							onsubmit={(e)=>{
+								e.preventDefault();
+								modelFormHandler(prompt);
 							}}
 						>
 							<div
@@ -911,7 +904,7 @@
 																if (enterPressed) {
 																	e.preventDefault();
 																	if (prompt !== '' || files.length > 0) {
-																		submit(prompt)
+																		modelFormHandler(prompt)
 																	}
 																}
 															}
@@ -1118,7 +1111,7 @@
 
 														// Submit the prompt when Enter key is pressed
 														if ((prompt !== '' || files.length > 0) && enterPressed) {
-															submit(prompt);
+															modelFormHandler(prompt);
 														}
 													}
 												}

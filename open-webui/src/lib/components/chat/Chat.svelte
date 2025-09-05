@@ -422,6 +422,19 @@
 	};
 
 	let pageSubscribe = $state(null);
+
+	const modelFormHandler = async(e) => {
+		
+		console.log("submitted",e);
+		if (e || files.length > 0) {
+			await tick();
+			submitPrompt(
+				($settings?.richTextInput ?? true)
+					? e.replaceAll('\n\n', '\n')
+					: e
+			);
+		}									
+	}
 	
 	onMount(async () => {
 		loading = true;
@@ -2098,6 +2111,7 @@
 										{history}
 										{taskIds}
 										{selectedModels}
+										{modelFormHandler}
 										bind:files
 										bind:prompt
 										bind:autoScroll
@@ -2123,7 +2137,7 @@
 												}
 											}
 										}}
-										onupload={async (e) => {
+										onUpload={async (e) => {
 											const { type, data } = e.detail;
 
 											if (type === 'web') {
@@ -2132,17 +2146,6 @@
 												await uploadYoutubeTranscription(data);
 											} else if (type === 'google-drive') {
 												await uploadGoogleDriveFile(data);
-											}
-										}}
-										submit={async (e) => {
-											console.log("submitted",e);
-											if (e || files.length > 0) {
-												await tick();
-												submitPrompt(
-													($settings?.richTextInput ?? true)
-														? e.replaceAll('\n\n', '\n')
-														: e
-												);
 											}
 										}}
 									/>
@@ -2182,18 +2185,14 @@
 												await uploadYoutubeTranscription(data);
 											}
 										}}
-										on:submit={async (e) => {
-											if (e.detail || files.length > 0) {
-												await tick();
-												submitPrompt(
-													($settings?.richTextInput ?? true)
-														? e.detail.replaceAll('\n\n', '\n')
-														: e.detail
-												);
-											}
-										}}
+										{modelFormHandler}
 									/>
 								{/await}
+								<!-- <div
+									class="absolute bottom-1 text-xs text-gray-500 text-center line-clamp-1 right-0 left-0"
+								>
+									{$i18n.t('LLMs can make mistakes. Verify important information.')}
+								</div> -->
 							</div>
 						{/if}
 					</div>
