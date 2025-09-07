@@ -47,8 +47,8 @@
 <div class="flex flex-col w-full items-start">
 	{#each selectedModels as selectedModel, selectedModelIdx}
 		<div class="flex w-full max-w-fit">
-			<div class="overflow-hidden w-full">
-				<div class="mr-1 max-w-full">
+			<div class="overflow-hidden w-full h-12">
+				<div class="mr-1 w-[380px] bg-gray-900/40 p-2.5 rounded-lg">
 					<Selector
 						id={`${selectedModelIdx}`}
 						placeholder={$i18n.t('Select a model')}
@@ -70,7 +70,7 @@
 			{#if $user?.role === 'admin' || ($user?.permissions?.chat?.multiple_models ?? true)}
 				{#if selectedModelIdx === 0}
 					<div
-						class="  self-center mx-1 disabled:text-gray-600 disabled:hover:text-gray-600 -translate-y-[0.5px]"
+						class="bg-gray-900/40 p-2 h-12 w-12 rounded-lg self-center mx-1 disabled:text-gray-600 disabled:hover:text-gray-600 -translate-y-[0.5px] flex justify-center items-center"
 					>
 						<Tooltip content={$i18n.t('Add Model')}>
 							<button
@@ -126,10 +126,10 @@
 	{/each}
 </div>
 
-{#if showSetDefault}
+<!-- {#if showSetDefault}
 	<div
 		class="absolute text-left mt-[1px] ml-1 text-[0.7rem] text-gray-600 dark:text-gray-400 font-primary"
 	>
 		<button on:click={saveDefaultModel}> {$i18n.t('Set as default')}</button>
 	</div>
-{/if}
+{/if} -->

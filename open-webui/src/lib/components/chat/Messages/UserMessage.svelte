@@ -108,7 +108,7 @@
 />
 
 <div
-	class=" flex w-full user-message group"
+	class="flex w-full user-message group"
 	dir={$settings.chatDirection}
 	id="message-{message.id}"
 >
@@ -174,7 +174,7 @@
 										name={file.name}
 										type={file.type}
 										size={file?.size}
-										colorClassName="bg-white dark:bg-gray-850 "
+										colorClassName="bg-white dark:bg-gray-850"
 									/>
 								{/if}
 							</div>
@@ -310,7 +310,7 @@
 						<div class="flex {($settings?.chatBubble ?? true) ? 'justify-end pb-1' : 'w-full'}">
 							<div
 								class="rounded-3xl {($settings?.chatBubble ?? true)
-									? `max-w-[90%] px-5 py-2  bg-gray-50 dark:bg-gray-850 ${
+									? `max-w-[90%] px-5 py-2  bg-gray-50 dark:bg-gray-900/30 border border-primary ${
 											message.files ? 'rounded-tr-lg' : ''
 										}`
 									: ' w-full'}"

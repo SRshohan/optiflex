@@ -45,10 +45,10 @@
 <nav class="sticky top-0 z-30 w-full py-1 -mb-8 flex flex-col items-center drag-region">
 	<div class="flex items-center w-full pl-1.5 pr-1">
 		<div
-			class=" bg-linear-to-b via-50% from-white via-white to-transparent dark:from-gray-900 dark:via-gray-900 dark:to-transparent pointer-events-none absolute inset-0 -bottom-7 z-[-1]"
+			class="bg-transparent pointer-events-none absolute inset-0 -bottom-7 z-[-1]"
 		></div>
 
-		<div class=" flex max-w-full w-full mx-auto px-1 pt-0.5 bg-transparent">
+		<div class="flex max-w-full w-full mx-auto px-1 pt-0.5 bg-transparent">
 			<div class="flex items-center w-full max-w-full">
 				<div
 					class="{$showSidebar
@@ -157,16 +157,20 @@
 							}}
 						>
 							<button
-								class="select-none flex rounded-xl p-1.5 w-full hover:bg-gray-50 dark:hover:bg-gray-850 transition"
+								class="select-none flex rounded-xl p-1.5 w-full hover:bg-gray-800 bg-gray-850/40 px-2 py-1 transition"
 								aria-label="User Menu"
 							>
-								<div class="self-center">
+								<div class="flex justify-start gap-2 w-[200px]">
 									<img
 										src={$user?.profile_image_url}
-										class="size-6 object-cover rounded-full"
+										class="object-cover rounded-md h-[52px] w-[52px]"
 										alt="User profile"
 										draggable="false"
 									/>
+									<div class="flex flex-col justify-center items-start">
+										<p class="text-[14px]">{$user.name}</p>
+										<p class="text-primary text-[10px] m-0 p-0">Free</p>
+									</div>
 								</div>
 							</button>
 						</UserMenu>

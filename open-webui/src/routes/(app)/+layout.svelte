@@ -271,8 +271,9 @@
 {#if $user}
 	<div class="app relative">
 		<div
-			class=" text-gray-700 dark:text-gray-100 bg-white dark:bg-gray-900 h-screen max-h-[100dvh] overflow-auto flex flex-row justify-end"
+			class="text-gray-700 dark:text-gray-100 bg-white dark:bg-gray-900 h-screen max-h-[100dvh] overflow-auto flex flex-row justify-end"
 		>
+		<div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_rgba(0,255,200,0.15),_transparent_50%)]"></div>
 			{#if !['user', 'admin'].includes($user?.role)}
 				<AccountPending />
 			{:else if localDBChats.length > 0}

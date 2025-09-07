@@ -785,7 +785,7 @@
 				>
 					{#if emoji}
 						<div
-							class="  transition-all rounded-full"
+							class=" transition-all rounded-full"
 							style="font-size:{rmsLevel * 100 > 4
 								? '13'
 								: rmsLevel * 100 > 2
@@ -844,7 +844,7 @@
 										: 'size-40'}  transition-all rounded-full {(model?.info?.meta
 								?.profile_image_url ?? '/static/favicon.png') !== '/static/favicon.png'
 								? ' bg-cover bg-center bg-no-repeat'
-								: 'bg-black dark:bg-white'} "
+								: 'bg-black dark:bg-gradient-to-r from-primary to-secondary shadow-xl shadow-primary/50'} "
 							style={(model?.info?.meta?.profile_image_url ?? '/static/favicon.png') !==
 							'/static/favicon.png'
 								? `background-image: url('${model?.info?.meta?.profile_image_url}');`
@@ -853,7 +853,7 @@
 					{/if}
 				</button>
 			{:else}
-				<div class="relative flex video-container w-full max-h-full pt-2 pb-4 md:py-6 px-2 h-full">
+				4<div class="relative flex video-container w-full max-h-full pt-2 pb-4 md:py-6 px-2 h-full">
 					<video
 						id="camera-feed"
 						autoplay
