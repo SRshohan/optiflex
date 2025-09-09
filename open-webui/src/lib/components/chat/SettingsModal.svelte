@@ -543,16 +543,16 @@
 
 <Modal size="xl" bind:show>
 	<div class="text-gray-700 dark:text-gray-100">
-		<div class=" flex justify-between dark:text-gray-300 px-5 pt-4 pb-1">
+		<div class="flex justify-between dark:text-gray-300 px-5 pt-4 pb-5 mb-4 border-b border-white/20">
 			<div class=" text-lg font-medium self-center">{$i18n.t('Settings')}</div>
 			<button
 				aria-label={$i18n.t('Close settings modal')}
-				class="self-center"
+				class="self-center border border-white rounded-full p-1"
 				onclick={() => {
 					show = false;
 				}}
 			>
-				<XMark className="w-5 h-5"></XMark>
+				<XMark className="w-4 h-4"></XMark>
 			</button>
 		</div>
 
@@ -562,7 +562,7 @@
 				id="settings-tabs-container"
 				class="tabs flex flex-row overflow-x-auto gap-2.5 md:gap-1 md:flex-col flex-1 md:flex-none md:w-40 md:min-h-[32rem] md:max-h-[32rem] dark:text-gray-200 text-sm font-medium text-left mb-1 md:mb-0 -translate-y-1"
 			>
-				<div class="hidden md:flex w-full rounded-xl -mb-1 px-0.5 gap-2" id="settings-search">
+				<div class="hidden md:flex w-full rounded-xl mb-4 px-3 gap-2 text-gray-300 dark:bg-gray-700/20 hover:text-gray-700 dark:hover:text-white" id="settings-search">
 					<div class="self-center rounded-l-xl bg-transparent">
 						<Search
 							className="size-3.5"
@@ -586,15 +586,11 @@
 								role="tab"
 								aria-controls="tab-general"
 								aria-selected={selectedTab === 'general'}
-								class={`px-0.5 py-1 min-w-fit rounded-lg flex-1 md:flex-none flex text-left transition
+								class={`px-2.5 py-1 min-w-fit rounded-lg flex-1 md:flex-none flex text-left transition
 								${
 									selectedTab === 'general'
-										? ($settings?.highContrastMode ?? false)
-											? 'dark:bg-gray-800 bg-gray-200'
-											: ''
-										: ($settings?.highContrastMode ?? false)
-											? 'hover:bg-gray-200 dark:hover:bg-gray-800'
-											: 'text-gray-300 dark:text-gray-600 hover:text-gray-700 dark:hover:text-white'
+										? "text-gray-300 dark:bg-gray-700/40 hover:text-gray-700 dark:hover:text-white"
+										: ""
 								}`}
 								onclick={() => {
 									selectedTab = 'general';
@@ -622,15 +618,11 @@
 								role="tab"
 								aria-controls="tab-interface"
 								aria-selected={selectedTab === 'interface'}
-								class={`px-0.5 py-1 min-w-fit rounded-lg flex-1 md:flex-none flex text-left transition
+								class={`px-3 py-2 min-w-fit rounded-lg flex-1 md:flex-none flex text-left transition
 								${
 									selectedTab === 'interface'
-										? ($settings?.highContrastMode ?? false)
-											? 'dark:bg-gray-800 bg-gray-200'
-											: ''
-										: ($settings?.highContrastMode ?? false)
-											? 'hover:bg-gray-200 dark:hover:bg-gray-800'
-											: 'text-gray-300 dark:text-gray-600 hover:text-gray-700 dark:hover:text-white'
+										? "text-gray-300 dark:bg-gray-700/40 hover:text-gray-700 dark:hover:text-white"
+										: ""
 								}`}
 								onclick={() => {
 									selectedTab = 'interface';
@@ -659,15 +651,11 @@
 									role="tab"
 									aria-controls="tab-connections"
 									aria-selected={selectedTab === 'connections'}
-									class={`px-0.5 py-1 min-w-fit rounded-lg flex-1 md:flex-none flex text-left transition
+									class={`px-3 py-2 min-w-fit rounded-lg flex-1 md:flex-none flex text-left transition
 								${
-									selectedTab === 'connections'
-										? ($settings?.highContrastMode ?? false)
-											? 'dark:bg-gray-800 bg-gray-200'
-											: ''
-										: ($settings?.highContrastMode ?? false)
-											? 'hover:bg-gray-200 dark:hover:bg-gray-800'
-											: 'text-gray-300 dark:text-gray-600 hover:text-gray-700 dark:hover:text-white'
+									selectedTab === 'general'
+										? "text-gray-300 dark:bg-gray-700/40 hover:text-gray-700 dark:hover:text-white"
+										: ""
 								}`}
 									onclick={() => {
 										selectedTab = 'connections';
@@ -695,15 +683,11 @@
 									role="tab"
 									aria-controls="tab-tools"
 									aria-selected={selectedTab === 'tools'}
-									class={`px-0.5 py-1 min-w-fit rounded-lg flex-1 md:flex-none flex text-left transition
+									class={`px-3 py-2 min-w-fit rounded-lg flex-1 md:flex-none flex text-left transition
 								${
 									selectedTab === 'tools'
-										? ($settings?.highContrastMode ?? false)
-											? 'dark:bg-gray-800 bg-gray-200'
-											: ''
-										: ($settings?.highContrastMode ?? false)
-											? 'hover:bg-gray-200 dark:hover:bg-gray-800'
-											: 'text-gray-300 dark:text-gray-600 hover:text-gray-700 dark:hover:text-white'
+										? "text-gray-300 dark:bg-gray-700/40 hover:text-gray-700 dark:hover:text-white"
+										: ""
 								}`}
 									onclick={() => {
 										selectedTab = 'tools';
@@ -732,15 +716,11 @@
 								role="tab"
 								aria-controls="tab-personalization"
 								aria-selected={selectedTab === 'personalization'}
-								class={`px-0.5 py-1 min-w-fit rounded-lg flex-1 md:flex-none flex text-left transition
+								class={`px-3 py-2 min-w-fit rounded-lg flex-1 md:flex-none flex text-left transition
 								${
 									selectedTab === 'personalization'
-										? ($settings?.highContrastMode ?? false)
-											? 'dark:bg-gray-800 bg-gray-200'
-											: ''
-										: ($settings?.highContrastMode ?? false)
-											? 'hover:bg-gray-200 dark:hover:bg-gray-800'
-											: 'text-gray-300 dark:text-gray-600 hover:text-gray-700 dark:hover:text-white'
+										? "text-gray-300 dark:bg-gray-700/40 hover:text-gray-700 dark:hover:text-white"
+										: ""
 								}`}
 								onclick={() => {
 									selectedTab = 'personalization';
@@ -756,15 +736,11 @@
 								role="tab"
 								aria-controls="tab-audio"
 								aria-selected={selectedTab === 'audio'}
-								class={`px-0.5 py-1 min-w-fit rounded-lg flex-1 md:flex-none flex text-left transition
+								class={`px-3 py-2 min-w-fit rounded-lg flex-1 md:flex-none flex text-left transition
 								${
 									selectedTab === 'audio'
-										? ($settings?.highContrastMode ?? false)
-											? 'dark:bg-gray-800 bg-gray-200'
-											: ''
-										: ($settings?.highContrastMode ?? false)
-											? 'hover:bg-gray-200 dark:hover:bg-gray-800'
-											: 'text-gray-300 dark:text-gray-600 hover:text-gray-700 dark:hover:text-white'
+										? "text-gray-300 dark:bg-gray-700/40 hover:text-gray-700 dark:hover:text-white"
+										: ""
 								}`}
 								onclick={() => {
 									selectedTab = 'audio';
@@ -793,15 +769,11 @@
 								role="tab"
 								aria-controls="tab-chats"
 								aria-selected={selectedTab === 'chats'}
-								class={`px-0.5 py-1 min-w-fit rounded-lg flex-1 md:flex-none flex text-left transition
+								class={`px-3 py-2 min-w-fit rounded-lg flex-1 md:flex-none flex text-left transition
 								${
 									selectedTab === 'chats'
-										? ($settings?.highContrastMode ?? false)
-											? 'dark:bg-gray-800 bg-gray-200'
-											: ''
-										: ($settings?.highContrastMode ?? false)
-											? 'hover:bg-gray-200 dark:hover:bg-gray-800'
-											: 'text-gray-300 dark:text-gray-600 hover:text-gray-700 dark:hover:text-white'
+										? "text-gray-300 dark:bg-gray-700/40 hover:text-gray-700 dark:hover:text-white"
+										: ""
 								}`}
 								onclick={() => {
 									selectedTab = 'chats';
@@ -829,15 +801,11 @@
 								role="tab"
 								aria-controls="tab-account"
 								aria-selected={selectedTab === 'account'}
-								class={`px-0.5 py-1 min-w-fit rounded-lg flex-1 md:flex-none flex text-left transition
+								class={`px-3 py-2 min-w-fit rounded-lg flex-1 md:flex-none flex text-left transition
 								${
 									selectedTab === 'account'
-										? ($settings?.highContrastMode ?? false)
-											? 'dark:bg-gray-800 bg-gray-200'
-											: ''
-										: ($settings?.highContrastMode ?? false)
-											? 'hover:bg-gray-200 dark:hover:bg-gray-800'
-											: 'text-gray-300 dark:text-gray-600 hover:text-gray-700 dark:hover:text-white'
+										? "text-gray-300 dark:bg-gray-700/40 hover:text-gray-700 dark:hover:text-white"
+										: ""
 								}`}
 								onclick={() => {
 									selectedTab = 'account';
@@ -865,15 +833,11 @@
 								role="tab"
 								aria-controls="tab-about"
 								aria-selected={selectedTab === 'about'}
-								class={`px-0.5 py-1 min-w-fit rounded-lg flex-1 md:flex-none flex text-left transition
+								class={`px-3 py-2 min-w-fit rounded-lg flex-1 md:flex-none flex text-left transition
 								${
 									selectedTab === 'about'
-										? ($settings?.highContrastMode ?? false)
-											? 'dark:bg-gray-800 bg-gray-200'
-											: ''
-										: ($settings?.highContrastMode ?? false)
-											? 'hover:bg-gray-200 dark:hover:bg-gray-800'
-											: 'text-gray-300 dark:text-gray-600 hover:text-gray-700 dark:hover:text-white'
+										? "text-gray-300 dark:bg-gray-700/40 hover:text-gray-700 dark:hover:text-white"
+										: ""
 								}`}
 								onclick={() => {
 									selectedTab = 'about';
@@ -915,7 +879,7 @@
 							show = false;
 						}}
 					>
-						<div class=" self-center mr-2">
+						<div class="self-center mr-2">
 							<svg
 								xmlns="http://www.w3.org/2000/svg"
 								aria-hidden="true"

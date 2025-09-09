@@ -7,7 +7,6 @@
 		user,
 		chats,
 		settings,
-		showSettings,
 		chatId,
 		tags,
 		showSidebar,

@@ -192,11 +192,11 @@
 		<div class="">
 			<div class=" mb-1 text-sm font-medium">{$i18n.t('General Settings')}</div>
 
-			<div class="flex w-full justify-between">
+			<div class="flex w-full justify-between items-center my-2 border-b border-white/20 pb-2">
 				<div class=" self-center text-xs font-medium">{$i18n.t('Theme')}</div>
 				<div class="flex items-center relative">
 					<select
-						class="dark:bg-gray-900 w-fit pr-8 rounded-sm py-2 px-2 text-xs bg-transparent text-right {$settings.highContrastMode
+						class="dark:bg-gray-700/20 w-fit pr-8 rounded-sm py-2 px-2 text-xs bg-transparent text-right {$settings.highContrastMode
 							? ''
 							: 'outline-hidden'}"
 						bind:value={selectedTheme}
@@ -214,11 +214,11 @@
 				</div>
 			</div>
 
-			<div class=" flex w-full justify-between">
+			<div class="flex w-full justify-between my-2 items-center my-2 border-b border-white/20 pb-2">
 				<div class=" self-center text-xs font-medium">{$i18n.t('Language')}</div>
 				<div class="flex items-center relative">
 					<select
-						class="dark:bg-gray-900 w-fit pr-8 rounded-sm py-2 px-2 text-xs bg-transparent text-right {$settings.highContrastMode
+						class="dark:bg-gray-700/20 w-fit pr-8 rounded-sm py-2 px-2 text-xs bg-transparent text-right {$settings.highContrastMode
 							? ''
 							: 'outline-hidden'}"
 						bind:value={lang}
@@ -303,7 +303,7 @@
 
 	<div class="flex justify-end pt-3 text-sm font-medium">
 		<button
-			class="px-3.5 py-1.5 text-sm font-medium bg-black hover:bg-gray-900 text-white dark:bg-white dark:text-black dark:hover:bg-gray-100 transition rounded-full"
+			class="px-3.5 py-1.5 text-sm font-medium dark:text-white text-black border border-black dark:border-white transition rounded-full"
 			onclick={() => {
 				saveHandler();
 			}}
