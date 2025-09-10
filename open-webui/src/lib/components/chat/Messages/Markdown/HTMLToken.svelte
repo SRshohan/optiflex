@@ -79,7 +79,7 @@
 				title="Embedded content"
 				frameborder="0"
 				sandbox
-				onload="this.style.height=(this.contentWindow.document.body.scrollHeight+20)+'px';"
+				onload={"this.style.height=(this.contentWindow.document.body.scrollHeight+20)+'px';"}
 			></iframe>
 		{:else}
 			{token.text}
@@ -99,7 +99,7 @@
 				referrerpolicy="strict-origin-when-cross-origin"
 				allowfullscreen
 				width="100%"
-				onload="this.style.height=(this.contentWindow.document.body.scrollHeight+20)+'px';"
+				onload={"this.style.height=(this.contentWindow.document.body.scrollHeight+20)+'px';"}
 			></iframe>
 		{/if}
 	{:else if token.text.includes(`<source_id`)}

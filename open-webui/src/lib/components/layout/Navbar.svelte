@@ -176,14 +176,14 @@
 						}}
 					>
 						<button
-							class="select-none flex rounded-xl p-1.5 w-full hover:bg-gray-50 dark:hover:bg-gray-850 transition"
+							class="select-none flex rounded-xl p-1.5 w-full hover:bg-gray-50 dark:hover:bg-gray-850 transition text-gray-100"
 							aria-label="User Menu"
 						>
-							<div class=" self-center">
+							<div class="flex">
 								<img
 									src={$user?.profile_image_url}
 									class="size-6 object-cover rounded-full"
-									alt="User profile"
+									alt={$user.name}
 									draggable="false"
 								/>
 							</div>

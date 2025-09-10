@@ -15,8 +15,7 @@
 	import { createEventDispatcher } from 'svelte';
 	const eventDispatch = createEventDispatcher();
 
-	import { EditorState, Plugin, PluginKey, TextSelection } from 'prosemirror-state';
-	import { Decoration, DecorationSet } from 'prosemirror-view';
+	import { TextSelection } from 'prosemirror-state';
 	import { Editor } from '@tiptap/core';
 
 	import { AIAutocompletion } from './RichTextInput/AutoCompletion.js';
@@ -453,4 +452,4 @@
 	};
 </script>
 
-<div bind:this={element} class="relative w-full min-w-full h-full min-h-fit {className}" />
+<div bind:this={element} class="relative w-full min-w-full h-[100px] min-h-fit pt-3 {className}" />

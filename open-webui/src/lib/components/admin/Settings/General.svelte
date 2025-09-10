@@ -124,7 +124,7 @@
 
 					<hr class=" border-gray-100 dark:border-gray-850 my-2" />
 
-					<div class="mb-2.5">
+					<!-- <div class="mb-2.5">
 						<div class=" mb-1 text-xs font-medium flex space-x-2 items-center">
 							<div>
 								{$i18n.t('Version')}
@@ -170,9 +170,9 @@
 								{$i18n.t('Check for updates')}
 							</button>
 						</div>
-					</div>
+					</div> -->
 
-					<div class="mb-2.5">
+					<!-- <div class="mb-2.5">
 						<div class="flex w-full justify-between items-center">
 							<div class="text-xs pr-2">
 								<div class="">
@@ -216,7 +216,7 @@
 								</a>
 							</div>
 						</div>
-					</div>
+					</div> -->
 
 					<div class="mb-2.5">
 						<div class="flex w-full justify-between items-center">

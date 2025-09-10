@@ -79,9 +79,10 @@
 
 		workspaceModels = await getBaseModels(localStorage.token);
 		baseModels = await getModels(localStorage.token, null, true);
-
+		
 		models = baseModels.map((m) => {
 			const workspaceModel = workspaceModels.find((wm) => wm.id === m.id);
+			
 
 			if (workspaceModel) {
 				return {
@@ -89,6 +90,7 @@
 					...workspaceModel
 				};
 			} else {
+
 				return {
 					...m,
 					id: m.id,
@@ -139,7 +141,9 @@
 	};
 
 	const toggleModelHandler = async (model) => {
+		
 		if (!Object.keys(model).includes('base_model_id')) {
+			// console.log("1",model);
 			await createNewModel(localStorage.token, {
 				id: model.id,
 				name: model.name,
@@ -151,8 +155,10 @@
 			}).catch((error) => {
 				return null;
 			});
+			
 		} else {
-			await toggleModelById(localStorage.token, model.id);
+			await toggleModelById(localStorage.token, model.id)
+			// console.log("2",filteredModels);
 		}
 
 		// await init();
@@ -427,9 +433,8 @@
 									>
 										<Switch
 											bind:state={model.is_active}
-											on:change={async () => {
-												toggleModelHandler(model);
-											}}
+											{model}
+											toggleModel={toggleModelHandler}
 										/>
 									</Tooltip>
 								</div>
@@ -457,12 +462,12 @@
 						accept=".json"
 						hidden
 						on:change={() => {
-							console.log(importFiles);
+							// console.log(importFiles);
 
 							let reader = new FileReader();
 							reader.onload = async (event) => {
 								let savedModels = JSON.parse(event.target.result);
-								console.log(savedModels);
+								// console.log(savedModels);
 
 								for (const model of savedModels) {
 									if (Object.keys(model).includes('base_model_id')) {
@@ -552,7 +557,7 @@
 			model={models.find((m) => m.id === selectedModelId)}
 			preset={false}
 			onSubmit={(model) => {
-				console.log(model);
+				// console.log(model);
 				upsertModelHandler(model);
 				selectedModelId = null;
 			}}

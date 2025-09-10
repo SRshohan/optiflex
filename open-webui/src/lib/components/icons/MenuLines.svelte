@@ -1,6 +1,5 @@
 <script lang="ts">
-	export let className = 'size-5';
-	export let strokeWidth = '2';
+	let { className = 'size-5', strokeWidth = '2'} =$props()
 </script>
 
 <svg

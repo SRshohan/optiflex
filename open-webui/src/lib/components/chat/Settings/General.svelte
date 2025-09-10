@@ -1,28 +1,28 @@
 <script lang="ts">
 	import { toast } from 'svelte-sonner';
-	import { createEventDispatcher, onMount, getContext } from 'svelte';
+	import { createEventDispatcher, getContext } from 'svelte';
 	import { getLanguages, changeLanguage } from '$lib/i18n';
 	const dispatch = createEventDispatcher();
 
 	import { models, settings, theme, user } from '$lib/stores';
 
 	const i18n = getContext('i18n');
-
-	import AdvancedParams from './Advanced/AdvancedParams.svelte';
-	import Textarea from '$lib/components/common/Textarea.svelte';
-	export let saveSettings: Function;
-	export let getModels: Function;
+	let { saveSettings,getModels} = $props()
+	// import AdvancedParams from './Advanced/AdvancedParams.svelte';
+	// import Textarea from '$lib/components/common/Textarea.svelte';
+	// export let saveSettings: Function;
+	// export let getModels: Function;
 
 	// General
-	let themes = ['dark', 'light', 'oled-dark'];
-	let selectedTheme = 'system';
+	let themes = $state(['dark', 'light', 'oled-dark']);
+	let selectedTheme = $state('system');
 
-	let languages: Awaited<ReturnType<typeof getLanguages>> = [];
-	let lang = $i18n.language;
-	let notificationEnabled = false;
-	let system = '';
+	let languages: Awaited<ReturnType<typeof getLanguages>> = $state([]);
+	let lang = $state($i18n.language);
+	let notificationEnabled = $state(false);
+	let system = $state('');
 
-	let showAdvanced = false;
+	let showAdvanced = $state(false);
 
 	const toggleNotification = async () => {
 		const permission = await Notification.requestPermission();
@@ -104,7 +104,7 @@
 		dispatch('save');
 	};
 
-	onMount(async () => {
+	$effect(async () => {
 		selectedTheme = localStorage.theme ?? 'system';
 
 		languages = await getLanguages();
@@ -190,18 +190,18 @@
 <div class="flex flex-col h-full justify-between text-sm" id="tab-general">
 	<div class="  overflow-y-scroll max-h-[28rem] lg:max-h-full">
 		<div class="">
-			<div class=" mb-1 text-sm font-medium">{$i18n.t('WebUI Settings')}</div>
+			<div class=" mb-1 text-sm font-medium">{$i18n.t('General Settings')}</div>
 
-			<div class="flex w-full justify-between">
+			<div class="flex w-full justify-between items-center my-2 border-b border-white/20 pb-2">
 				<div class=" self-center text-xs font-medium">{$i18n.t('Theme')}</div>
 				<div class="flex items-center relative">
 					<select
-						class="dark:bg-gray-900 w-fit pr-8 rounded-sm py-2 px-2 text-xs bg-transparent text-right {$settings.highContrastMode
+						class="dark:bg-gray-700/20 w-fit pr-8 rounded-sm py-2 px-2 text-xs bg-transparent text-right {$settings.highContrastMode
 							? ''
 							: 'outline-hidden'}"
 						bind:value={selectedTheme}
 						placeholder="Select a theme"
-						on:change={() => themeChangeHandler(selectedTheme)}
+						onchange={() => themeChangeHandler(selectedTheme)}
 					>
 						<option value="system">⚙️ {$i18n.t('System')}</option>
 						<option value="dark">🌑 {$i18n.t('Dark')}</option>
@@ -214,16 +214,16 @@
 				</div>
 			</div>
 
-			<div class=" flex w-full justify-between">
+			<div class="flex w-full justify-between my-2 items-center my-2 border-b border-white/20 pb-2">
 				<div class=" self-center text-xs font-medium">{$i18n.t('Language')}</div>
 				<div class="flex items-center relative">
 					<select
-						class="dark:bg-gray-900 w-fit pr-8 rounded-sm py-2 px-2 text-xs bg-transparent text-right {$settings.highContrastMode
+						class="dark:bg-gray-700/20 w-fit pr-8 rounded-sm py-2 px-2 text-xs bg-transparent text-right {$settings.highContrastMode
 							? ''
 							: 'outline-hidden'}"
 						bind:value={lang}
 						placeholder="Select a language"
-						on:change={(e) => {
+						onchange={(e) => {
 							changeLanguage(lang);
 						}}
 					>
@@ -252,7 +252,7 @@
 
 					<button
 						class="p-1 px-3 text-xs flex rounded-sm transition"
-						on:click={() => {
+						onclick={() => {
 							toggleNotification();
 						}}
 						type="button"
@@ -267,7 +267,7 @@
 			</div>
 		</div>
 
-		{#if $user?.role === 'admin' || ($user?.permissions.chat?.system_prompt ?? true)}
+		<!-- {#if $user?.role === 'admin' || ($user?.permissions.chat?.system_prompt ?? true)}
 			<hr class="border-gray-50 dark:border-gray-850 my-3" />
 
 			<div>
@@ -279,9 +279,9 @@
 					placeholder={$i18n.t('Enter system prompt here')}
 				/>
 			</div>
-		{/if}
+		{/if} -->
 
-		{#if $user?.role === 'admin' || ($user?.permissions.chat?.controls ?? true)}
+		<!-- {#if $user?.role === 'admin' || ($user?.permissions.chat?.controls ?? true)}
 			<div class="mt-2 space-y-3 pr-1.5">
 				<div class="flex justify-between items-center text-sm">
 					<div class="  font-medium">{$i18n.t('Advanced Parameters')}</div>
@@ -298,13 +298,13 @@
 					<AdvancedParams admin={$user?.role === 'admin'} bind:params />
 				{/if}
 			</div>
-		{/if}
+		{/if} -->
 	</div>
 
 	<div class="flex justify-end pt-3 text-sm font-medium">
 		<button
-			class="px-3.5 py-1.5 text-sm font-medium bg-black hover:bg-gray-900 text-white dark:bg-white dark:text-black dark:hover:bg-gray-100 transition rounded-full"
-			on:click={() => {
+			class="px-3.5 py-1.5 text-sm font-medium dark:text-white text-black border border-black dark:border-white transition rounded-full"
+			onclick={() => {
 				saveHandler();
 			}}
 		>

@@ -1,13 +1,12 @@
 <script lang="ts">
-	import type { Banner } from '$lib/types';
-	import { onMount, createEventDispatcher } from 'svelte';
+	import {  createEventDispatcher } from 'svelte';
 	import { fade } from 'svelte/transition';
 	import DOMPurify from 'dompurify';
 	import { marked } from 'marked';
 
 	const dispatch = createEventDispatcher();
 
-	export let banner: Banner = {
+	let { banner = {
 		id: '',
 		type: 'info',
 		title: '',
@@ -15,12 +14,8 @@
 		url: '',
 		dismissable: true,
 		timestamp: Math.floor(Date.now() / 1000)
-	};
-	export let className = 'mx-4';
-
-	export let dismissed = false;
-
-	let mounted = false;
+	},className = 'mx-4',dismissed = (false)} = $props()
+	let mounted = $state(false);
 
 	const classNames: Record<string, string> = {
 		info: 'bg-blue-500/20 text-blue-700 dark:text-blue-200 ',
@@ -34,7 +29,7 @@
 		dispatch('dismiss', id);
 	};
 
-	onMount(() => {
+	$effect(() => {
 		mounted = true;
 	});
 </script>
@@ -116,7 +111,7 @@
 			<div class="flex self-start">
 				{#if banner.dismissible}
 					<button
-						on:click={() => {
+						onclick={() => {
 							dismiss(banner.id);
 						}}
 						class="  -mt-1 -mb-2 -translate-y-[1px] ml-1.5 mr-1 text-gray-400 dark:hover:text-white"

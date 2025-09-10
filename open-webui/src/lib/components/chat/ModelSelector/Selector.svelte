@@ -11,7 +11,7 @@
 	import { createEventDispatcher, onMount, getContext, tick } from 'svelte';
 	import { goto } from '$app/navigation';
 
-	import { deleteModel, getOllamaVersion, pullModel, unloadModel } from '$lib/apis/ollama';
+	import { deleteModel, pullModel, unloadModel } from '$lib/apis/ollama';
 
 	import {
 		user,
@@ -23,11 +23,10 @@
 		config
 	} from '$lib/stores';
 	import { toast } from 'svelte-sonner';
-	import { capitalizeFirstLetter, sanitizeResponseContent, splitStream } from '$lib/utils';
+	import { splitStream } from '$lib/utils';
 	import { getModels } from '$lib/apis';
 
 	import ChevronDown from '$lib/components/icons/ChevronDown.svelte';
-	import Check from '$lib/components/icons/Check.svelte';
 	import Search from '$lib/components/icons/Search.svelte';
 	import Tooltip from '$lib/components/common/Tooltip.svelte';
 	import Switch from '$lib/components/common/Switch.svelte';
@@ -72,7 +71,7 @@
 	let selectedTag = '';
 	let selectedConnectionType = '';
 
-	let ollamaVersion = null;
+	//let ollamaVersion = null;
 	let selectedModelIdx = 0;
 
 	const fuse = new Fuse(
@@ -288,8 +287,8 @@
 	};
 
 	onMount(async () => {
-		ollamaVersion = await getOllamaVersion(localStorage.token).catch((error) => false);
-
+		//ollamaVersion = await getOllamaVersion(localStorage.token).catch((error) => false);
+		
 		if (items) {
 			tags = items
 				.filter((item) => !(item.model?.info?.meta?.hidden ?? false))
@@ -357,7 +356,7 @@
 						localStorage.token,
 						$config?.features?.enable_direct_connections && ($settings?.directConnections ?? null)
 					)
-				);
+				);				
 			}}
 			type="button"
 		>
@@ -524,7 +523,7 @@
 					</div>
 				{/each}
 
-				{#if !(searchValue.trim() in $MODEL_DOWNLOAD_POOL) && searchValue && ollamaVersion && $user?.role === 'admin'}
+				{#if !(searchValue.trim() in $MODEL_DOWNLOAD_POOL) && searchValue && $user?.role === 'admin'}
 					<Tooltip
 						content={$i18n.t(`Pull "{{searchValue}}" from Ollama.com`, {
 							searchValue: searchValue

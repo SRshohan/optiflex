@@ -167,7 +167,7 @@
 				<Tooltip content={$i18n.t('Export to CSV')}>
 					<button
 						class="p-1 rounded-lg bg-transparent transition"
-						on:click={(e) => {
+						onclick={(e) => {
 							e.stopPropagation();
 							exportTableToCSVHandler(token, tokenIdx);
 						}}
@@ -196,7 +196,7 @@
 								class=" translate-y-[1px] -translate-x-1"
 								type="checkbox"
 								checked={item.checked}
-								on:change={(e) => {
+								onchange={(e) => {
 									onTaskClick({
 										id: id,
 										token: token,
@@ -228,7 +228,7 @@
 								class=" translate-y-[1px] -translate-x-1"
 								type="checkbox"
 								checked={item.checked}
-								on:change={(e) => {
+								onchange={(e) => {
 									onTaskClick({
 										id: id,
 										token: token,
@@ -278,7 +278,7 @@
 			title={token.fileId}
 			width="100%"
 			frameborder="0"
-			onload="this.style.height=(this.contentWindow.document.body.scrollHeight+20)+'px';"
+			onload={"this.style.height=(this.contentWindow.document.body.scrollHeight+20)+'px';"}
 		></iframe>
 	{:else if token.type === 'paragraph'}
 		<p dir="auto">

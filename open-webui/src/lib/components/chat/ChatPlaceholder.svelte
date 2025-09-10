@@ -3,9 +3,9 @@
 	import { marked } from 'marked';
 
 	import { config, user, models as _models, temporaryChatEnabled } from '$lib/stores';
-	import { onMount, getContext } from 'svelte';
+	import { getContext } from 'svelte';
 
-	import { blur, fade } from 'svelte/transition';
+	import {  fade } from 'svelte/transition';
 
 	import Suggestions from './Suggestions.svelte';
 	import { sanitizeResponseContent } from '$lib/utils';
@@ -14,22 +14,21 @@
 
 	const i18n = getContext('i18n');
 
-	export let modelIds = [];
-	export let models = [];
-	export let atSelectedModel;
+	let { modelIds = [], models = [],atSelectedModel, submitPrompt} = $props()
+	let mounted = $state(false);
+	let selectedModelIdx = $state(0);
 
-	export let submitPrompt;
+	$effect(()=>{
+		if (modelIds.length > 0) {
+			selectedModelIdx = models.length - 1;
+		}
+	})
 
-	let mounted = false;
-	let selectedModelIdx = 0;
+	$effect(()=>{
+		models = modelIds.map((id) => $_models.find((m) => m.id === id));
+	})
 
-	$: if (modelIds.length > 0) {
-		selectedModelIdx = models.length - 1;
-	}
-
-	$: models = modelIds.map((id) => $_models.find((m) => m.id === id));
-
-	onMount(() => {
+	$effect(() => {
 		mounted = true;
 	});
 </script>
@@ -40,7 +39,7 @@
 			<div class="flex -space-x-4 mb-0.5" in:fade={{ duration: 200 }}>
 				{#each models as model, modelIdx}
 					<button
-						on:click={() => {
+						onclick={() => {
 							selectedModelIdx = modelIdx;
 						}}
 					>

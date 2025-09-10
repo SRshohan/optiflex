@@ -7,6 +7,10 @@ export default {
 	content: ['./src/**/*.{html,js,svelte,ts}'],
 	theme: {
 		extend: {
+			backgroundImage: {
+				'radial-primary':
+					'radial-gradient(ellipse at top at 40px 40px,rgba(0,255,200,0.15),transparent 70%)'
+			},
 			colors: {
 				gray: {
 					50: 'var(--color-gray-50, #f9f9f9)',
@@ -21,7 +25,9 @@ export default {
 					850: 'var(--color-gray-850, #262626)',
 					900: 'var(--color-gray-900, #171717)',
 					950: 'var(--color-gray-950, #0d0d0d)'
-				}
+				},
+				primary: '#00E0D6',
+				secondary: '#008Fce'
 			},
 			typography: {
 				DEFAULT: {
