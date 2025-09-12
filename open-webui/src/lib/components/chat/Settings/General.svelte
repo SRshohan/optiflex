@@ -1,10 +1,11 @@
 <script lang="ts">
 	import { toast } from 'svelte-sonner';
-	import { createEventDispatcher, getContext } from 'svelte';
+	import { createEventDispatcher, getContext, onMount } from 'svelte';
 	import { getLanguages, changeLanguage } from '$lib/i18n';
 	const dispatch = createEventDispatcher();
 
 	import { models, settings, theme, user } from '$lib/stores';
+	import Select from '$lib/components/ui/Select.svelte';
 
 	const i18n = getContext('i18n');
 	let { saveSettings,getModels} = $props()
@@ -16,12 +17,20 @@
 	// General
 	let themes = $state(['dark', 'light', 'oled-dark']);
 	let selectedTheme = $state('system');
-
-	let languages: Awaited<ReturnType<typeof getLanguages>> = $state([]);
+	let languages = $state([]);
+	let languageOptions = $state([])
 	let lang = $state($i18n.language);
 	let notificationEnabled = $state(false);
 	let system = $state('');
-
+	let themeOptions = $derived(
+		[
+			{"value":"system","title":"System"},
+			{"value":"dark","title":"Dark"},
+			{"value":"oled-dark","title":"Oled Dark"},
+			{"value":"light","title":"☀️ Light"},
+			{"value":"her","title":"Her 🌷"},
+		]
+	);
 	let showAdvanced = $state(false);
 
 	const toggleNotification = async () => {
@@ -104,10 +113,11 @@
 		dispatch('save');
 	};
 
-	$effect(async () => {
-		selectedTheme = localStorage.theme ?? 'system';
-
+	onMount(async () => {
+		console.log(languageOptions,languages,"hello");
 		languages = await getLanguages();
+		languageOptions = languages?.map(item=>{return{"value":item['code'],"title":item['title']}});
+		selectedTheme = localStorage.theme ?? 'system';
 
 		notificationEnabled = $settings.notificationEnabled ?? false;
 		system = $settings.system ?? '';
@@ -115,6 +125,7 @@
 		params = { ...params, ...$settings.params };
 		params.stop = $settings?.params?.stop ? ($settings?.params?.stop ?? []).join(',') : null;
 	});
+	
 
 	const applyTheme = (_theme: string) => {
 		let themeToApply = _theme === 'oled-dark' ? 'dark' : _theme;
@@ -188,13 +199,14 @@
 </script>
 
 <div class="flex flex-col h-full justify-between text-sm" id="tab-general">
-	<div class="  overflow-y-scroll max-h-[28rem] lg:max-h-full">
+	<div class="  overflow-y-scroll max-h-[28rem] h-full">
 		<div class="">
 			<div class=" mb-1 text-sm font-medium">{$i18n.t('General Settings')}</div>
 
 			<div class="flex w-full justify-between items-center my-2 border-b border-white/20 pb-2">
 				<div class=" self-center text-xs font-medium">{$i18n.t('Theme')}</div>
-				<div class="flex items-center relative">
+				<Select selectTitle={`Select a theme`} bind:options={themeOptions} onChange={themeChangeHandler} />
+				<!-- <div class="flex items-center relative">
 					<select
 						class="dark:bg-gray-700/20 w-fit pr-8 rounded-sm py-2 px-2 text-xs bg-transparent text-right {$settings.highContrastMode
 							? ''
@@ -208,15 +220,17 @@
 						<option value="oled-dark">🌃 {$i18n.t('OLED Dark')}</option>
 						<option value="light">☀️ {$i18n.t('Light')}</option>
 						<option value="her">🌷 Her</option>
-						<!-- <option value="rose-pine dark">🪻 {$i18n.t('Rosé Pine')}</option>
-						<option value="rose-pine-dawn light">🌷 {$i18n.t('Rosé Pine Dawn')}</option> -->
+						<option value="rose-pine dark">🪻 {$i18n.t('Rosé Pine')}</option>
+						<option value="rose-pine-dawn light">🌷 {$i18n.t('Rosé Pine Dawn')}</option> 
 					</select>
-				</div>
+				</div> -->
 			</div>
 
 			<div class="flex w-full justify-between my-2 items-center my-2 border-b border-white/20 pb-2">
 				<div class=" self-center text-xs font-medium">{$i18n.t('Language')}</div>
-				<div class="flex items-center relative">
+				<Select selectValue={lang} selectTitle={`Select a language`} bind:options={languageOptions} onChange={changeLanguage} />
+
+				<!-- <div class="flex items-center relative">
 					<select
 						class="dark:bg-gray-700/20 w-fit pr-8 rounded-sm py-2 px-2 text-xs bg-transparent text-right {$settings.highContrastMode
 							? ''
@@ -231,7 +245,7 @@
 							<option value={language['code']}>{language['title']}</option>
 						{/each}
 					</select>
-				</div>
+				</div> -->
 			</div>
 			{#if $i18n.language === 'en-US'}
 				<div class="mb-2 text-xs text-gray-400 dark:text-gray-500">
