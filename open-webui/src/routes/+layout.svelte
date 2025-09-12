@@ -654,20 +654,25 @@
 	<!-- <link rel="stylesheet" type="text/css" href="/themes/rosepine.css" />
 	<link rel="stylesheet" type="text/css" href="/themes/rosepine-dawn.css" /> -->
 </svelte:head>
+<div class="text-gray-700 w-screen dark:text-gray-100 bg-white dark:bg-gray-900 h-screen max-h-[100dvh] overflow-hidden relative">
+	<div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_rgba(0,255,200,0.15),_transparent_50%)]">
+		
+	</div>
+	
+	{#if loaded}
+		{#if $isApp}
+			<div class="flex flex-row h-screen">
+				<AppSidebar />
 
-{#if loaded}
-	{#if $isApp}
-		<div class="flex flex-row h-screen">
-			<AppSidebar />
-
-			<div class="w-full flex-1 max-w-[calc(100%-4.5rem)]">
-				<slot />
+				<div class="w-full flex-1 max-w-[calc(100%-4.5rem)]">
+					<slot />
+				</div>
 			</div>
-		</div>
-	{:else}
-		<slot />
+		{:else}
+			<slot />
+		{/if}
 	{/if}
-{/if}
+</div>
 
 <Toaster
 	theme={$theme.includes('dark')
