@@ -2,7 +2,6 @@
 	import { toast } from 'svelte-sonner';
 	import { v4 as uuidv4 } from 'uuid';
 
-	import { goto } from '$app/navigation';
 	import {
 		user,
 		chats,
@@ -21,7 +20,8 @@
 		socket,
 		config,
 		isApp,
-		models
+		models,
+		showAddProjectModal
 	} from '$lib/stores';
 	import { onMount, getContext, tick, onDestroy } from 'svelte';
 
@@ -58,6 +58,7 @@
 	import MagnifyingGlass from '../icons/MagnifyingGlass.svelte';
 	import SearchModal from './SearchModal.svelte';
 	import Project from './Project.svelte';
+	import AddNewProject from './AddNewProject.svelte';
 
 	const BREAKPOINT = 768;
 
@@ -439,6 +440,12 @@
 		}
 	}}
 />
+
+<AddNewProject bind:show={$showAddProjectModal} 
+	onClose={() => {
+		showAddProjectModal.set(false);
+	}} 
+	/>
 
 <div
 	bind:this={navElement}

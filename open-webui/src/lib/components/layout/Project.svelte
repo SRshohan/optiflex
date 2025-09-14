@@ -1,10 +1,7 @@
 <script>
 	import { getContext } from "svelte";
-	import ChevronDown from "../icons/ChevronDown.svelte";
-	import ChevronRight from "../icons/ChevronRight.svelte";
-
+    import {addedProjects, showAddProjectModal} from '$lib/stores';
     const i18n = getContext('i18n');
-    let open = false
 </script>
 
 <div>
@@ -29,22 +26,15 @@
                     />
             </svg>
         </div>
-        <div onclick={()=> open = !open} class="w-full flex justify-start items-center gap-2">
-            <p class="m-0 p-0 text-[16px]">{$i18n.t('Project')}</p>
-            {#if open}
-                <ChevronDown className="cursor-pointer size-3" strokeWidth="2.5" />
-            {:else}
-                <ChevronRight className="cursor-pointer size-3" strokeWidth="2.5" />
-            {/if}
+        <div onclick={()=> $showAddProjectModal = true} class="w-full flex justify-start items-center gap-2">
+            <p class="cursor-pointer m-0 p-0 text-[16px]">{$i18n.t('New Project')}</p>
         </div>
 
         
     </div>
-    {#if open}
-        <div class="ml-4 mt-5 flex flex-col justify-start gap-3">
-            <p>Project 1</p>
-            <p>Project 2</p>
-            <p>Project 3</p>
-        </div>
-    {/if}
+    <div class="ml-4 mt-5 flex flex-col justify-start gap-3">
+        {#each $addedProjects as project}
+            <p class="cursor-pointer">{project.name}</p>
+        {/each}
+    </div>
 </div>
