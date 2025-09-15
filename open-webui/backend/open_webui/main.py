@@ -86,6 +86,7 @@ from open_webui.routers import (
     users,
     utils,
     payment,
+    projects,
 )
 
 from open_webui.routers.retrieval import (
@@ -1167,6 +1168,7 @@ app.include_router(
 )
 app.include_router(utils.router, prefix="/api/v1/utils", tags=["utils"])
 app.include_router(payment.router, prefix="/api/v1/payment", tags=["payment"])
+app.include_router(projects.router, prefix="/api/v1/projects", tags=["projects"])
 
 try:
     audit_level = AuditLevel(AUDIT_LOG_LEVEL)
