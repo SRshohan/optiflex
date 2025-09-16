@@ -10,12 +10,13 @@
 	import { round } from '@huggingface/transformers';
 	import Spinner from '$lib/components/common/Spinner.svelte';
 	import Tooltip from '$lib/components/common/Tooltip.svelte';
+	import Select from '$lib/components/ui/Select.svelte';
 	const dispatch = createEventDispatcher();
 
 	const i18n = getContext('i18n');
 
 	export let saveSettings: Function;
-
+	let engineOptions = [{title:"Default",value:""},{title:"Web-Api",value:"web"}]
 	// Audio
 	let conversationMode = false;
 	let speechAutoSend = false;
@@ -37,7 +38,9 @@
 
 	// Audio speed control
 	let playbackRate = 1;
-
+	let engineChangeHandler = (value) => {
+		STTEngine=value
+	}
 	const getVoices = async () => {
 		if (TTSEngine === 'browser-kokoro') {
 			if (!TTSModel) {
@@ -183,7 +186,8 @@
 			{#if $config.audio.stt.engine !== 'web'}
 				<div class=" py-0.5 flex w-full justify-between">
 					<div class=" self-center text-xs font-medium">{$i18n.t('Speech-to-Text Engine')}</div>
-					<div class="flex items-center relative">
+					<Select selectTitle={`Select an engine`} bind:options={engineOptions} selectValue={STTEngine} onChange={engineChangeHandler} />
+					<!-- <div class="flex items-center relative">
 						<select
 							class="dark:bg-gray-900 w-fit pr-8 rounded-sm px-2 p-1 text-xs bg-transparent outline-hidden text-right"
 							bind:value={STTEngine}
@@ -192,7 +196,7 @@
 							<option value="">{$i18n.t('Default')}</option>
 							<option value="web">{$i18n.t('Web API')}</option>
 						</select>
-					</div>
+					</div> -->
 				</div>
 
 				<div class=" py-0.5 flex w-full justify-between">

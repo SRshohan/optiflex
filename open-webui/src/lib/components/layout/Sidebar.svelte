@@ -673,7 +673,7 @@
 			<Folder
 				className="mt-0.5"
 				name={$i18n.t('History')}
-				
+				img="/Icons/History.svg"
 				onAddLabel={$i18n.t('New Folder')}
 				on:import={(e) => {
 					importChatHandler(e.detail);
