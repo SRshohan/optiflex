@@ -37,7 +37,14 @@ pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
-## 6. Run the Backend Server
+## 6. Create Data Directory
+Before running the backend server, you need to create the data directory:
+```sh
+cd optiflex/open-webui/backend
+mkdir -p data
+```
+
+## 7. Run the Backend Server
 ```sh
 python -m uvicorn open_webui.main:app --host 0.0.0.0 --port 8080 --reload
 ```
