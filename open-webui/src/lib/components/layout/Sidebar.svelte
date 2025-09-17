@@ -21,7 +21,10 @@
 		config,
 		isApp,
 		models,
-		showAddProjectModal
+		showAddProjectModal,
+
+		addedProjects
+
 	} from '$lib/stores';
 	import { onMount, getContext, tick, onDestroy } from 'svelte';
 
@@ -38,7 +41,10 @@
 		getChatPinnedStatusById,
 		getChatById,
 		updateChatFolderIdById,
-		importChat
+		importChat,
+
+		getProjects
+
 	} from '$lib/apis/chats';
 	import { createNewFolder, getFolders, updateFolderParentIdById } from '$lib/apis/folders';
 	import { WEBUI_BASE_URL } from '$lib/constants';
@@ -77,7 +83,7 @@
 
 	let folders = {};
 	let newFolderId = null;
-
+	let projects = []
 	const initFolders = async () => {
 		const folderList = await getFolders(localStorage.token).catch((error) => {
 			toast.error(`${error}`);
@@ -315,6 +321,10 @@
 		selectedChatId = null;
 	};
 
+	onMount(async()=>{
+		projects = await getProjects(localStorage.token);
+		$addedProjects = projects
+	})
 	
 	onMount(async () => {
 		showPinnedChat = localStorage?.showPinnedChat ? localStorage.showPinnedChat === 'true' : true;
