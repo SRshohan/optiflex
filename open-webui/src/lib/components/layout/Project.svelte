@@ -1,7 +1,18 @@
 <script>
 	import { getContext } from "svelte";
     import {addedProjects, showAddProjectModal} from '$lib/stores';
+	import { deleteProject } from "$lib/apis/chats";
+	import { toast } from "svelte-sonner";
     const i18n = getContext('i18n');
+
+    async function handleDelete(id){
+        const res = await deleteProject(localStorage.token,id);
+        console.log("res delete",res);
+        
+        if(res.ok){
+            toast.success(`Delete Successful`);
+        }
+    }
 </script>
 
 <div>
@@ -35,7 +46,13 @@
     </div>
     <div class="ml-4 mt-5 flex flex-col justify-start gap-3">
         {#each $addedProjects as project}
-            <p class="cursor-pointer">{project.name}</p>
+            <div class="flex justify-between items-center">
+                <p class="cursor-pointer">{project.name}</p>
+                <div class="flex items-center gap-2 cursor-pointer">
+                    <img class="h-4" src="/Icons/Edit.svg" alt="edit" />
+                    <p onclick={()=>handleDelete(project.id)} class="text-lg text-red-600 font-bold">X</p>
+                </div>
+            </div>
         {/each}
     </div>
 </div>
