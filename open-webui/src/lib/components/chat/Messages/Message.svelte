@@ -1,44 +1,51 @@
 <script lang="ts">
-	import { toast } from 'svelte-sonner';
+	// import { toast } from 'svelte-sonner';
 
-	import { tick, getContext, onMount, createEventDispatcher } from 'svelte';
-	const dispatch = createEventDispatcher();
+	import { getContext } from 'svelte';
+	// const dispatch = createEventDispatcher();
 	const i18n = getContext('i18n');
 
 	import { settings } from '$lib/stores';
-	import { copyToClipboard } from '$lib/utils';
+	// import { copyToClipboard } from '$lib/utils';
 
-	import MultiResponseMessages from './MultiResponseMessages.svelte';
-	import ResponseMessage from './ResponseMessage.svelte';
-	import UserMessage from './UserMessage.svelte';
+	//Importing lazyly
+	// import MultiResponseMessages from './MultiResponseMessages.svelte';
+	// import ResponseMessage from './ResponseMessage.svelte';
+	// import UserMessage from './UserMessage.svelte';
 
-	export let chatId;
-	export let idx = 0;
 
-	export let history;
-	export let messageId;
+	// Old way of importing props
+	// export let chatId;
+	// export let idx = 0;
 
-	export let user;
+	// export let history;
+	// export let messageId;
 
-	export let gotoMessage;
-	export let showPreviousMessage;
-	export let showNextMessage;
-	export let updateChat;
+	// export let user;
 
-	export let editMessage;
-	export let saveMessage;
-	export let deleteMessage;
-	export let rateMessage;
-	export let actionMessage;
-	export let submitMessage;
+	// export let gotoMessage;
+	// export let showPreviousMessage;
+	// export let showNextMessage;
+	// export let updateChat;
 
-	export let regenerateResponse;
-	export let continueResponse;
-	export let mergeResponses;
+	// export let editMessage;
+	// export let saveMessage;
+	// export let deleteMessage;
+	// export let rateMessage;
+	// export let actionMessage;
+	// export let submitMessage;
 
-	export let addMessages;
-	export let triggerScroll;
-	export let readOnly = false;
+	// export let regenerateResponse;
+	// export let continueResponse;
+	// export let mergeResponses;
+
+	// export let addMessages;
+	// export let triggerScroll;
+	// export let readOnly = false;
+
+	let { chatId,idx = 0,history = $bindable(),messageId,user,gotoMessage,showPreviousMessage,showNextMessage,updateChat,editMessage,saveMessage,deleteMessage,rateMessage,
+		actionMessage,submitMessage,regenerateResponse,continueResponse,mergeResponses,addMessages,triggerScroll,readOnly = false
+	} = $props()
 </script>
 
 <div
@@ -48,65 +55,71 @@
 >
 	{#if history.messages[messageId]}
 		{#if history.messages[messageId].role === 'user'}
-			<UserMessage
-				{user}
-				{history}
-				{messageId}
-				isFirstMessage={idx === 0}
-				siblings={history.messages[messageId].parentId !== null
-					? (history.messages[history.messages[messageId].parentId]?.childrenIds ?? [])
-					: (Object.values(history.messages)
-							.filter((message) => message.parentId === null)
-							.map((message) => message.id) ?? [])}
-				{gotoMessage}
-				{showPreviousMessage}
-				{showNextMessage}
-				{editMessage}
-				{deleteMessage}
-				{readOnly}
-			/>
+			{#await import('./UserMessage.svelte') then {default:UserMessage}}
+				<UserMessage
+					{user}
+					{history}
+					{messageId}
+					isFirstMessage={idx === 0}
+					siblings={history.messages[messageId].parentId !== null
+						? (history.messages[history.messages[messageId].parentId]?.childrenIds ?? [])
+						: (Object.values(history.messages)
+								.filter((message) => message.parentId === null)
+								.map((message) => message.id) ?? [])}
+					{gotoMessage}
+					{showPreviousMessage}
+					{showNextMessage}
+					{editMessage}
+					{deleteMessage}
+					{readOnly}
+				/>
+			{/await}	
 		{:else if (history.messages[history.messages[messageId].parentId]?.models?.length ?? 1) === 1}
-			<ResponseMessage
-				{chatId}
-				{history}
-				{messageId}
-				isLastMessage={messageId === history.currentId}
-				siblings={history.messages[history.messages[messageId].parentId]?.childrenIds ?? []}
-				{gotoMessage}
-				{showPreviousMessage}
-				{showNextMessage}
-				{updateChat}
-				{editMessage}
-				{saveMessage}
-				{rateMessage}
-				{actionMessage}
-				{submitMessage}
-				{deleteMessage}
-				{continueResponse}
-				{regenerateResponse}
-				{addMessages}
-				{readOnly}
-			/>
+			{#await import('./ResponseMessage.svelte') then {default:ResponseMessage}}
+				<ResponseMessage
+					{chatId}
+					{history}
+					{messageId}
+					isLastMessage={messageId === history.currentId}
+					siblings={history.messages[history.messages[messageId].parentId]?.childrenIds ?? []}
+					{gotoMessage}
+					{showPreviousMessage}
+					{showNextMessage}
+					{updateChat}
+					{editMessage}
+					{saveMessage}
+					{rateMessage}
+					{actionMessage}
+					{submitMessage}
+					{deleteMessage}
+					{continueResponse}
+					{regenerateResponse}
+					{addMessages}
+					{readOnly}
+				/>
+			{/await}
 		{:else}
-			<MultiResponseMessages
-				bind:history
-				{chatId}
-				{messageId}
-				isLastMessage={messageId === history?.currentId}
-				{updateChat}
-				{editMessage}
-				{saveMessage}
-				{rateMessage}
-				{actionMessage}
-				{submitMessage}
-				{deleteMessage}
-				{continueResponse}
-				{regenerateResponse}
-				{mergeResponses}
-				{triggerScroll}
-				{addMessages}
-				{readOnly}
-			/>
+			{#await import('./MultiResponseMessages.svelte') then {default:MultiResponseMessages}}
+				<MultiResponseMessages
+					bind:history
+					{chatId}
+					{messageId}
+					isLastMessage={messageId === history?.currentId}
+					{updateChat}
+					{editMessage}
+					{saveMessage}
+					{rateMessage}
+					{actionMessage}
+					{submitMessage}
+					{deleteMessage}
+					{continueResponse}
+					{regenerateResponse}
+					{mergeResponses}
+					{triggerScroll}
+					{addMessages}
+					{readOnly}
+				/>
+			{/await}
 		{/if}
 	{/if}
 </div>

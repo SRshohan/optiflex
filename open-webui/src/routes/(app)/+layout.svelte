@@ -1,20 +1,20 @@
 <script lang="ts">
-	import { toast } from 'svelte-sonner';
+	// import { toast } from 'svelte-sonner';
 	import { onMount, tick, getContext } from 'svelte';
 	import { openDB, deleteDB } from 'idb';
 	import fileSaver from 'file-saver';
 	const { saveAs } = fileSaver;
-	import mermaid from 'mermaid';
+	// import mermaid from 'mermaid';
 
 	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
 	import { fade } from 'svelte/transition';
 
-	import { getKnowledgeBases } from '$lib/apis/knowledge';
-	import { getFunctions } from '$lib/apis/functions';
+	// import { getKnowledgeBases } from '$lib/apis/knowledge';
+	// import { getFunctions } from '$lib/apis/functions';
 	import { getModels, getToolServersData, getVersionUpdates } from '$lib/apis';
-	import { getAllTags } from '$lib/apis/chats';
-	import { getPrompts } from '$lib/apis/prompts';
+	// import { getAllTags } from '$lib/apis/chats';
+	// import { getPrompts } from '$lib/apis/prompts';
 	import { getTools } from '$lib/apis/tools';
 	import { getBanners } from '$lib/apis/configs';
 	import { getUserSettings } from '$lib/apis/users';
@@ -271,8 +271,13 @@
 {#if $user}
 	<div class="app relative">
 		<div
-			class=" text-gray-700 dark:text-gray-100 bg-white dark:bg-gray-900 h-screen max-h-[100dvh] overflow-auto flex flex-row justify-end"
+			class="text-gray-700 dark:text-gray-100 bg-white dark:bg-gray-900 h-screen max-h-[100dvh] overflow-hidden flex flex-row justify-end"
 		>
+		<div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_rgba(0,255,200,0.15),_transparent_50%)]"></div>
+			<!-- <img class="opacity-5 h-[1000px] absolute" src="/favicon.png" /> -->
+			<img class="opacity-5 absolute inset-0 -left-1/2 w-full" src="/favicon.png" />
+			<!-- <img class="opacity-5 absolute inset-[40%] w-full" src="/favicon.png" /> -->
+
 			{#if !['user', 'admin'].includes($user?.role)}
 				<AccountPending />
 			{:else if localDBChats.length > 0}

@@ -1,7 +1,7 @@
 import logging
 import time
 from typing import Optional
-
+import os
 from open_webui.internal.db import Base, JSONField, get_db
 from open_webui.env import SRC_LOG_LEVELS
 
@@ -21,6 +21,39 @@ from open_webui.utils.access_control import has_access
 log = logging.getLogger(__name__)
 log.setLevel(SRC_LOG_LEVELS["MODELS"])
 
+MODEL_ICON_PATTERNS = {
+    'gpt-': '/static/icons/openai.png',
+    'claude-': '/static/icons/anthropic.png',
+    'gemini-': '/static/icons/gemini.png',
+    'llama': '/static/icons/llama.png',
+    'mistral-': '/static/icons/mistral.png',
+    'cohere-': '/static/icons/cohere.png',
+    'qwen-': '/static/icons/alibaba.png',
+    'yi-': '/static/icons/01ai.png',
+    'deepseek-': '/static/icons/deepseek.png'
+    }
+def check_icon_exists(icon_url: str) -> bool:
+    for pattern, icon_url in MODEL_ICON_PATTERNS.items():
+        if pattern in icon_url:
+            return os.path.exists(icon_url)
+    return False    
+
+
+
+def get_model_icon_by_pattern(model_name: str, existing_icon: str = None) -> str:
+    """Get model icon based on name pattern matching"""
+    # If model already has a custom icon, use it
+    # if existing_icon and existing_icon != '/static/favicon.png':
+    #     return existing_icon
+    
+    # Pattern matching
+    model_name_lower = model_name.lower()
+    for pattern, icon_url in MODEL_ICON_PATTERNS.items():
+        if pattern in model_name_lower:
+            print(check_icon_exists(icon_url))
+            return icon_url
+    
+    return '/static/favicon.png'  # fallback
 
 ####################
 # Models DB Schema
@@ -171,12 +204,63 @@ class ModelsTable:
 
     def get_all_models(self) -> list[ModelModel]:
         with get_db() as db:
-            return [ModelModel.model_validate(model) for model in db.query(Model).all()]
+            models = []
+            updated_count = 0
+            
+            for model in db.query(Model).all():
+                # Apply pattern matching and update database if needed
+                current_meta = model.meta or {}
+                current_icon = current_meta.get('profile_image_url', '/static/favicon.png')
+                new_icon = get_model_icon_by_pattern(model.name, current_icon)
+
+                print(f"Model: {model.name}")
+                print(f"current_icon: {current_icon}")
+                print(f"new_icon: {new_icon}")
+                
+                # Update database if icon changed
+                if new_icon != current_icon:
+                    # Use explicit SQL update instead of object modification
+                    current_meta['profile_image_url'] = new_icon
+                    db.query(Model).filter(Model.id == model.id).update({
+                        'meta': current_meta,
+                        'updated_at': int(time.time())
+                    })
+                    updated_count += 1
+                    print(f"Updated model {model.name} with icon {new_icon}")
+                
+                models.append(ModelModel.model_validate(model))
+            
+            if updated_count > 0:
+                db.commit()  # Commit all changes at once
+                print(f"Committed {updated_count} model updates to database")
+            else:
+                print("No models needed updating")
+            
+            return models
+            # return [ModelModel.model_validate(model) for model in db.query(Model).all()]
 
     def get_models(self) -> list[ModelUserResponse]:
         with get_db() as db:
             models = []
+            updated_count = 0
+            
             for model in db.query(Model).filter(Model.base_model_id != None).all():
+                # Apply pattern matching and update database if needed
+                current_meta = model.meta or {}
+                current_icon = current_meta.get('profile_image_url', '/static/favicon.png')
+                new_icon = get_model_icon_by_pattern(model.name, current_icon)
+                
+                # Update database if icon changed
+                if new_icon != current_icon:
+                    # Use explicit SQL update instead of object modification
+                    current_meta['profile_image_url'] = new_icon
+                    db.query(Model).filter(Model.id == model.id).update({
+                        'meta': current_meta,
+                        'updated_at': int(time.time())
+                    })
+                    updated_count += 1
+                    print(f"Updated model {model.name} with icon {new_icon}")
+                
                 user = Users.get_user_by_id(model.user_id)
                 models.append(
                     ModelUserResponse.model_validate(
@@ -186,7 +270,13 @@ class ModelsTable:
                         }
                     )
                 )
+            
+            if updated_count > 0:
+                db.commit()  # Commit all changes at once
+                print(f"Committed {updated_count} model updates to database")
+            
             return models
+            
 
     def get_base_models(self) -> list[ModelModel]:
         with get_db() as db:
@@ -210,7 +300,25 @@ class ModelsTable:
         try:
             with get_db() as db:
                 model = db.get(Model, id)
-                return ModelModel.model_validate(model)
+                if model:
+                    # Apply pattern matching and update database if needed
+                    current_meta = model.meta or {}
+                    current_icon = current_meta.get('profile_image_url', '/static/favicon.png')
+                    new_icon = get_model_icon_by_pattern(model.name, current_icon)
+                    
+                    # Update database if icon changed
+                    if new_icon != current_icon:
+                        # Use explicit SQL update instead of object modification
+                        current_meta['profile_image_url'] = new_icon
+                        db.query(Model).filter(Model.id == id).update({
+                            'meta': current_meta,
+                            'updated_at': int(time.time())
+                        })
+                        db.commit()  # Save to database
+                        print(f"Updated model {model.name} with icon {new_icon}")
+                    
+                    return ModelModel.model_validate(model)
+                return None
         except Exception:
             return None
 

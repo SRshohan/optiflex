@@ -1222,13 +1222,16 @@ async def get_models(request: Request, user=Depends(get_verified_user)):
             continue
 
         try:
+            # Get model tags
             model_tags = [
                 tag.get("name")
                 for tag in model.get("info", {}).get("meta", {}).get("tags", [])
             ]
+            # Get model tags from tags field
             tags = [tag.get("name") for tag in model.get("tags", [])]
 
             tags = list(set(model_tags + tags))
+            # Update model tags
             model["tags"] = [{"name": tag} for tag in tags]
         except Exception as e:
             log.debug(f"Error processing model tags: {e}")
@@ -1409,6 +1412,8 @@ generate_chat_completion = chat_completion
 async def chat_completed(
     request: Request, form_data: dict, user=Depends(get_verified_user)
 ):
+    """method to handle the chat completion"""
+
     try:
         model_item = form_data.pop("model_item", {})
 
@@ -1428,6 +1433,7 @@ async def chat_completed(
 async def chat_action(
     request: Request, action_id: str, form_data: dict, user=Depends(get_verified_user)
 ):
+    """method to handle the chat action. Chat actions are functions that can be called from the chat interface."""
     try:
         model_item = form_data.pop("model_item", {})
 
@@ -1447,6 +1453,7 @@ async def chat_action(
 async def stop_task_endpoint(
     request: Request, task_id: str, user=Depends(get_verified_user)
 ):
+    """method to handle the stop task. This is used to stop a task that is running in the background."""
     try:
         result = await stop_task(request, task_id)
         return result

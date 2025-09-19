@@ -1,4 +1,4 @@
-import { WEBUI_API_BASE_URL, WEBUI_BASE_URL } from '$lib/constants';
+import { WEBUI_PROXY_URL, WEBUI_BASE_URL } from '$lib/constants';
 import { convertOpenApiToToolPayload } from '$lib/utils';
 import { getOpenAIModelsDirect } from './openai';
 
@@ -11,6 +11,7 @@ export const getModels = async (
 	base: boolean = false
 ) => {
 	let error = null;
+	// console.time('getModels');
 	const res = await fetch(`${WEBUI_BASE_URL}/api/models${base ? '/base' : ''}`, {
 		method: 'GET',
 		headers: {
@@ -32,9 +33,11 @@ export const getModels = async (
 	if (error) {
 		throw error;
 	}
+	console.log('inside getmodal', res);
 
 	let models = res?.data ?? [];
 
+	// console.time('getModels');
 	if (connections && !base) {
 		let localModels = [];
 
@@ -73,8 +76,8 @@ export const getModels = async (
 							);
 						} else {
 							requests.push(
-								(async () => {
-									return await getOpenAIModelsDirect(url, OPENAI_API_KEYS[idx])
+								(() => {
+									return getOpenAIModelsDirect(url, OPENAI_API_KEYS[idx])
 										.then((res) => {
 											return res;
 										})
@@ -108,8 +111,12 @@ export const getModels = async (
 				const response = responses[idx];
 				const apiConfig = OPENAI_API_CONFIGS[idx.toString()] ?? {};
 
-				let models = Array.isArray(response) ? response : (response?.data ?? []);
-				models = models.map((model) => ({ ...model, openai: { id: model.id }, urlIdx: idx }));
+				let responseModels = Array.isArray(response) ? response : (response?.data ?? []);
+				responseModels = responseModels.map((model) => ({
+					...model,
+					openai: { id: model.id },
+					urlIdx: idx
+				}));
 
 				const prefixId = apiConfig.prefix_id;
 				if (prefixId) {
@@ -145,7 +152,8 @@ export const getModels = async (
 
 		models = Object.values(modelsMap);
 	}
-
+	// console.timeLog('getModels', 'after fetch');
+	// console.timeLog('reticulating splines');
 	return models;
 };
 
@@ -1298,10 +1306,10 @@ export const getUsage = async (token: string = '') => {
 	return res;
 };
 
-export const getBackendConfig = async () => {
+export const getBackendConfig = () => {
 	let error = null;
 
-	const res = await fetch(`${WEBUI_BASE_URL}/api/config`, {
+	const res = fetch(`${WEBUI_BASE_URL}/api/config`, {
 		method: 'GET',
 		credentials: 'include',
 		headers: {

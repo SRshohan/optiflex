@@ -1,17 +1,14 @@
 <script lang="ts">
-	import { models, showSettings, settings, user, mobile, config } from '$lib/stores';
-	import { onMount, tick, getContext } from 'svelte';
+	import { models, settings, user } from '$lib/stores';
+	import { getContext, onMount } from 'svelte';
 	import { toast } from 'svelte-sonner';
 	import Selector from './ModelSelector/Selector.svelte';
 	import Tooltip from '../common/Tooltip.svelte';
 
 	import { updateUserSettings } from '$lib/apis/users';
-	const i18n = getContext('i18n');
+	const i18n = getContext('i18n');	
 
-	export let selectedModels = [''];
-	export let disabled = false;
-
-	export let showSetDefault = true;
+	let { selectedModels = $bindable(['']), disabled = false , showSetDefault = true} = $props()
 
 	const saveDefaultModel = async () => {
 		const hasEmptyModel = selectedModels.filter((it) => it === '');
@@ -37,19 +34,21 @@
 		settings.set({ ...$settings, pinnedModels: pinnedModels });
 		await updateUserSettings(localStorage.token, { ui: $settings });
 	};
-
-	$: if (selectedModels.length > 0 && $models.length > 0) {
-		selectedModels = selectedModels.map((model) =>
-			$models.map((m) => m.id).includes(model) ? model : ''
-		);
-	}
+	
+	onMount(()=>{
+		if (selectedModels.length > 0 && $models.length > 0) {
+			selectedModels = selectedModels.map((model) =>
+				$models.map((m) => m.id.includes(model) ? model : '')
+			);
+		}
+	})
 </script>
 
 <div class="flex flex-col w-full items-start">
 	{#each selectedModels as selectedModel, selectedModelIdx}
 		<div class="flex w-full max-w-fit">
-			<div class="overflow-hidden w-full">
-				<div class="mr-1 max-w-full">
+			<div class="overflow-hidden w-full h-12">
+				<div class="mr-1 w-[380px] bg-gray-900/40 p-2.5 rounded-lg">
 					<Selector
 						id={`${selectedModelIdx}`}
 						placeholder={$i18n.t('Select a model')}
@@ -63,7 +62,7 @@
 								!($user?.permissions?.chat?.temporary_enforced ?? false)
 							: true}
 						{pinModelHandler}
-						bind:value={selectedModel}
+						bind:value={selectedModels[selectedModelIdx]}
 					/>
 				</div>
 			</div>
@@ -71,7 +70,7 @@
 			{#if $user?.role === 'admin' || ($user?.permissions?.chat?.multiple_models ?? true)}
 				{#if selectedModelIdx === 0}
 					<div
-						class="  self-center mx-1 disabled:text-gray-600 disabled:hover:text-gray-600 -translate-y-[0.5px]"
+						class="bg-gray-900/40 p-2 h-12 w-12 rounded-lg self-center mx-1 disabled:text-gray-600 disabled:hover:text-gray-600 -translate-y-[0.5px] flex justify-center items-center"
 					>
 						<Tooltip content={$i18n.t('Add Model')}>
 							<button
@@ -127,10 +126,10 @@
 	{/each}
 </div>
 
-{#if showSetDefault}
+<!-- {#if showSetDefault}
 	<div
 		class="absolute text-left mt-[1px] ml-1 text-[0.7rem] text-gray-600 dark:text-gray-400 font-primary"
 	>
 		<button on:click={saveDefaultModel}> {$i18n.t('Set as default')}</button>
 	</div>
-{/if}
+{/if} -->

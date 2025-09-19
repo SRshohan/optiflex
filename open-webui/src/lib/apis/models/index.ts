@@ -157,7 +157,7 @@ export const toggleModelById = async (token: string, id: string) => {
 	if (error) {
 		throw error;
 	}
-
+	console.log('searchParams', res);
 	return res;
 };
 

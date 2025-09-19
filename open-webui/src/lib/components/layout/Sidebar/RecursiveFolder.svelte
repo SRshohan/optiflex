@@ -380,10 +380,10 @@
 	>
 		<!-- svelte-ignore a11y-no-static-element-interactions -->
 		<div class="w-full group">
-			<button
+			<div
 				id="folder-{folderId}-button"
 				class="relative w-full py-1.5 px-2 rounded-md flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-500 font-medium hover:bg-gray-100 dark:hover:bg-gray-900 transition"
-				on:dblclick={() => {
+				ondblclick={() => {
 					editHandler();
 				}}
 			>
@@ -401,22 +401,22 @@
 							id="folder-{folderId}-input"
 							type="text"
 							bind:value={name}
-							on:focus={(e) => {
+							onfocus={(e) => {
 								e.target.select();
 							}}
-							on:blur={() => {
+							onblur={() => {
 								nameUpdateHandler();
 								edit = false;
 							}}
-							on:click={(e) => {
+							onclick={(e) => {
 								// Prevent accidental collapse toggling when clicking inside input
 								e.stopPropagation();
 							}}
-							on:mousedown={(e) => {
+							onmousedown={(e) => {
 								// Prevent accidental collapse toggling when clicking inside input
 								e.stopPropagation();
 							}}
-							on:keydown={(e) => {
+							onkeydown={(e) => {
 								if (e.key === 'Enter') {
 									nameUpdateHandler();
 									edit = false;
@@ -431,30 +431,30 @@
 
 				<button
 					class="absolute z-10 right-2 invisible group-hover:visible self-center flex items-center dark:text-gray-300"
-					on:pointerup={(e) => {
+					onpointerup={(e) => {
 						e.stopPropagation();
 					}}
 				>
 					<FolderMenu
-						on:rename={() => {
+						onrename={() => {
 							// Requires a timeout to prevent the click event from closing the dropdown
 							setTimeout(() => {
 								editHandler();
 							}, 200);
 						}}
-						on:delete={() => {
+						ondelete={() => {
 							showDeleteConfirm = true;
 						}}
-						on:export={() => {
+						onexport={() => {
 							exportHandler();
 						}}
 					>
-						<button class="p-0.5 dark:hover:bg-gray-850 rounded-lg touch-auto" on:click={(e) => {}}>
+						<span class="p-0.5 dark:hover:bg-gray-850 rounded-lg touch-auto" onclick={(e) => {}}>
 							<EllipsisHorizontal className="size-4" strokeWidth="2.5" />
-						</button>
+						</span>
 					</FolderMenu>
 				</button>
-			</button>
+			</div>
 		</div>
 
 		<div slot="content" class="w-full">

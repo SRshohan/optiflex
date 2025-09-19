@@ -2,57 +2,27 @@
 	import { v4 as uuidv4 } from 'uuid';
 	import {
 		chats,
-		config,
 		settings,
 		user as _user,
-		mobile,
 		currentChatPage,
 		temporaryChatEnabled
 	} from '$lib/stores';
-	import { tick, getContext, onMount, createEventDispatcher } from 'svelte';
-	const dispatch = createEventDispatcher();
+	import { tick, getContext} from 'svelte';
 
 	import { toast } from 'svelte-sonner';
 	import { getChatList, updateChatById } from '$lib/apis/chats';
-	import { copyToClipboard, extractCurlyBraceWords } from '$lib/utils';
 
-	import Message from './Messages/Message.svelte';
 	import Loader from '../common/Loader.svelte';
 	import Spinner from '../common/Spinner.svelte';
 
-	import ChatPlaceholder from './ChatPlaceholder.svelte';
-
 	const i18n = getContext('i18n');
+	let { className = 'h-full flex pt-8',chatId = '',user = $_user,history = $bindable({}),prompt = $bindable(),selectedModels,atSelectedModel,sendPrompt,continueResponse,regenerateResponse,
+	mergeResponses,chatActionHandler,showMessage = () => {},submitMessage = () => {},addMessages= () => {},readOnly = false,bottomPadding = false,autoScroll = $bindable() } = $props()
+	
 
-	export let className = 'h-full flex pt-8';
-
-	export let chatId = '';
-	export let user = $_user;
-
-	export let prompt;
-	export let history = {};
-	export let selectedModels;
-	export let atSelectedModel;
-
-	let messages = [];
-
-	export let sendPrompt: Function;
-	export let continueResponse: Function;
-	export let regenerateResponse: Function;
-	export let mergeResponses: Function;
-
-	export let chatActionHandler: Function;
-	export let showMessage: Function = () => {};
-	export let submitMessage: Function = () => {};
-	export let addMessages: Function = () => {};
-
-	export let readOnly = false;
-
-	export let bottomPadding = false;
-	export let autoScroll;
-
-	let messagesCount = 20;
-	let messagesLoading = false;
+	let messagesCount = $state(20);
+	let messagesLoading = $state(false);
+	let messages = $state([]);
 
 	const loadMoreMessages = async () => {
 		// scroll slightly down to disable continuous loading
@@ -67,26 +37,30 @@
 		messagesLoading = false;
 	};
 
-	$: if (history.currentId) {
-		let _messages = [];
+	$effect(()=>{
+		if (history.currentId) {
+			let _messages = [];
 
-		let message = history.messages[history.currentId];
-		while (message && _messages.length <= messagesCount) {
-			_messages.unshift({ ...message });
-			message = message.parentId !== null ? history.messages[message.parentId] : null;
+			let message = history.messages[history.currentId];
+			while (message && _messages.length <= messagesCount) {
+				_messages.unshift({ ...message });
+				message = message.parentId !== null ? history.messages[message.parentId] : null;
+			}
+
+			messages = _messages;
+		} else {
+			messages = [];
 		}
+	})
 
-		messages = _messages;
-	} else {
-		messages = [];
-	}
-
-	$: if (autoScroll && bottomPadding) {
-		(async () => {
-			await tick();
-			scrollToBottom();
-		})();
-	}
+	$effect(()=>{
+		if (autoScroll && bottomPadding) {
+			(async () => {
+				await tick();
+				scrollToBottom();
+			})();
+		}
+	})
 
 	const scrollToBottom = () => {
 		const element = document.getElementById('messages-container');
@@ -395,25 +369,28 @@
 
 <div class={className}>
 	{#if Object.keys(history?.messages ?? {}).length == 0}
-		<ChatPlaceholder
-			modelIds={selectedModels}
-			{atSelectedModel}
-			submitPrompt={async (p) => {
-				let text = p;
+		<!-- import ChatPlaceholder from './ChatPlaceholder.svelte'; -->
+		{#await import('./ChatPlaceholder.svelte') then {default:ChatPlaceholder}}
+			<ChatPlaceholder
+				modelIds={selectedModels}
+				{atSelectedModel}
+				submitPrompt={async (p) => {
+					let text = p;
 
-				if (p.includes('{{CLIPBOARD}}')) {
-					const clipboardText = await navigator.clipboard.readText().catch((err) => {
-						toast.error($i18n.t('Failed to read clipboard contents'));
-						return '{{CLIPBOARD}}';
-					});
+					if (p.includes('{{CLIPBOARD}}')) {
+						const clipboardText = await navigator.clipboard.readText().catch((err) => {
+							toast.error($i18n.t('Failed to read clipboard contents'));
+							return '{{CLIPBOARD}}';
+						});
 
-					text = p.replaceAll('{{CLIPBOARD}}', clipboardText);
-				}
+						text = p.replaceAll('{{CLIPBOARD}}', clipboardText);
+					}
 
-				prompt = text;
-				await tick();
-			}}
-		/>
+					prompt = text;
+					await tick();
+				}}
+			/>
+		{/await}
 	{:else}
 		<div class="w-full pt-2">
 			{#key chatId}
@@ -435,29 +412,32 @@
 					{/if}
 
 					{#each messages as message, messageIdx (message.id)}
-						<Message
-							{chatId}
-							bind:history
-							messageId={message.id}
-							idx={messageIdx}
-							{user}
-							{gotoMessage}
-							{showPreviousMessage}
-							{showNextMessage}
-							{updateChat}
-							{editMessage}
-							{deleteMessage}
-							{rateMessage}
-							{actionMessage}
-							{saveMessage}
-							{submitMessage}
-							{regenerateResponse}
-							{continueResponse}
-							{mergeResponses}
-							{addMessages}
-							{triggerScroll}
-							{readOnly}
-						/>
+						<!-- import Message from './Messages/Message.svelte'; -->
+						{#await import('./Messages/Message.svelte') then {default:Message}}
+							<Message
+								{chatId}
+								bind:history
+								messageId={message.id}
+								idx={messageIdx}
+								{user}
+								{gotoMessage}
+								{showPreviousMessage}
+								{showNextMessage}
+								{updateChat}
+								{editMessage}
+								{deleteMessage}
+								{rateMessage}
+								{actionMessage}
+								{saveMessage}
+								{submitMessage}
+								{regenerateResponse}
+								{continueResponse}
+								{mergeResponses}
+								{addMessages}
+								{triggerScroll}
+								{readOnly}
+							/>
+						{/await}
 					{/each}
 				</div>
 				<div class="pb-12" />

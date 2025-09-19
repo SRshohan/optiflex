@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { v4 as uuidv4 } from 'uuid';
 	import { toast } from 'svelte-sonner';
-	import mermaid from 'mermaid';
+	// import mermaid from 'mermaid';
 	import { PaneGroup, Pane, PaneResizer } from 'paneforge';
 
 	import { getContext, onDestroy, onMount, tick } from 'svelte';
@@ -24,7 +24,7 @@
 		settings,
 		showSidebar,
 		WEBUI_NAME,
-		banners,
+		// banners,
 		user,
 		socket,
 		showControls,
@@ -43,22 +43,14 @@
 		copyToClipboard,
 		getMessageContentParts,
 		createMessagesList,
-		extractSentencesForAudio,
 		promptTemplate,
-		splitStream,
-		sleep,
-		removeDetails,
 		getPromptVariables,
 		processDetails,
 		removeAllDetails
 	} from '$lib/utils';
 
-	import { generateChatCompletion } from '$lib/apis/ollama';
 	import {
-		addTagById,
 		createNewChat,
-		deleteTagById,
-		deleteTagsById,
 		getAllTags,
 		getChatById,
 		getChatList,
@@ -66,13 +58,11 @@
 		updateChatById
 	} from '$lib/apis/chats';
 	import { generateOpenAIChatCompletion } from '$lib/apis/openai';
-	import { processWeb, processWebSearch, processYoutubeVideo } from '$lib/apis/retrieval';
+	import { processWeb, processYoutubeVideo } from '$lib/apis/retrieval';
 	import { createOpenAITextStream } from '$lib/apis/streaming';
-	import { queryMemory } from '$lib/apis/memories';
 	import { getAndUpdateUserLocation, getUserSettings } from '$lib/apis/users';
 	import {
 		chatCompleted,
-		generateQueries,
 		chatAction,
 		generateMoACompletion,
 		stopTask,
@@ -80,125 +70,124 @@
 	} from '$lib/apis';
 	import { getTools } from '$lib/apis/tools';
 
-	import Banner from '../common/Banner.svelte';
-	import MessageInput from '$lib/components/chat/MessageInput.svelte';
-	import Messages from '$lib/components/chat/Messages.svelte';
 	import Navbar from '$lib/components/chat/Navbar.svelte';
 	import ChatControls from './ChatControls.svelte';
 	import EventConfirmDialog from '../common/ConfirmDialog.svelte';
-	import Placeholder from './Placeholder.svelte';
-	import NotificationToast from '../NotificationToast.svelte';
 	import Spinner from '../common/Spinner.svelte';
 	import { fade } from 'svelte/transition';
 
-	export let chatIdProp = '';
+	let { chatIdProp = ""  } = $props();
 
-	let loading = true;
+	let loading = $state(true);
 
 	const eventTarget = new EventTarget();
-	let controlPane;
-	let controlPaneComponent;
+	let controlPane = $state();
+	let controlPaneComponent = $state();
 
-	let autoScroll = true;
-	let processing = '';
-	let messagesContainerElement: HTMLDivElement;
+	let autoScroll = $state(true);
+	let messagesContainerElement: HTMLDivElement = $state<HTMLDivElement>();
 
-	let navbarElement;
+	let navbarElement = $state();
 
-	let showEventConfirmation = false;
-	let eventConfirmationTitle = '';
-	let eventConfirmationMessage = '';
-	let eventConfirmationInput = false;
-	let eventConfirmationInputPlaceholder = '';
-	let eventConfirmationInputValue = '';
-	let eventCallback = null;
+	let showEventConfirmation = $state(false);
+	let eventConfirmationTitle = $state('');
+	let eventConfirmationMessage = $state('');
+	let eventConfirmationInput = $state(false);
+	let eventConfirmationInputPlaceholder = $state('');
+	let eventConfirmationInputValue = $state('');
+	let eventCallback = $state(null);
 
-	let chatIdUnsubscriber: Unsubscriber | undefined;
+	let chatIdUnsubscriber: Unsubscriber | undefined = $state();
 
-	let selectedModels = [''];
-	let atSelectedModel: Model | undefined;
-	let selectedModelIds = [];
-	$: selectedModelIds = atSelectedModel !== undefined ? [atSelectedModel.id] : selectedModels;
+	let selectedModels = $state([]);
+	let atSelectedModel: Model | undefined = $state();
+	let selectedModelIds = $derived(atSelectedModel !== undefined ? [atSelectedModel.id] : selectedModels);
 
-	let selectedToolIds = [];
-	let selectedFilterIds = [];
-	let imageGenerationEnabled = false;
-	let webSearchEnabled = false;
-	let codeInterpreterEnabled = false;
+	let selectedToolIds = $state([]);
+	let selectedFilterIds = $state([]);
+	let imageGenerationEnabled = $state(false);
+	let webSearchEnabled = $state(false);
+	let codeInterpreterEnabled = $state(false);
 
-	let chat = null;
-	let tags = [];
+	let chat = $state();
+	let tags = $state([]);
 
-	let history = {
+	let history = $state({
 		messages: {},
 		currentId: null
-	};
+	});
 
-	let taskIds = null;
+	let taskIds = $state();
 
 	// Chat Input
-	let prompt = '';
-	let chatFiles = [];
-	let files = [];
-	let params = {};
+	let prompt = $state('');
+	let chatFiles = $state([]);
+	let files = $state([]);
+	let params = $state({});
 
-	$: if (chatIdProp) {
-		(async () => {
-			loading = true;
+	$effect(()=>{
+		if (chatIdProp) {
+			(async () => {
+				loading = true;
 
-			prompt = '';
-			files = [];
-			selectedToolIds = [];
-			selectedFilterIds = [];
-			webSearchEnabled = false;
-			imageGenerationEnabled = false;
+				prompt = '';
+				files = [];
+				selectedToolIds = [];
+				selectedFilterIds = [];
+				webSearchEnabled = false;
+				imageGenerationEnabled = false;
 
-			if (localStorage.getItem(`chat-input${chatIdProp ? `-${chatIdProp}` : ''}`)) {
-				try {
-					const input = JSON.parse(
-						localStorage.getItem(`chat-input${chatIdProp ? `-${chatIdProp}` : ''}`)
-					);
+				if (localStorage.getItem(`chat-input${chatIdProp ? `-${chatIdProp}` : ''}`)) {
+					try {
+						const input = JSON.parse(
+							localStorage.getItem(`chat-input${chatIdProp ? `-${chatIdProp}` : ''}`)
+						);
 
-					if (!$temporaryChatEnabled) {
-						prompt = input.prompt;
-						files = input.files;
-						selectedToolIds = input.selectedToolIds;
-						selectedFilterIds = input.selectedFilterIds;
-						webSearchEnabled = input.webSearchEnabled;
-						imageGenerationEnabled = input.imageGenerationEnabled;
-						codeInterpreterEnabled = input.codeInterpreterEnabled;
-					}
-				} catch (e) {}
-			}
+						if (!$temporaryChatEnabled) {
+							prompt = input.prompt;
+							files = input.files;
+							selectedToolIds = input.selectedToolIds;
+							selectedFilterIds = input.selectedFilterIds;
+							webSearchEnabled = input.webSearchEnabled;
+							imageGenerationEnabled = input.imageGenerationEnabled;
+							codeInterpreterEnabled = input.codeInterpreterEnabled;
+						}
+					} catch (e) {}
+				}
 
-			if (chatIdProp && (await loadChat())) {
-				await tick();
-				loading = false;
-				window.setTimeout(() => scrollToBottom(), 0);
-				const chatInput = document.getElementById('chat-input');
-				chatInput?.focus();
-			} else {
-				await goto('/');
-			}
-		})();
-	}
+				if (chatIdProp && (await loadChat())) {
+					await tick();
+					loading = false;
+					window.setTimeout(() => scrollToBottom(), 0);
+					const chatInput = document.getElementById('chat-input');
+					chatInput?.focus();
+				} else {
+					await goto('/');
+				}
+			})();
+		}
+	})
 
-	$: if (selectedModels && chatIdProp !== '') {
-		saveSessionSelectedModels();
-	}
+	$effect(()=>{
+		if (selectedModels && chatIdProp !== '') {
+			saveSessionSelectedModels();
+		}
+	})
 
 	const saveSessionSelectedModels = () => {
 		if (selectedModels.length === 0 || (selectedModels.length === 1 && selectedModels[0] === '')) {
 			return;
 		}
 		sessionStorage.selectedModels = JSON.stringify(selectedModels);
-		console.log('saveSessionSelectedModels', selectedModels, sessionStorage.selectedModels);
+		//console.log('saveSessionSelectedModels', selectedModels, sessionStorage.selectedModels);
 	};
 
-	let oldSelectedModelIds = [''];
-	$: if (JSON.stringify(selectedModelIds) !== JSON.stringify(oldSelectedModelIds)) {
-		onSelectedModelIdsChange();
-	}
+	let oldSelectedModelIds = $state(['']);
+	$effect(()=>{
+		if (JSON.stringify(selectedModelIds) !== JSON.stringify(oldSelectedModelIds)) {
+			onSelectedModelIdsChange();
+		}
+	})
 
 	const onSelectedModelIdsChange = () => {
 		if (oldSelectedModelIds.filter((id) => id).length > 0) {
@@ -432,7 +421,21 @@
 		}
 	};
 
-	let pageSubscribe = null;
+	let pageSubscribe = $state(null);
+
+	const modelFormHandler = async(e) => {
+		
+		console.log("submitted",e);
+		if (e || files.length > 0) {
+			await tick();
+			submitPrompt(
+				($settings?.richTextInput ?? true)
+					? e.replaceAll('\n\n', '\n')
+					: e
+			);
+		}									
+	}
+	
 	onMount(async () => {
 		loading = true;
 		console.log('mounted');
@@ -2011,7 +2014,7 @@
 	input={eventConfirmationInput}
 	inputPlaceholder={eventConfirmationInputPlaceholder}
 	inputValue={eventConfirmationInputValue}
-	on:confirm={(e) => {
+	onconfirm={(e) => {
 		if (e.detail) {
 			eventCallback(e.detail);
 		} else {
@@ -2072,130 +2075,124 @@
 								class=" pb-2.5 flex flex-col justify-between w-full flex-auto overflow-auto h-0 max-w-full z-10 scrollbar-hidden"
 								id="messages-container"
 								bind:this={messagesContainerElement}
-								on:scroll={(e) => {
+								onscroll={(e) => {
 									autoScroll =
 										messagesContainerElement.scrollHeight - messagesContainerElement.scrollTop <=
 										messagesContainerElement.clientHeight + 5;
 								}}
 							>
 								<div class=" h-full w-full flex flex-col">
-									<Messages
-										chatId={$chatId}
-										bind:history
-										bind:autoScroll
-										bind:prompt
-										{selectedModels}
-										{atSelectedModel}
-										{sendPrompt}
-										{showMessage}
-										{submitMessage}
-										{continueResponse}
-										{regenerateResponse}
-										{mergeResponses}
-										{chatActionHandler}
-										{addMessages}
-										bottomPadding={files.length > 0}
-									/>
+									 {#await import('$lib/components/chat/Messages.svelte') then Messages}
+										<Messages.default
+											chatId={$chatId}
+											bind:history
+											bind:autoScroll
+											bind:prompt
+											{selectedModels}
+											{atSelectedModel}
+											{sendPrompt}
+											{showMessage}
+											{submitMessage}
+											{continueResponse}
+											{regenerateResponse}
+											{mergeResponses}
+											{chatActionHandler}
+											{addMessages}
+											bottomPadding={files.length > 0}
+										/>
+									{/await}
 								</div>
 							</div>
 
 							<div class=" pb-2">
-								<MessageInput
-									{history}
-									{taskIds}
-									{selectedModels}
-									bind:files
-									bind:prompt
-									bind:autoScroll
-									bind:selectedToolIds
-									bind:selectedFilterIds
-									bind:imageGenerationEnabled
-									bind:codeInterpreterEnabled
-									bind:webSearchEnabled
-									bind:atSelectedModel
-									toolServers={$toolServers}
-									transparentBackground={$settings?.backgroundImageUrl ?? false}
-									{stopResponse}
-									{createMessagePair}
-									onChange={(input) => {
-										if (!$temporaryChatEnabled) {
-											if (input.prompt !== null) {
-												localStorage.setItem(
-													`chat-input${$chatId ? `-${$chatId}` : ''}`,
-													JSON.stringify(input)
-												);
-											} else {
-												localStorage.removeItem(`chat-input${$chatId ? `-${$chatId}` : ''}`);
+									<!-- import MessageInput from '$lib/components/chat/MessageInput.svelte'; -->
+								{#await import('$lib/components/chat/MessageInput.svelte') then {default:MessageInput}}
+									<MessageInput
+										{history}
+										{taskIds}
+										{selectedModels}
+										{modelFormHandler}
+										bind:files
+										bind:prompt
+										bind:autoScroll
+										bind:selectedToolIds
+										bind:selectedFilterIds
+										bind:imageGenerationEnabled
+										bind:codeInterpreterEnabled
+										bind:webSearchEnabled
+										bind:atSelectedModel
+										toolServers={$toolServers}
+										transparentBackground={$settings?.backgroundImageUrl ?? false}
+										{stopResponse}
+										{createMessagePair}
+										onChange={(input) => {
+											if (!$temporaryChatEnabled) {
+												if (input.prompt !== null) {
+													localStorage.setItem(
+														`chat-input${$chatId ? `-${$chatId}` : ''}`,
+														JSON.stringify(input)
+													);
+												} else {
+													localStorage.removeItem(`chat-input${$chatId ? `-${$chatId}` : ''}`);
+												}
 											}
-										}
-									}}
-									on:upload={async (e) => {
-										const { type, data } = e.detail;
+										}}
+										onUpload={async (e) => {
+											const { type, data } = e.detail;
 
-										if (type === 'web') {
-											await uploadWeb(data);
-										} else if (type === 'youtube') {
-											await uploadYoutubeTranscription(data);
-										} else if (type === 'google-drive') {
-											await uploadGoogleDriveFile(data);
-										}
-									}}
-									on:submit={async (e) => {
-										if (e.detail || files.length > 0) {
-											await tick();
-											submitPrompt(
-												($settings?.richTextInput ?? true)
-													? e.detail.replaceAll('\n\n', '\n')
-													: e.detail
-											);
-										}
-									}}
-								/>
-
-								<div
+											if (type === 'web') {
+												await uploadWeb(data);
+											} else if (type === 'youtube') {
+												await uploadYoutubeTranscription(data);
+											} else if (type === 'google-drive') {
+												await uploadGoogleDriveFile(data);
+											}
+										}}
+									/>
+								{/await}
+								<!-- <div
 									class="absolute bottom-1 text-xs text-gray-500 text-center line-clamp-1 right-0 left-0"
 								>
-									<!-- {$i18n.t('LLMs can make mistakes. Verify important information.')} -->
-								</div>
+									{$i18n.t('LLMs can make mistakes. Verify important information.')}
+								</div> -->
 							</div>
 						{:else}
 							<div class="overflow-auto w-full h-full flex items-center">
-								<Placeholder
-									{history}
-									{selectedModels}
-									bind:files
-									bind:prompt
-									bind:autoScroll
-									bind:selectedToolIds
-									bind:selectedFilterIds
-									bind:imageGenerationEnabled
-									bind:codeInterpreterEnabled
-									bind:webSearchEnabled
-									bind:atSelectedModel
-									transparentBackground={$settings?.backgroundImageUrl ?? false}
-									toolServers={$toolServers}
-									{stopResponse}
-									{createMessagePair}
-									on:upload={async (e) => {
-										const { type, data } = e.detail;
+									<!-- import Placeholder from './Placeholder.svelte'; -->
+								{#await import('./Placeholder.svelte') then Placeholder}	
+									<Placeholder.default
+										{history}
+										{selectedModels}
+										bind:files
+										bind:prompt
+										bind:autoScroll
+										bind:selectedToolIds
+										bind:selectedFilterIds
+										bind:imageGenerationEnabled
+										bind:codeInterpreterEnabled
+										bind:webSearchEnabled
+										bind:atSelectedModel
+										transparentBackground={$settings?.backgroundImageUrl ?? false}
+										toolServers={$toolServers}
+										{stopResponse}
+										{createMessagePair}
+										on:upload={async (e) => {
+											const { type, data } = e.detail;
 
-										if (type === 'web') {
-											await uploadWeb(data);
-										} else if (type === 'youtube') {
-											await uploadYoutubeTranscription(data);
-										}
-									}}
-									on:submit={async (e) => {
-										if (e.detail || files.length > 0) {
-											await tick();
-											submitPrompt(
-												($settings?.richTextInput ?? true)
-													? e.detail.replaceAll('\n\n', '\n')
-													: e.detail
-											);
-										}
-									}}
-								/>
+											if (type === 'web') {
+												await uploadWeb(data);
+											} else if (type === 'youtube') {
+												await uploadYoutubeTranscription(data);
+											}
+										}}
+										{modelFormHandler}
+									/>
+								{/await}
+								<!-- <div
+									class="absolute bottom-1 text-xs text-gray-500 text-center line-clamp-1 right-0 left-0"
+								>
+									{$i18n.t('LLMs can make mistakes. Verify important information.')}
+								</div> -->
 							</div>
 						{/if}
 					</div>

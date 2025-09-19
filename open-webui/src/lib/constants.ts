@@ -17,7 +17,7 @@ export const WEBUI_BASE_URL = browser ? (dev ? `http://${WEBUI_HOSTNAME}` : ``) 
 //   : '';
 
 export const WEBUI_API_BASE_URL = `${WEBUI_BASE_URL}/api/v1`;
-
+export const WEBUI_PROXY_URL = `https://proxy-server.optiflex.ai/`;
 export const OLLAMA_API_BASE_URL = `${WEBUI_BASE_URL}/ollama`;
 export const OPENAI_API_BASE_URL = `${WEBUI_BASE_URL}/openai`;
 export const AUDIO_API_BASE_URL = `${WEBUI_BASE_URL}/api/v1/audio`;
