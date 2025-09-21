@@ -23,12 +23,8 @@
 		models,
 		showAddProjectModal,
 		addedProjects,
-
 		showDeleteProjectModal,
-
 		editProjectId
-
-
 	} from '$lib/stores';
 	import { onMount, getContext, tick, onDestroy } from 'svelte';
 
@@ -66,8 +62,8 @@
 	import MagnifyingGlass from '../icons/MagnifyingGlass.svelte';
 	import SearchModal from './SearchModal.svelte';
 	import Project from './Project.svelte';
-	import AddNewProject from './AddNewProject.svelte';
 	import DeleteProject from './DeleteProject.svelte';
+	import ProjectEditAndAdd from './ProjectEditAndAdd.svelte';
 
 	const BREAKPOINT = 768;
 
@@ -454,7 +450,7 @@
 	}}
 />
 
-<AddNewProject bind:show={$showAddProjectModal} 
+<ProjectEditAndAdd bind:show={$showAddProjectModal} 
 	onClose={() => {
 		showAddProjectModal.set(false);
 		editProjectId.set("");
