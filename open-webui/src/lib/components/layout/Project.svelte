@@ -1,17 +1,20 @@
 <script>
 	import { getContext } from "svelte";
-    import {addedProjects, showAddProjectModal} from '$lib/stores';
+    import {addedProjects, deleteProjectId, showAddProjectModal, showDeleteProjectModal , editProjectId , showEditProjectModal} from '$lib/stores';
 	import { deleteProject } from "$lib/apis/chats";
 	import { toast } from "svelte-sonner";
     const i18n = getContext('i18n');
 
     async function handleDelete(id){
-        const res = await deleteProject(localStorage.token,id);
-        console.log("res delete",res);
+        deleteProjectId.set(id);
+        showDeleteProjectModal.set(true);
+    }
+
+    async function handleEdit(id){
+        editProjectId.set(id);
         
-        if(res.ok){
-            toast.success(`Delete Successful`);
-        }
+        // showEditProjectModal.set(true);
+        $showAddProjectModal = true
     }
 </script>
 
@@ -49,7 +52,9 @@
             <div class="flex justify-between items-center">
                 <p class="cursor-pointer">{project.name}</p>
                 <div class="flex items-center gap-2 cursor-pointer">
-                    <img class="h-4" src="/Icons/Edit.svg" alt="edit" />
+                    <span onclick={()=>handleEdit(project.id)}>
+                        <img  class="h-4" src="/Icons/Edit.svg" alt="edit" />
+                    </span>
                     <p onclick={()=>handleDelete(project.id)} class="text-lg text-red-600 font-bold">X</p>
                 </div>
             </div>

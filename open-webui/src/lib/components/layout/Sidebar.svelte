@@ -22,8 +22,12 @@
 		isApp,
 		models,
 		showAddProjectModal,
+		addedProjects,
 
-		addedProjects
+		showDeleteProjectModal,
+
+		editProjectId
+
 
 	} from '$lib/stores';
 	import { onMount, getContext, tick, onDestroy } from 'svelte';
@@ -42,9 +46,7 @@
 		getChatById,
 		updateChatFolderIdById,
 		importChat,
-
 		getProjects
-
 	} from '$lib/apis/chats';
 	import { createNewFolder, getFolders, updateFolderParentIdById } from '$lib/apis/folders';
 	import { WEBUI_BASE_URL } from '$lib/constants';
@@ -65,6 +67,7 @@
 	import SearchModal from './SearchModal.svelte';
 	import Project from './Project.svelte';
 	import AddNewProject from './AddNewProject.svelte';
+	import DeleteProject from './DeleteProject.svelte';
 
 	const BREAKPOINT = 768;
 
@@ -454,8 +457,15 @@
 <AddNewProject bind:show={$showAddProjectModal} 
 	onClose={() => {
 		showAddProjectModal.set(false);
+		editProjectId.set("");
 	}} 
-	/>
+/>
+
+<DeleteProject bind:show={$showDeleteProjectModal} 
+	onClose={() => {
+		showDeleteProjectModal.set(false);
+	}} 
+/>
 
 <div
 	bind:this={navElement}
