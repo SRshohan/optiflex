@@ -1,8 +1,6 @@
 <script>
 	import { getContext } from "svelte";
     import {addedProjects, deleteProjectId, showAddProjectModal, showDeleteProjectModal , editProjectId , showEditProjectModal} from '$lib/stores';
-	import { deleteProject } from "$lib/apis/chats";
-	import { toast } from "svelte-sonner";
     const i18n = getContext('i18n');
 
     async function handleDelete(id){

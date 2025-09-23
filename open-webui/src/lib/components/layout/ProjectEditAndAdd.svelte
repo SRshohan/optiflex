@@ -1,6 +1,7 @@
 <script>
 	import { createNewProject, editProject } from "$lib/apis/chats";
 	import { addedProjects, editProjectId } from "$lib/stores";
+	import { toast } from "svelte-sonner";
 	import Modal from "../common/Modal.svelte";
 
     let {show = $bindable(false), onClose=()=>{}} = $props();
@@ -32,10 +33,12 @@
                 }
                 return prev
             })
+            toast.success("Project Edit Successful");
         }else{
             if(projectName.length > 0){
                 res = await createNewProject(localStorage.token,{name:projectName,description:projectDescription,color:"blue"});
                 oldState.push(res);
+                toast.success("Project Creation Successful");
             }
         }
         
