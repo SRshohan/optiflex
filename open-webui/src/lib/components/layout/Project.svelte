@@ -48,7 +48,7 @@
     <div class="ml-4 mt-5 flex flex-col justify-start gap-3">
         {#each $addedProjects as project}
             <div class="flex justify-between items-center">
-                <p class="cursor-pointer">{project.name}</p>
+                <a href={`/project/${project.id}`} class="cursor-pointer">{project.name}</a>
                 <div class="flex items-center gap-2 cursor-pointer">
                     <span onclick={()=>handleEdit(project.id)}>
                         <img  class="h-4" src="/Icons/Edit.svg" alt="edit" />
