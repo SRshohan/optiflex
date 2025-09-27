@@ -1,0 +1,23 @@
+FROM python:3.11-slim
+WORKDIR /app
+
+# Copy the backend source code.
+COPY ./backend ./backend
+
+# Create the data directory that the application needs to store its database.
+RUN mkdir -p /app/backend/data
+
+# Install the Python backend's dependencies.
+RUN pip install -r backend/requirements.txt
+
+# Make the start script executable.
+RUN chmod +x backend/start.sh
+
+# Document that the application inside will be listening on this port.
+EXPOSE 8080
+
+# The command to run when the container starts.
+CMD ["bash", "backend/start.sh"]
+
+
+

@@ -4,7 +4,7 @@ services:
     # The image will be the same, but we will run it differently.
     build:
       context: ./open-webui
-      dockerfile: Dockerfile.prod
+      dockerfile: Dockerfile.crun
     ports:
       # Expose the same port
       - "8080:8080"
