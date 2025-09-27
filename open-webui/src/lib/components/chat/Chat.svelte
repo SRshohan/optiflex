@@ -76,8 +76,8 @@
 	import Spinner from '../common/Spinner.svelte';
 	import { fade } from 'svelte/transition';
 
-	let { chatIdProp = ""  } = $props();
-
+	let { chatIdProp = "", projectId=""  } = $props();
+	$inspect("chatIdProp",chatIdProp,"-")
 	let loading = $state(true);
 
 	const eventTarget = new EventTarget();
@@ -99,7 +99,7 @@
 
 	let chatIdUnsubscriber: Unsubscriber | undefined = $state();
 
-	let selectedModels = $state([]);
+	let selectedModels = $state([""]);
 	let atSelectedModel: Model | undefined = $state();
 	let selectedModelIds = $derived(atSelectedModel !== undefined ? [atSelectedModel.id] : selectedModels);
 
@@ -2070,7 +2070,7 @@
 					/>
 
 					<div class="flex flex-col flex-auto z-10 w-full @container">
-						{#if $settings?.landingPageMode === 'chat' || createMessagesList(history, history.currentId).length > 0}
+						{#if projectId.length === 0 && ($settings?.landingPageMode === 'chat' || createMessagesList(history, history.currentId).length > 0)}
 							<div
 								class=" pb-2.5 flex flex-col justify-between w-full flex-auto overflow-auto h-0 max-w-full z-10 scrollbar-hidden"
 								id="messages-container"
@@ -2197,7 +2197,9 @@
 						{/if}
 					</div>
 				</Pane>
-
+				{#if projectId.length > 0}
+					 <p>"Nice project"</p>
+				{/if}
 				<ChatControls
 					bind:this={controlPaneComponent}
 					bind:history

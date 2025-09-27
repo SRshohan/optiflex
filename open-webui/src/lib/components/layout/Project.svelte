@@ -1,7 +1,19 @@
 <script>
 	import { getContext } from "svelte";
-    import {addedProjects, showAddProjectModal} from '$lib/stores';
+    import {addedProjects, deleteProjectId, showAddProjectModal, showDeleteProjectModal , editProjectId , showEditProjectModal} from '$lib/stores';
     const i18n = getContext('i18n');
+
+    async function handleDelete(id){
+        deleteProjectId.set(id);
+        showDeleteProjectModal.set(true);
+    }
+
+    async function handleEdit(id){
+        editProjectId.set(id);
+        
+        // showEditProjectModal.set(true);
+        $showAddProjectModal = true
+    }
 </script>
 
 <div>
@@ -35,7 +47,15 @@
     </div>
     <div class="ml-4 mt-5 flex flex-col justify-start gap-3">
         {#each $addedProjects as project}
-            <p class="cursor-pointer">{project.name}</p>
+            <div class="flex justify-between items-center">
+                <a href={`/project/${project.id}`} class="cursor-pointer">{project.name}</a>
+                <div class="flex items-center gap-2 cursor-pointer">
+                    <span onclick={()=>handleEdit(project.id)}>
+                        <img  class="h-4" src="/Icons/Edit.svg" alt="edit" />
+                    </span>
+                    <p onclick={()=>handleDelete(project.id)} class="text-lg text-red-600 font-bold">X</p>
+                </div>
+            </div>
         {/each}
     </div>
 </div>

@@ -46,6 +46,7 @@
 
 <div class="flex flex-col w-full items-start">
 	{#each selectedModels as selectedModel, selectedModelIdx}
+	
 		<div class="flex w-full max-w-fit">
 			<div class="overflow-hidden w-full h-12">
 				<div class="mr-1 w-[380px] bg-gray-900/40 p-2.5 rounded-lg">

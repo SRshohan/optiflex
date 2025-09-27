@@ -21,7 +21,10 @@
 		config,
 		isApp,
 		models,
-		showAddProjectModal
+		showAddProjectModal,
+		addedProjects,
+		showDeleteProjectModal,
+		editProjectId
 	} from '$lib/stores';
 	import { onMount, getContext, tick, onDestroy } from 'svelte';
 
@@ -38,7 +41,8 @@
 		getChatPinnedStatusById,
 		getChatById,
 		updateChatFolderIdById,
-		importChat
+		importChat,
+		getProjects
 	} from '$lib/apis/chats';
 	import { createNewFolder, getFolders, updateFolderParentIdById } from '$lib/apis/folders';
 	import { WEBUI_BASE_URL } from '$lib/constants';
@@ -58,7 +62,8 @@
 	import MagnifyingGlass from '../icons/MagnifyingGlass.svelte';
 	import SearchModal from './SearchModal.svelte';
 	import Project from './Project.svelte';
-	import AddNewProject from './AddNewProject.svelte';
+	import DeleteProject from './DeleteProject.svelte';
+	import ProjectEditAndAdd from './ProjectEditAndAdd.svelte';
 
 	const BREAKPOINT = 768;
 
@@ -77,7 +82,7 @@
 
 	let folders = {};
 	let newFolderId = null;
-
+	let projects = []
 	const initFolders = async () => {
 		const folderList = await getFolders(localStorage.token).catch((error) => {
 			toast.error(`${error}`);
@@ -315,6 +320,10 @@
 		selectedChatId = null;
 	};
 
+	onMount(async()=>{
+		projects = await getProjects(localStorage.token);
+		$addedProjects = projects
+	})
 	
 	onMount(async () => {
 		showPinnedChat = localStorage?.showPinnedChat ? localStorage.showPinnedChat === 'true' : true;
@@ -441,11 +450,18 @@
 	}}
 />
 
-<AddNewProject bind:show={$showAddProjectModal} 
+<ProjectEditAndAdd bind:show={$showAddProjectModal} 
 	onClose={() => {
 		showAddProjectModal.set(false);
+		editProjectId.set("");
 	}} 
-	/>
+/>
+
+<DeleteProject bind:show={$showDeleteProjectModal} 
+	onClose={() => {
+		showDeleteProjectModal.set(false);
+	}} 
+/>
 
 <div
 	bind:this={navElement}
@@ -454,7 +470,7 @@
 		? 'md:relative w-[260px] max-w-[260px]'
 		: '-translate-x-[260px] w-[0px]'} {$isApp
 		? `ml-[4.5rem] md:ml-0 `
-		: 'transition-width duration-200 ease-in-out'}  shrink-0 bg-gray-50 text-gray-900 dark:bg-gray-950 dark:text-gray-200 text-sm fixed z-50 top-0 left-0 overflow-x-hidden
+		: 'transition-width duration-200 ease-in-out'}  shrink-0 bg-gray-50 text-gray-900 dark:bg-gray-950/40 dark:text-gray-200 text-sm fixed z-50 top-0 left-0 overflow-x-hidden
         "
 	data-state={$showSidebar}
 >
