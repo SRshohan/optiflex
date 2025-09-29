@@ -77,7 +77,7 @@
 	import { fade } from 'svelte/transition';
 
 	let { chatIdProp = "", projectId=""  } = $props();
-	$inspect("chatIdProp",chatIdProp,"-")
+
 	let loading = $state(true);
 
 	const eventTarget = new EventTarget();
@@ -2112,6 +2112,7 @@
 										{taskIds}
 										{selectedModels}
 										{modelFormHandler}
+										bind:projectId
 										bind:files
 										bind:prompt
 										bind:autoScroll
@@ -2163,6 +2164,7 @@
 									<Placeholder.default
 										{history}
 										{selectedModels}
+										bind:projectId
 										bind:files
 										bind:prompt
 										bind:autoScroll
@@ -2197,9 +2199,7 @@
 						{/if}
 					</div>
 				</Pane>
-				{#if projectId.length > 0}
-					 <p>"Nice project"</p>
-				{/if}
+				
 				<ChatControls
 					bind:this={controlPaneComponent}
 					bind:history

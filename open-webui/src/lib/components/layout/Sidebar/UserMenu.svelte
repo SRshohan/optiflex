@@ -60,14 +60,14 @@
 	</DropdownMenu.Trigger>
 
 	<DropdownMenu.Content
-			class="w-full {className} text-sm rounded-xl px-1 py-1.5 z-50 bg-white dark:bg-gray-850/40 dark:text-white shadow-lg font-primary"
+			class="w-full {className} text-sm rounded-xl px-1 py-1.5 z-50 bg-white dark:bg-gray-850/40 dark:text-white shadow-lg font-primary right-0"
 			sideOffset={4}
 			side="bottom"
 			align="start"
 			transition={(e) => fade(e, { duration: 100 })}
 		>
 			<button
-				class="flex rounded-md py-1.5 px-3 w-full dark:bg-gray-850/40 hover:bg-gray-50 dark:hover:bg-gray-800 transition"
+				class="flex rounded-md py-1 px-2.5 w-full dark:bg-gray-850/40 hover:bg-gray-50 dark:hover:bg-gray-800 hover:border hover:border-primary transition"
 				onclick={async () => {
 					await showSettings.set(true);
 					show = false;
@@ -85,7 +85,7 @@
 
 			<!-- Adding a button to upgrade to pro -->
 			<button
-				class="flex rounded-md py-1.5 px-3 w-full dark:bg-gray-850/40 hover:bg-gray-50 dark:hover:bg-gray-800 transition"
+				class="flex rounded-md py-1 px-2.5 w-full dark:bg-gray-850/40 hover:bg-gray-50 dark:hover:bg-gray-800 hover:border hover:border-primary transition"
 				onclick={async () => {
 					goto('/payment_plans');
 					show = false;
@@ -121,7 +121,7 @@
 
 			{#if role === 'admin'}
 				<button
-					class="flex rounded-md py-1.5 px-3 w-full dark:bg-gray-850/40 hover:bg-gray-50 dark:hover:bg-gray-800 transition"
+					class="flex rounded-md py-1 px-2.5 w-full dark:bg-gray-850/40 hover:bg-gray-50 dark:hover:bg-gray-800 hover:border hover:border-primary transition"
 					onclick={() => {
 						goto('/playground');
 						show = false;
@@ -138,7 +138,7 @@
 				</button>
 
 				<button
-					class="flex rounded-md py-1.5 px-3 w-full dark:bg-gray-850/40 hover:bg-gray-50 dark:hover:bg-gray-800 transition"
+					class="flex rounded-md py-1 px-2.5 w-full dark:bg-gray-850/40 hover:bg-gray-50 dark:hover:bg-gray-800 hover:border hover:border-primary transition"
 					onclick={() => {
 						goto('/admin');
 						show = false;
@@ -185,7 +185,7 @@
 				</DropdownMenu.Item> -->
 
 				<DropdownMenu.Item
-					class="flex gap-2 items-center py-1.5 px-3 text-sm select-none w-full cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 rounded-md transition"
+					class="flex gap-2 items-center py-1 px-2.5 text-sm select-none w-full cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 hover:border hover:border-primary rounded-md transition"
 					id="chat-share-button"
 					onclick={() => {
 						showShortcuts = !showShortcuts;
@@ -200,7 +200,7 @@
 			<hr class=" border-gray-100 dark:border-gray-800 my-1 p-0" />
 
 			<button
-				class="flex rounded-md py-1.5 px-3 w-full dark:bg-gray-850/40 hover:bg-gray-50 dark:hover:bg-gray-800 transition"
+				class="flex rounded-md py-1 px-2.5 w-full dark:bg-gray-850/40 hover:bg-gray-50 dark:hover:bg-gray-800 hover:border hover:border-primary transition"
 				onclick={async () => {
 					const res = await userSignOut();
 					user.set(null);

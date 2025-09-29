@@ -8,7 +8,7 @@
 	import { createPicker } from '$lib/utils/google-drive-picker';
 	import { pickAndDownloadFile } from '$lib/utils/onedrive-file-picker';
 
-	import {  tick, getContext, createEventDispatcher, onDestroy } from 'svelte';
+	import {  tick, getContext, createEventDispatcher, onDestroy, onMount } from 'svelte';
 	const dispatch = createEventDispatcher();
 
 	import {
@@ -50,6 +50,7 @@
 	import Sparkles from '../icons/Sparkles.svelte';
 
 	import { KokoroWorker } from '$lib/workers/KokoroWorker';
+	import { getProject } from '$lib/apis/chats';
 
 	const i18n = getContext('i18n');
 
@@ -79,9 +80,14 @@
 	// export let webSearchEnabled = false;
 	// export let codeInterpreterEnabled = false;
 	// export let placeholder = '';
-	let { onChange,createMessagePair,modelFormHandler,stopResponse,autoScroll = $bindable(false),atSelectedModel = $bindable(),selectedModels,transparentBackground = false,history,taskIds = null,prompt = $bindable(''),files = $bindable([]),toolServers = [],selectedToolIds = $bindable([]),selectedFilterIds = $bindable([]), imageGenerationEnabled = $bindable(false),webSearchEnabled = $bindable(false),codeInterpreterEnabled = $bindable(false),placeholder = '',onUpload} = $props();
+	let { projectId = $bindable(""),onChange,createMessagePair,modelFormHandler,stopResponse,autoScroll = $bindable(false),atSelectedModel = $bindable(),selectedModels,transparentBackground = false,history,taskIds = null,prompt = $bindable(''),files = $bindable([]),toolServers = [],selectedToolIds = $bindable([]),selectedFilterIds = $bindable([]), imageGenerationEnabled = $bindable(false),webSearchEnabled = $bindable(false),codeInterpreterEnabled = $bindable(false),placeholder = '',onUpload} = $props();
 
 	let selectedModelIds = $derived(atSelectedModel !== undefined ? [atSelectedModel.id] : selectedModels);
+	let project = $state([]);
+
+	onMount(async()=>{
+		project = await getProject(localStorage.token,projectId);		
+	})
 
 	$effect(()=>{
 		onChange({
@@ -1198,6 +1204,7 @@
 										/>
 										
 									{/if}
+									
 								</div>
 
 								<div class=" flex justify-between mt-0.5 mb-2.5 mx-0.5 max-w-full" dir="ltr">
@@ -1582,7 +1589,14 @@
 								<div class="mb-1" />
 							{/if}
 						</form>
+						<div class="flex p-4">
+							{#if project?.meta && Object.keys(project?.meta).length === 0}
+								<p class="w-full text-sm font-bold text-center">No chats to show</p>
+							{:else}
+							{/if}
+						</div>
 					{/if}
+
 				</div>
 			</div>
 		</div>
