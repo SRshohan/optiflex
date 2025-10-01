@@ -50,10 +50,13 @@
 	} from '$lib/utils';
 
 	import {
+	addChatToProject,
 		createNewChat,
+		editProject,
 		getAllTags,
 		getChatById,
 		getChatList,
+		getProject,
 		getTagsById,
 		updateChatById
 	} from '$lib/apis/chats';
@@ -1332,7 +1335,7 @@
 			);
 		}
 
-		console.log(data);
+		//console.log(data);
 		if (autoScroll) {
 			scrollToBottom();
 		}
@@ -1948,8 +1951,15 @@
 		}
 	};
 
+	console.log("path",$page.params,$page.url.href.includes("project"));
 	const initChatHandler = async (history) => {
 		let _chatId = $chatId;
+		let projectId:string;
+		let isFromProject = $page.url.href.includes("project");
+
+		if(isFromProject){
+			projectId = $page?.params.id || "";
+		}
 
 		if (!$temporaryChatEnabled) {
 			chat = await createNewChat(localStorage.token, {
@@ -1976,7 +1986,11 @@
 			await chatId.set('local');
 		}
 		await tick();
-
+		if(isFromProject && projectId.length > 0){
+			let res = await addChatToProject(localStorage.token,projectId,_chatId);
+			console.log("res",res);
+			
+		}
 		return _chatId;
 	};
 
@@ -1995,6 +2009,9 @@
 			}
 		}
 	};
+
+	
+	
 </script>
 
 <svelte:head>
