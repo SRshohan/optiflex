@@ -9,6 +9,7 @@ from open_webui.internal.db import Base, get_db, JSONField
 from pydantic import BaseModel, ConfigDict
 from sqlalchemy import BigInteger, Boolean, Column, String, Text
 from sqlalchemy import or_, func, select, and_, text
+from open_webui.models.chats import Chats, ChatModel
 
 ####################
 # Project DB Schema
@@ -97,7 +98,9 @@ class ProjectTable:
             db.commit()
             db.refresh(result)
             return ProjectModel.model_validate(result) if result else None
-    
+
+    # Get chats by project_id already exists in chats.py
+
     def get_projects_by_user_id(self, user_id: str, include_shared: bool = True) -> List[ProjectModel]:
         with get_db() as db:
             query = db.query(Project)
@@ -149,15 +152,52 @@ class ProjectTable:
     def delete_project_by_id(self, id: str, user_id: str) -> bool:
         try:
             with get_db() as db:
-                # First, unassign all chats from this project
-                from open_webui.models.chats import Chats
-                Chats.update_chats_project_id_to_none(project_id=id)
-                
                 # Then delete the project
                 db.query(Project).filter_by(id=id, user_id=user_id).delete()
                 db.commit()
+                print(f"Project deleted: {id}, {user_id}")
                 return True
-        except Exception:
+        except Exception as e:
+            print(e)
+            print(f"Error deleting project: {id}, {user_id}")
             return False
+
+    def add_chat_to_project(self, project_id: str, chat_id: str, user_id: str) -> bool:
+        try:
+            with get_db() as db:
+                result = Chats.update_chat_project_id_by_id_and_user_id(chat_id, user_id, project_id)
+                print(f"add chat to project result: {result}")
+                if result is None:
+                    return False
+                return True
+        except Exception as e:
+            print(e)
+            print(f"Error adding chat to project: {project_id}, {chat_id}, {user_id}")
+            return False
+    
+    def remove_chat_from_project(self, project_id: str, chat_id: str, user_id: str) -> bool:
+        try:
+            with get_db() as db:
+                result = Chats.update_chat_project_id_by_id_and_user_id(chat_id, user_id, None)
+                print(f"remove chat from project result: {result}")
+                if result is None:
+                    return False
+                db.commit()
+                return True
+        except Exception as e:
+            print(f"Error removing chat from project: {project_id}, {chat_id}, {user_id}")
+            print(e)
+            return False
+
+    def update_chat_in_project(self, project_id: str, chat_id: str, user_id: str) -> Optional[ChatModel]:
+        try:
+            with get_db() as db:
+                result = Chats.update_chat_folder_id_by_id_and_user_id(chat_id, user_id, project_id)
+                print(f"update chat in project result: {result}")
+                return result
+        except Exception as e:
+            print(f"Error updating chat in project: {project_id}, {chat_id}, {user_id}")
+            print(e)
+            return None
 
 Projects = ProjectTable()

@@ -69,12 +69,13 @@ async def delete_project_by_id(
     project_id: str, user=Depends(get_verified_user)
 ):
     """Delete a project"""
-    success = Projects.delete_project_by_id(project_id, user.id)
+    success = Projects.delete_project_by_id(project_id, user.id) and Chats.delete_chats_by_user_id_and_folder_id(user.id, project_id)
     if not success:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Project not found or access denied"
         )
+    
     return {"message": "Project deleted successfully"}
 
 @router.get("/{project_id}/chats")
@@ -83,13 +84,59 @@ async def get_project_chats(
 ):
     """Get all chats in a project"""
     # Verify user has access to project
-    project = Projects.get_project_by_id_and_user_id(project_id, user.id)
-    if not project:
+    chats = Chats.get_chats_by_folder_id_and_user_id(project_id, user.id)
+    if not chats:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Project not found"
+            detail="Project not found or access denied"
         )
-    
-    # Get chats by project_id (formerly folder_id)
-    chats = Chats.get_chats_by_folder_id_and_user_id(project_id, user.id)
     return chats
+
+
+@router.post("/{project_id}/chats/{chat_id}")
+async def add_chat_to_project(
+    project_id: str,
+    chat_id: str,
+    user=Depends(get_verified_user)
+):
+    """Add a chat to a project"""
+    chat = Projects.add_chat_to_project(project_id, chat_id, user.id)
+    print(f"Chat added to project: {chat_id}, {project_id}, {user.id}")
+    if not chat:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Project not found or access denied"
+        )
+    return chat
+
+@router.patch("/{project_id}/chats/{chat_id}")
+async def remove_chat_from_project(
+    project_id: str,
+    chat_id: str,
+    user=Depends(get_verified_user)
+):
+    """Remove a chat in a project"""
+    chat = Projects.remove_chat_from_project(project_id, chat_id, user.id)
+    print(f"Chat updated in project: {chat_id}, {project_id}, {user.id}")
+    if not chat:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Project not found or access denied"
+        )
+    return chat
+
+
+@router.delete("/{project_id}/chats/{chat_id}")
+async def remove_chat_from_project(
+    project_id: str,
+    chat_id: str,
+    user=Depends(get_verified_user)
+):
+    """Remove a chat from a project"""
+    chat = Projects.remove_chat_from_project(project_id, chat_id, user.id)
+    if not chat:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Project not found or access denied"
+        )
+    return chat
