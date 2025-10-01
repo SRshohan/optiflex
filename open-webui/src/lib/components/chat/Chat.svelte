@@ -50,6 +50,7 @@
 	} from '$lib/utils';
 
 	import {
+	addChatToProject,
 		createNewChat,
 		editProject,
 		getAllTags,
@@ -1986,11 +1987,8 @@
 		}
 		await tick();
 		if(isFromProject && projectId.length > 0){
-			let oldProject = await getProject(localStorage.token,projectId);
-			const chatName = `chat${Object.keys(oldProject.meta).length + 1}`
-			let newMeta = {...oldProject.meta,chatName:_chatId};
-			let res = await editProject(localStorage.token,{meta:{...newMeta},...oldProject},projectId);
-			console.log("res",newMeta,oldProject);
+			let res = await addChatToProject(localStorage.token,projectId,_chatId);
+			console.log("res",res);
 			
 		}
 		return _chatId;
