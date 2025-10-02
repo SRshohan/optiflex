@@ -1,7 +1,13 @@
 <script>
 	import { getContext } from "svelte";
     import {addedProjects, deleteProjectId, showAddProjectModal, showDeleteProjectModal , editProjectId , showEditProjectModal} from '$lib/stores';
+	import Chats from "./Chats.svelte";
+	import ChevronDown from "../icons/ChevronDown.svelte";
+	import ChevronRight from "../icons/ChevronRight.svelte";
     const i18n = getContext('i18n');
+
+    let showChats = $state(false);
+    let projectId = $state("")
 
     async function handleDelete(id){
         deleteProjectId.set(id);
@@ -50,12 +56,22 @@
             <div class="flex justify-between items-center">
                 <a href={`/project/${project.id}`} class="cursor-pointer">{project.name}</a>
                 <div class="flex items-center gap-2 cursor-pointer">
+                    <span onclick={()=> {showChats = !showChats; projectId = project.id }}>
+                        {#if showChats && projectId === project.id}
+							<ChevronDown className="coursor-pointer size-3" strokeWidth="2.5" />
+						{:else}
+							<ChevronRight className="coursor-pointer size-3" strokeWidth="2.5" />
+						{/if}
+                    </span>
                     <span onclick={()=>handleEdit(project.id)}>
                         <img  class="h-4" src="/Icons/Edit.svg" alt="edit" />
                     </span>
                     <p onclick={()=>handleDelete(project.id)} class="text-lg text-red-600 font-bold">X</p>
                 </div>
             </div>
+            {#if showChats && projectId === project.id}
+                <Chats projectId={project.id} />
+            {/if}
         {/each}
     </div>
 </div>

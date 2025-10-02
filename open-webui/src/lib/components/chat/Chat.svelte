@@ -1979,18 +1979,17 @@
 
 			await chats.set(await getChatList(localStorage.token, $currentChatPage));
 			currentChatPage.set(1);
-
-			window.history.replaceState(history.state, '', `/c/${_chatId}`);
+			if(isFromProject && projectId.length > 0){
+				let res = await addChatToProject(localStorage.token,projectId,_chatId);
+			}
+			//window.history.replaceState(history.state, '', `/c/${_chatId}`);
+			goto(`/c/${_chatId}`);
 		} else {
 			_chatId = 'local';
 			await chatId.set('local');
 		}
 		await tick();
-		if(isFromProject && projectId.length > 0){
-			let res = await addChatToProject(localStorage.token,projectId,_chatId);
-			console.log("res",res);
-			
-		}
+		
 		return _chatId;
 	};
 

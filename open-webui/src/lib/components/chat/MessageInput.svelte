@@ -50,7 +50,8 @@
 	import Sparkles from '../icons/Sparkles.svelte';
 
 	import { KokoroWorker } from '$lib/workers/KokoroWorker';
-	import { getProject } from '$lib/apis/chats';
+	import { getChatsOfProject, getProject } from '$lib/apis/chats';
+	import { goto } from '$app/navigation';
 
 	const i18n = getContext('i18n');
 
@@ -84,9 +85,14 @@
 
 	let selectedModelIds = $derived(atSelectedModel !== undefined ? [atSelectedModel.id] : selectedModels);
 	let project = $state([]);
+	let allChats = $state([])
 
 	onMount(async()=>{
 		project = await getProject(localStorage.token,projectId);		
+	})
+
+	onMount(async()=>{
+		allChats = await getChatsOfProject(localStorage.token,projectId)
 	})
 
 	$effect(()=>{
@@ -1589,10 +1595,16 @@
 								<div class="mb-1" />
 							{/if}
 						</form>
-						<div class="flex p-4">
-							{#if project?.meta && Object.keys(project?.meta).length === 0}
-								<p class="w-full text-sm font-bold text-center">No chats to show</p>
+						<div class="flex flex-col mt-4 gap-4 items-center">
+							{#if allChats.length > 0 }
+								{#each allChats as chat}
+									<div class="w-full text-sm text-white bg-white/10 rounded-lg p-4 flex justify-between items-center">
+										<p onclick={()=> goto(`/c/${chat.id}`)} class="cursor-pointer">{chat.title}</p>
+										<p>{new Date(chat.created_at * 1000).toLocaleDateString("en-US",{ day: 'numeric', month: 'long',year:"numeric" })}</p>
+									</div>
+								{/each}
 							{:else}
+							<p class="w-full text-sm font-bold text-center">No chats to show</p>
 							{/if}
 						</div>
 					{/if}
