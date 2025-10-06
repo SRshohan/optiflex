@@ -34,9 +34,11 @@ def reset_user_password(user_id, email, new_password):
     finally:
         conn.close()
 
-# Usage
-user_id = '0d11d1cf-cfe6-4261-ad3d-ef59b8fdd179'
-email = 'srahman06@manhattan.edu'
-new_password = 'admin123'
 
-reset_user_password(user_id, email, new_password)
+if __name__ == "__main__":
+    # Usage
+    user_id = '0d11d1cf-cfe6-4261-ad3d-ef59b8fdd179'
+    email = 'srahman06@manhattan.edu'
+    new_password = 'admin123'
+
+    reset_user_password(user_id, email, new_password)
