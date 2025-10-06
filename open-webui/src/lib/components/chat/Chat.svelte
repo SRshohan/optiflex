@@ -36,7 +36,10 @@
 		chatTitle,
 		showArtifacts,
 		tools,
-		toolServers
+		toolServers,
+
+		allChatsInProjects
+
 	} from '$lib/stores';
 	import {
 		convertMessagesToHistory,
@@ -56,6 +59,7 @@
 		getAllTags,
 		getChatById,
 		getChatList,
+		getChatsOfProject,
 		getProject,
 		getTagsById,
 		updateChatById
@@ -1951,7 +1955,6 @@
 		}
 	};
 
-	console.log("path",$page.params,$page.url.href.includes("project"));
 	const initChatHandler = async (history) => {
 		let _chatId = $chatId;
 		let projectId:string;
@@ -1982,6 +1985,7 @@
 			if(isFromProject && projectId.length > 0){
 				let res = await addChatToProject(localStorage.token,projectId,_chatId);
 			}
+			$allChatsInProjects = await getChatsOfProject(localStorage.token,projectId)
 			//window.history.replaceState(history.state, '', `/c/${_chatId}`);
 			goto(`/c/${_chatId}`);
 		} else {

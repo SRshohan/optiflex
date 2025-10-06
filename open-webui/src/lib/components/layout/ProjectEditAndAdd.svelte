@@ -45,6 +45,7 @@
         $addedProjects = oldState;
         projectName = "";
         projectDescription = "";
+        $editProjectId  = ""
         onClose()
     }
 </script>
