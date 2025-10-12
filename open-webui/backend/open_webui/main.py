@@ -485,17 +485,17 @@ class SPAStaticFiles(StaticFiles):
 
 print(
     rf"""
- ██████╗ ██████╗ ███████╗███╗   ██╗    ██╗    ██╗███████╗██████╗ ██╗   ██╗██╗
-██╔═══██╗██╔══██╗██╔════╝████╗  ██║    ██║    ██║██╔════╝██╔══██╗██║   ██║██║
-██║   ██║██████╔╝█████╗  ██╔██╗ ██║    ██║ █╗ ██║█████╗  ██████╔╝██║   ██║██║
-██║   ██║██╔═══╝ ██╔══╝  ██║╚██╗██║    ██║███╗██║██╔══╝  ██╔══██╗██║   ██║██║
-╚██████╔╝██║     ███████╗██║ ╚████║    ╚███╔███╔╝███████╗██████╔╝╚██████╔╝██║
- ╚═════╝ ╚═╝     ╚══════╝╚═╝  ╚═══╝     ╚══╝╚══╝ ╚══════╝╚═════╝  ╚═════╝ ╚═╝
+ ██████╗ ██████╗ ████████╗██╗███████╗██╗     ███████╗██╗  ██╗
+██╔═══██╗██╔══██╗╚══██╔══╝██║██╔════╝██║     ██╔════╝╚██╗██╔╝
+██║   ██║██████╔╝   ██║   ██║█████╗  ██║     █████╗   ╚███╔╝ 
+██║   ██║██╔═══╝    ██║   ██║██╔══╝  ██║     ██╔══╝   ██╔██╗ 
+╚██████╔╝██║       ██║   ██║██║     ███████╗███████╗██╔╝ ██╗
+ ╚═════╝ ╚═╝       ╚═╝   ╚═╝╚═╝     ╚══════╝╚══════╝╚═╝  ╚═╝
 
 
 v{VERSION} - building the best AI user interface.
 {f"Commit: {WEBUI_BUILD_HASH}" if WEBUI_BUILD_HASH != "dev-build" else ""}
-https://github.com/open-webui/open-webui
+https://github.com/optiflex/optiflex
 """
 )
 
@@ -1645,7 +1645,7 @@ async def get_app_latest_release_version(user=Depends(get_verified_user)):
         timeout = aiohttp.ClientTimeout(total=1)
         async with aiohttp.ClientSession(timeout=timeout, trust_env=True) as session:
             async with session.get(
-                "https://api.github.com/repos/open-webui/open-webui/releases/latest",
+                "https://api.github.com/repos/optiflex/optiflex/releases/latest",
                 ssl=AIOHTTP_CLIENT_SESSION_SSL,
             ) as response:
                 response.raise_for_status()
