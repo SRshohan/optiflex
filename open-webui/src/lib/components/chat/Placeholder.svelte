@@ -15,35 +15,18 @@
 	import Tooltip from '$lib/components/common/Tooltip.svelte';
 	import EyeSlash from '$lib/components/icons/EyeSlash.svelte';
 	import MessageInput from './MessageInput.svelte';
+	import { getProject } from '$lib/apis/chats';
 
 	const i18n = getContext('i18n');
 
-	export let transparentBackground = false;
+	let { transparentBackground = false,createMessagePair,stopResponse,autoScroll = false,atSelectedModel,selectedModels,history,prompt="",files = [],modelFormHandler, selectedToolIds = [], selectedFilterIds = [],imageGenerationEnabled = false,codeInterpreterEnabled = false,webSearchEnabled = false,projectId = "",toolServers = [] }  = $props()
 
-	export let createMessagePair: Function;
-	export let stopResponse: Function;
+	let models = $state([]);
+	let project = $state([]);
 
-	export let autoScroll = false;
-
-	export let atSelectedModel: Model | undefined;
-	export let selectedModels: [''];
-
-	export let history;
-
-	export let prompt = '';
-	export let files = [];
-	export let modelFormHandler
-
-	export let selectedToolIds = [];
-	export let selectedFilterIds = [];
-
-	export let imageGenerationEnabled = false;
-	export let codeInterpreterEnabled = false;
-	export let webSearchEnabled = false;
-
-	export let toolServers = [];
-
-	let models = [];
+	$effect( async()=>{
+		project = await getProject(localStorage.token,projectId);		
+	})
 
 	const selectSuggestionPrompt = async (p) => {
 		let text = p;
@@ -80,15 +63,14 @@
 		await tick();
 	};
 
-	let selectedModelIdx = 0;
+	let selectedModelIdx = $state(0);
 
-	$: if (selectedModels.length > 0) {
+	$effect(()=>{if (selectedModels.length > 0) {
 		selectedModelIdx = models.length - 1;
-	}
+	}})
 
-	$: models = selectedModels.map((id) => $_models.find((m) => m.id === id));
+	models = selectedModels.map((id) => $_models.find((m) => m.id === id));
 
-	onMount(() => {});
 </script>
 
 <div class="m-auto w-full max-w-6xl px-2 @2xl:px-20 translate-y-6 py-24 text-center">
@@ -106,7 +88,7 @@
 
 	<div
 		class="w-full text-3xl text-gray-800 dark:text-gray-100 text-center flex items-center gap-4 font-primary"
-	>
+	> 
 		<div class="w-full flex flex-col justify-center items-center">
 			<div class="flex flex-row justify-center gap-3 @sm:gap-3.5 w-fit px-5 max-w-xl">
 				<div class="flex shrink-0 justify-center">
@@ -119,7 +101,7 @@
 								placement="top"
 							>
 								<button
-									on:click={() => {
+									onclick={() => {
 										selectedModelIdx = modelIdx;
 									}}
 								>
@@ -128,7 +110,7 @@
 										src={model?.info?.meta?.profile_image_url ??
 											($i18n.language === 'dg-DG'
 												? `/doge.png`
-												: `${WEBUI_BASE_URL}/static/favicon.png`)}
+												: `/favicon.png`)}
 										class=" size-9 @sm:size-10 rounded-full border-[1px] border-gray-100 dark:border-none"
 										alt="logo"
 										draggable="false"
@@ -153,6 +135,8 @@
 								{models[selectedModelIdx]?.name}
 							</span>
 						</Tooltip>
+					{:else if projectId.length > 0}
+						{project?.name}
 					{:else}
 						{$i18n.t('Hello, {{name}}', { name: $user?.name })}
 					{/if}
@@ -203,6 +187,7 @@
 					{history}
 					{selectedModels}
 					{modelFormHandler}
+					bind:projectId
 					bind:files
 					bind:prompt
 					bind:autoScroll

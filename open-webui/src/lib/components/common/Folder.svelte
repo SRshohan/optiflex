@@ -10,22 +10,10 @@
 	import Tooltip from './Tooltip.svelte';
 	import Plus from '../icons/Plus.svelte';
 
-	export let open = true;
+	let { open = true,id = '',name = '', collapsible = true,onAddLabel = '',onAdd = null,dragAndDrop = true,className = '',img = ""} = $props()
+	let folderElement = $state();
 
-	export let id = '';
-	export let name = '';
-	export let collapsible = true;
-
-	export let onAddLabel: string = '';
-	export let onAdd: null | Function = null;
-
-	export let dragAndDrop = true;
-
-	export let className = '';
-
-	let folderElement;
-
-	let draggedOver = false;
+	let draggedOver = $state(false);
 
 	const onDragOver = (e) => {
 		e.preventDefault();
@@ -130,6 +118,9 @@
 				class="w-full group rounded-md relative flex items-center justify-between hover:bg-gray-100 dark:hover:bg-gray-900 text-gray-500 dark:text-gray-500 transition"
 			>
 				<button class="w-full py-1.5 flex items-center gap-1.5 text-xs font-medium">
+					{#if img.length > 0}
+					    <img src={img} alt="default" />
+					{/if}
 					<div class="text-[16px] translate-y-[0.5px]">
 						{name}
 					</div>

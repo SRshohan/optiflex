@@ -66,6 +66,12 @@ export const settings: Writable<Settings> = writable({});
 
 export const showSidebar = writable(false);
 export const showSearch = writable(false);
+export const showAddProjectModal = writable(false);
+export const showDeleteProjectModal = writable(false);
+export const showEditProjectModal = writable(false);
+export const addedProjects = writable([]);
+export const deleteProjectId = writable('');
+export const editProjectId = writable('');
 export const showSettings = writable(false);
 export const showArchivedChats = writable(false);
 export const showChangelog = writable(false);

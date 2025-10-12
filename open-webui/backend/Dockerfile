@@ -1,13 +1,13 @@
-# open-webui/backend/Dockerfile
+# optiflex/backend/Dockerfile
 FROM python:3.11-slim
 
 WORKDIR /app
 
 # Copy application files
-COPY ./backend/. .
+COPY . .
 
 # Copy package.json to the root of the container filesystem
-COPY ./package.json /package.json
+# COPY ./package.json /package.json
 
 # Install dependencies
 # Make sure you have a requirements.txt file in this directory

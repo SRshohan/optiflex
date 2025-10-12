@@ -271,9 +271,9 @@
 {#if $user}
 	<div class="app relative">
 		<div
-			class="text-gray-700 dark:text-gray-100 bg-white dark:bg-gray-900 h-screen max-h-[100dvh] overflow-hidden flex flex-row justify-end"
+			class="text-gray-700 dark:text-gray-100 bg-white dark:bg-gray-950/40 h-screen max-h-[100dvh] overflow-hidden flex flex-row justify-end"
 		>
-		<div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_rgba(0,255,200,0.15),_transparent_50%)]"></div>
+		<div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_rgba(0,255,200,0.15),_transparent_50%)] -z-10"></div>
 			<!-- <img class="opacity-5 h-[1000px] absolute" src="/favicon.png" /> -->
 			<img class="opacity-5 absolute inset-0 -left-1/2 w-full" src="/favicon.png" />
 			<!-- <img class="opacity-5 absolute inset-[40%] w-full" src="/favicon.png" /> -->

@@ -2,7 +2,6 @@
 	import { toast } from 'svelte-sonner';
 	import { v4 as uuidv4 } from 'uuid';
 
-	import { goto } from '$app/navigation';
 	import {
 		user,
 		chats,
@@ -21,7 +20,11 @@
 		socket,
 		config,
 		isApp,
-		models
+		models,
+		showAddProjectModal,
+		addedProjects,
+		showDeleteProjectModal,
+		editProjectId
 	} from '$lib/stores';
 	import { onMount, getContext, tick, onDestroy } from 'svelte';
 
@@ -38,7 +41,11 @@
 		getChatPinnedStatusById,
 		getChatById,
 		updateChatFolderIdById,
-		importChat
+		importChat,
+		getProjects,
+
+		getChatsOfProject
+
 	} from '$lib/apis/chats';
 	import { createNewFolder, getFolders, updateFolderParentIdById } from '$lib/apis/folders';
 	import { WEBUI_BASE_URL } from '$lib/constants';
@@ -58,12 +65,13 @@
 	import MagnifyingGlass from '../icons/MagnifyingGlass.svelte';
 	import SearchModal from './SearchModal.svelte';
 	import Project from './Project.svelte';
+	import DeleteProject from './DeleteProject.svelte';
+	import ProjectEditAndAdd from './ProjectEditAndAdd.svelte';
 
 	const BREAKPOINT = 768;
 
 	let navElement;
 	let shiftKey = false;
-
 	let selectedChatId = null;
 	let showDropdown = false;
 	let showPinnedChat = true;
@@ -76,7 +84,7 @@
 
 	let folders = {};
 	let newFolderId = null;
-
+	let projects = []
 	const initFolders = async () => {
 		const folderList = await getFolders(localStorage.token).catch((error) => {
 			toast.error(`${error}`);
@@ -117,6 +125,7 @@
 		}
 	};
 
+	
 	const createFolder = async (name = 'Untitled') => {
 		if (name === '') {
 			toast.error($i18n.t('Folder name cannot be empty.'));
@@ -314,6 +323,10 @@
 		selectedChatId = null;
 	};
 
+	onMount(async()=>{
+		projects = await getProjects(localStorage.token);
+		$addedProjects = projects
+	})
 	
 	onMount(async () => {
 		showPinnedChat = localStorage?.showPinnedChat ? localStorage.showPinnedChat === 'true' : true;
@@ -440,6 +453,19 @@
 	}}
 />
 
+<ProjectEditAndAdd bind:show={$showAddProjectModal} 
+	onClose={() => {
+		showAddProjectModal.set(false);
+		editProjectId.set("");
+	}} 
+/>
+
+<DeleteProject bind:show={$showDeleteProjectModal} 
+	onClose={() => {
+		showDeleteProjectModal.set(false);
+	}} 
+/>
+
 <div
 	bind:this={navElement}
 	id="sidebar"
@@ -447,7 +473,7 @@
 		? 'md:relative w-[260px] max-w-[260px]'
 		: '-translate-x-[260px] w-[0px]'} {$isApp
 		? `ml-[4.5rem] md:ml-0 `
-		: 'transition-width duration-200 ease-in-out'}  shrink-0 bg-gray-50 text-gray-900 dark:bg-gray-950 dark:text-gray-200 text-sm fixed z-50 top-0 left-0 overflow-x-hidden
+		: 'transition-width duration-200 ease-in-out'}  shrink-0 bg-gray-50 text-gray-900 dark:bg-gray-950/40 dark:text-gray-200 text-sm fixed z-50 top-0 left-0 overflow-x-hidden
         "
 	data-state={$showSidebar}
 >
@@ -666,7 +692,7 @@
 			<Folder
 				className="mt-0.5"
 				name={$i18n.t('History')}
-				
+				img="/Icons/History.svg"
 				onAddLabel={$i18n.t('New Folder')}
 				on:import={(e) => {
 					importChatHandler(e.detail);
@@ -767,26 +793,28 @@
 								class="ml-3 pl-1 mt-[1px] flex flex-col overflow-y-auto scrollbar-hidden border-s border-gray-100 dark:border-gray-900"
 							>
 								{#each $pinnedChats as chat, idx (`pinned-chat-${chat?.id ?? idx}`)}
-									<ChatItem
-										className=""
-										id={chat.id}
-										title={chat.title}
-										{shiftKey}
-										selected={selectedChatId === chat.id}
-										on:select={() => {
-											selectedChatId = chat.id;
-										}}
-										on:unselect={() => {
-											selectedChatId = null;
-										}}
-										on:change={async () => {
-											initChatList();
-										}}
-										on:tag={(e) => {
-											const { type, name } = e.detail;
-											tagEventHandler(type, name, chat.id);
-										}}
-									/>
+									{#if !chat.folder_id}
+										<ChatItem
+											className=""
+											id={chat.id}
+											title={chat.title}
+											{shiftKey}
+											selected={selectedChatId === chat.id}
+											on:select={() => {
+												selectedChatId = chat.id;
+											}}
+											on:unselect={() => {
+												selectedChatId = null;
+											}}
+											on:change={async () => {
+												initChatList();
+											}}
+											on:tag={(e) => {
+												const { type, name } = e.detail;
+												tagEventHandler(type, name, chat.id);
+											}}
+										/>
+									{/if}
 								{/each}
 							</div>
 						</Folder>
@@ -813,55 +841,58 @@
 					<div class="pt-1.5">
 						{#if $chats}
 							{#each $chats as chat, idx (`chat-${chat?.id ?? idx}`)}
-								{#if idx === 0 || (idx > 0 && chat.time_range !== $chats[idx - 1].time_range)}
-									<div
-										class="w-full text-sm text-gray-500 dark:text-gray-500 font-medium {idx ===
-										0
-											? ''
-											: 'pt-5'} pb-1.5"
-									>
-										{$i18n.t(chat.time_range)}
-										<!-- localisation keys for time_range to be recognized from the i18next parser (so they don't get automatically removed):
-							{$i18n.t('Today')}
-							{$i18n.t('Yesterday')}
-							{$i18n.t('Previous 7 days')}
-							{$i18n.t('Previous 30 days')}
-							{$i18n.t('January')}
-							{$i18n.t('February')}
-							{$i18n.t('March')}
-							{$i18n.t('April')}
-							{$i18n.t('May')}
-							{$i18n.t('June')}
-							{$i18n.t('July')}
-							{$i18n.t('August')}
-							{$i18n.t('September')}
-							{$i18n.t('October')}
-							{$i18n.t('November')}
-							{$i18n.t('December')}
-							-->
-									</div>
-								{/if}
+								{#if !chat.folder_id}
 
-								<ChatItem
-									className=""
-									id={chat.id}
-									title={chat.title}
-									{shiftKey}
-									selected={selectedChatId === chat.id}
-									on:select={() => {
-										selectedChatId = chat.id;
-									}}
-									on:unselect={() => {
-										selectedChatId = null;
-									}}
-									on:change={async () => {
-										initChatList();
-									}}
-									on:tag={(e) => {
-										const { type, name } = e.detail;
-										tagEventHandler(type, name, chat.id);
-									}}
-								/>
+									{#if idx === 0 || (idx > 0 && chat.time_range !== $chats[idx - 1].time_range)}
+										<div
+											class="w-full text-sm text-gray-500 dark:text-gray-500 font-medium {idx ===
+											0
+												? ''
+												: 'pt-5'} pb-1.5"
+										>
+											{$i18n.t(chat.time_range)}
+											<!-- localisation keys for time_range to be recognized from the i18next parser (so they don't get automatically removed):
+									{$i18n.t('Today')}
+									{$i18n.t('Yesterday')}
+									{$i18n.t('Previous 7 days')}
+									{$i18n.t('Previous 30 days')}
+									{$i18n.t('January')}
+									{$i18n.t('February')}
+									{$i18n.t('March')}
+									{$i18n.t('April')}
+									{$i18n.t('May')}
+									{$i18n.t('June')}
+									{$i18n.t('July')}
+									{$i18n.t('August')}
+									{$i18n.t('September')}
+									{$i18n.t('October')}
+									{$i18n.t('November')}
+									{$i18n.t('December')}
+									-->
+											</div>
+									{/if}
+
+									<ChatItem
+										className=""
+										id={chat.id}
+										title={chat.title}
+										{shiftKey}
+										selected={selectedChatId === chat.id}
+										on:select={() => {
+											selectedChatId = chat.id;
+										}}
+										on:unselect={() => {
+											selectedChatId = null;
+										}}
+										on:change={async () => {
+											initChatList();
+										}}
+										on:tag={(e) => {
+											const { type, name } = e.detail;
+											tagEventHandler(type, name, chat.id);
+										}}
+									/>
+								{/if}
 							{/each}
 
 							{#if $scrollPaginationEnabled && !allChatsLoaded}
