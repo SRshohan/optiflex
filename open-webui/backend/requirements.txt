@@ -143,3 +143,6 @@ opentelemetry-instrumentation-aiohttp-client==0.53b1
 firebase-admin
 stripe
 streamlit
+
+cloud-sql-python-connector[pg8000]
+pg8000
