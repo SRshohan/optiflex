@@ -8,7 +8,7 @@
 	import { createPicker } from '$lib/utils/google-drive-picker';
 	import { pickAndDownloadFile } from '$lib/utils/onedrive-file-picker';
 
-	import {  tick, getContext, createEventDispatcher, onDestroy } from 'svelte';
+	import {  tick, getContext, createEventDispatcher, onDestroy, onMount } from 'svelte';
 	const dispatch = createEventDispatcher();
 
 	import {
@@ -50,6 +50,8 @@
 	import Sparkles from '../icons/Sparkles.svelte';
 
 	import { KokoroWorker } from '$lib/workers/KokoroWorker';
+	import { getChatsOfProject, getProject } from '$lib/apis/chats';
+	import { goto } from '$app/navigation';
 
 	const i18n = getContext('i18n');
 
@@ -79,9 +81,19 @@
 	// export let webSearchEnabled = false;
 	// export let codeInterpreterEnabled = false;
 	// export let placeholder = '';
-	let { onChange,createMessagePair,modelFormHandler,stopResponse,autoScroll = $bindable(false),atSelectedModel = $bindable(),selectedModels,transparentBackground = false,history,taskIds = null,prompt = $bindable(''),files = $bindable([]),toolServers = [],selectedToolIds = $bindable([]),selectedFilterIds = $bindable([]), imageGenerationEnabled = $bindable(false),webSearchEnabled = $bindable(false),codeInterpreterEnabled = $bindable(false),placeholder = '',onUpload} = $props();
+	let { projectId = $bindable(""),onChange,createMessagePair,modelFormHandler,stopResponse,autoScroll = $bindable(false),atSelectedModel = $bindable(),selectedModels,transparentBackground = false,history,taskIds = null,prompt = $bindable(''),files = $bindable([]),toolServers = [],selectedToolIds = $bindable([]),selectedFilterIds = $bindable([]), imageGenerationEnabled = $bindable(false),webSearchEnabled = $bindable(false),codeInterpreterEnabled = $bindable(false),placeholder = '',onUpload} = $props();
 
 	let selectedModelIds = $derived(atSelectedModel !== undefined ? [atSelectedModel.id] : selectedModels);
+	let project = $state([]);
+	let allChats = $state([])
+
+	onMount(async()=>{
+		project = await getProject(localStorage.token,projectId);		
+	})
+
+	onMount(async()=>{
+		allChats = await getChatsOfProject(localStorage.token,projectId)
+	})
 
 	$effect(()=>{
 		onChange({
@@ -156,7 +168,7 @@
 	
 	let toggleFilters = $derived((atSelectedModel?.id ? [atSelectedModel.id] : selectedModels)
 	.map((id) => ($models.find((model) => model.id === id) || {})?.filters ?? [])
-	.reduce((acc, filters) => acc.filter((f1) => filters.some((f2) => f2.id === f1.id))))
+	.reduce((acc, filters) => acc.filter((f1) => filters.some((f2) => f2.id === f1.id)),[""]))
 	
 
 	// let showToolsButton = $state(false);
@@ -1198,6 +1210,7 @@
 										/>
 										
 									{/if}
+									
 								</div>
 
 								<div class=" flex justify-between mt-0.5 mb-2.5 mx-0.5 max-w-full" dir="ltr">
@@ -1582,7 +1595,20 @@
 								<div class="mb-1" />
 							{/if}
 						</form>
+						<div class="flex flex-col mt-4 gap-4 items-center">
+							{#if allChats.length > 0 }
+								{#each allChats as chat}
+									<div class="w-full text-sm text-white bg-white/10 rounded-lg p-4 flex justify-between items-center">
+										<p onclick={()=> goto(`/c/${chat.id}`)} class="cursor-pointer">{chat.title}</p>
+										<p>{new Date(chat.created_at * 1000).toLocaleDateString("en-US",{ day: 'numeric', month: 'long',year:"numeric" })}</p>
+									</div>
+								{/each}
+							{:else}
+							<p class="w-full text-sm font-bold text-center">No chats to show</p>
+							{/if}
+						</div>
 					{/if}
+
 				</div>
 			</div>
 		</div>

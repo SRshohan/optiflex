@@ -951,5 +951,41 @@ class ChatTable:
         except Exception:
             return False
 
+    # Add new methods to ChatTable class
+    def update_chat_project_id_by_id_and_user_id(
+        self, id: str, user_id: str, project_id: Optional[str]
+    ) -> Optional[ChatModel]:
+        """Move chat to a project or remove from project"""
+        try:
+            with get_db() as db:
+                chat = db.query(Chat).filter_by(id=id, user_id=user_id).first()
+                if not chat:
+                    return None
+                
+                chat.folder_id = project_id  # folder_id is used as project_id
+                chat.updated_at = int(time.time())
+                chat.pinned = False  # Unpin when moving to project
+                db.commit()
+                db.refresh(chat)
+                return ChatModel.model_validate(chat)
+        except Exception:
+            return None
+
+    def update_chats_project_id_to_none(self, project_id: str) -> bool:
+        """Remove all chats from a project when project is deleted"""
+        try:
+            with get_db() as db:
+                db.query(Chat).filter_by(folder_id=project_id).update({"folder_id": None})
+                db.commit()
+                return True
+        except Exception:
+            return False
+
+    def get_chats_by_project_id_and_user_id(
+        self, project_id: str, user_id: str
+    ) -> list[ChatModel]:
+        """Get all chats in a specific project"""
+        return self.get_chats_by_folder_id_and_user_id(project_id, user_id)
+
 
 Chats = ChatTable()

@@ -50,10 +50,13 @@
 	} from '$lib/utils';
 
 	import {
+	addChatToProject,
 		createNewChat,
+		editProject,
 		getAllTags,
 		getChatById,
 		getChatList,
+		getProject,
 		getTagsById,
 		updateChatById
 	} from '$lib/apis/chats';
@@ -76,7 +79,7 @@
 	import Spinner from '../common/Spinner.svelte';
 	import { fade } from 'svelte/transition';
 
-	let { chatIdProp = ""  } = $props();
+	let { chatIdProp = "", projectId=""  } = $props();
 
 	let loading = $state(true);
 
@@ -99,7 +102,7 @@
 
 	let chatIdUnsubscriber: Unsubscriber | undefined = $state();
 
-	let selectedModels = $state([]);
+	let selectedModels = $state([""]);
 	let atSelectedModel: Model | undefined = $state();
 	let selectedModelIds = $derived(atSelectedModel !== undefined ? [atSelectedModel.id] : selectedModels);
 
@@ -1332,7 +1335,7 @@
 			);
 		}
 
-		console.log(data);
+		//console.log(data);
 		if (autoScroll) {
 			scrollToBottom();
 		}
@@ -1948,8 +1951,15 @@
 		}
 	};
 
+	console.log("path",$page.params,$page.url.href.includes("project"));
 	const initChatHandler = async (history) => {
 		let _chatId = $chatId;
+		let projectId:string;
+		let isFromProject = $page.url.href.includes("project");
+
+		if(isFromProject){
+			projectId = $page?.params.id || "";
+		}
 
 		if (!$temporaryChatEnabled) {
 			chat = await createNewChat(localStorage.token, {
@@ -1969,14 +1979,17 @@
 
 			await chats.set(await getChatList(localStorage.token, $currentChatPage));
 			currentChatPage.set(1);
-
-			window.history.replaceState(history.state, '', `/c/${_chatId}`);
+			if(isFromProject && projectId.length > 0){
+				let res = await addChatToProject(localStorage.token,projectId,_chatId);
+			}
+			//window.history.replaceState(history.state, '', `/c/${_chatId}`);
+			goto(`/c/${_chatId}`);
 		} else {
 			_chatId = 'local';
 			await chatId.set('local');
 		}
 		await tick();
-
+		
 		return _chatId;
 	};
 
@@ -1995,6 +2008,9 @@
 			}
 		}
 	};
+
+	
+	
 </script>
 
 <svelte:head>
@@ -2070,7 +2086,7 @@
 					/>
 
 					<div class="flex flex-col flex-auto z-10 w-full @container">
-						{#if $settings?.landingPageMode === 'chat' || createMessagesList(history, history.currentId).length > 0}
+						{#if projectId.length === 0 && ($settings?.landingPageMode === 'chat' || createMessagesList(history, history.currentId).length > 0)}
 							<div
 								class=" pb-2.5 flex flex-col justify-between w-full flex-auto overflow-auto h-0 max-w-full z-10 scrollbar-hidden"
 								id="messages-container"
@@ -2112,6 +2128,7 @@
 										{taskIds}
 										{selectedModels}
 										{modelFormHandler}
+										bind:projectId
 										bind:files
 										bind:prompt
 										bind:autoScroll
@@ -2163,6 +2180,7 @@
 									<Placeholder.default
 										{history}
 										{selectedModels}
+										bind:projectId
 										bind:files
 										bind:prompt
 										bind:autoScroll
@@ -2197,7 +2215,7 @@
 						{/if}
 					</div>
 				</Pane>
-
+				
 				<ChatControls
 					bind:this={controlPaneComponent}
 					bind:history
