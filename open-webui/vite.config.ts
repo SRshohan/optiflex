@@ -30,15 +30,6 @@ export default defineConfig({
 			]
 		})
 	],
-	server: {
-		proxy: {
-			'/api': {
-				target: 'https://openwebui-backend-953676742197.us-central1.run.app',
-				changeOrigin: true,
-				secure: true
-			}
-		}
-	},
 	define: {
 		APP_VERSION: JSON.stringify(process.env.npm_package_version),
 		APP_BUILD_HASH: JSON.stringify(process.env.APP_BUILD_HASH || 'dev-build')
