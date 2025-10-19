@@ -3,8 +3,11 @@ import { browser, dev } from '$app/environment';
 
 export const APP_NAME = 'Optiflex';
 
-export const WEBUI_HOSTNAME = browser ? (dev ? `${location.hostname}:8080` : ``) : '';
-export const WEBUI_BASE_URL = browser ? (dev ? `http://${WEBUI_HOSTNAME}` : ``) : ``;
+// Use proxy for development to avoid CORS issues
+const BACKEND_URL = browser && dev ? '' : 'https://openwebui-backend-953676742197.us-central1.run.app';
+
+export const WEBUI_HOSTNAME = BACKEND_URL;
+export const WEBUI_BASE_URL = BACKEND_URL;
 // 👇 Add this flag to control the base URL
 // const FORCE_LOCAL = true;
 
