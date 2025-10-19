@@ -250,9 +250,26 @@ OpenWebUI requires database migrations to run before the main application can st
 - Memory requirements are high due to ML dependencies (PyTorch, etc.)
 - All database credentials are passed via environment variables (no hardcoding)
 
+## Github Commit Rollback
+1. Find the commit hash(es):
+```sh
+git log --oneline
+```
+
+2. Revert them (example: last commit):
+```sh
+git revert HEAD
+```
+
+3. Push
+```sh
+git push origin main
+```
+
 ## 🎉 Success Indicators
 
 - Service responds with HTTP status (404 is expected for root path)
 - No authentication errors in logs
 - Database migrations complete successfully
 - Service starts within timeout period
+
