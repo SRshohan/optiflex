@@ -3,37 +3,8 @@ import { browser, dev } from '$app/environment';
 
 export const APP_NAME = 'Optiflex';
 
-// Environment-aware backend URL configuration
-const getBackendConfig = () => {
-  if (!browser) return { hostname: '', baseUrl: '' };
-  
-  // 1. Check for environment variable (Vercel/Production)
-  const envBackendUrl = import.meta.env.VITE_BACKEND_URL;
-  if (envBackendUrl) {
-    return {
-      hostname: envBackendUrl,
-      baseUrl: envBackendUrl.startsWith('http') ? envBackendUrl : `https://${envBackendUrl}`
-    };
-  }
-  
-  // 2. Development mode fallback
-  if (dev) {
-    return {
-      hostname: `${location.hostname}:8080`,
-      baseUrl: `http://${location.hostname}:8080`
-    };
-  }
-  
-  // 3. Production fallback (safe default)
-  return {
-    hostname: 'openwebui-backend-953676742197.us-central1.run.app',
-    baseUrl: 'https://openwebui-backend-953676742197.us-central1.run.app'
-  };
-};
-
-const backendConfig = getBackendConfig();
-export const WEBUI_HOSTNAME = backendConfig.hostname;
-export const WEBUI_BASE_URL = backendConfig.baseUrl;
+export const WEBUI_HOSTNAME = browser ? (dev ? `${location.hostname}:8080` : ``) : '';
+export const WEBUI_BASE_URL = browser ? (dev ? `http://${WEBUI_HOSTNAME}` : ``) : ``;
 // 👇 Add this flag to control the base URL
 // const FORCE_LOCAL = true;
 
