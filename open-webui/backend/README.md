@@ -266,6 +266,10 @@ git revert HEAD
 git push origin main
 ```
 
+## Adding Development Environment in Vercel
+
+Go to Second Long Link for the environment
+
 ## 🎉 Success Indicators
 
 - Service responds with HTTP status (404 is expected for root path)
