@@ -26,7 +26,7 @@ export PROJECT_ID=optiflex-test
 export INSTANCE_CONNECTION_NAME=optiflex-test:us-central1:optiflex-sql-instance
 export DB_NAME=optiflex-db
 export DB_USER=optiflex-user
-export DB_PASS=your_password_here
+export DB_PASS=REDACTED
 ```
 
 ## 🚀 Deployment Steps
