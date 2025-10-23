@@ -20,7 +20,9 @@
 		showCallOverlay,
 		user as _user,
 		showControls,
-		TTSWorker
+		TTSWorker,
+		allChatsInProjects
+
 	} from '$lib/stores';
 
 	import {
@@ -85,14 +87,13 @@
 
 	let selectedModelIds = $derived(atSelectedModel !== undefined ? [atSelectedModel.id] : selectedModels);
 	let project = $state([]);
-	let allChats = $state([])
 
 	onMount(async()=>{
 		project = await getProject(localStorage.token,projectId);		
 	})
 
 	onMount(async()=>{
-		allChats = await getChatsOfProject(localStorage.token,projectId)
+		$allChatsInProjects = await getChatsOfProject(localStorage.token,projectId)
 	})
 
 	$effect(()=>{
@@ -1596,8 +1597,8 @@
 							{/if}
 						</form>
 						<div class="flex flex-col mt-4 gap-4 items-center">
-							{#if allChats.length > 0 }
-								{#each allChats as chat}
+							{#if $allChatsInProjects.length > 0 }
+								{#each $allChatsInProjects as chat}
 									<div class="w-full text-sm text-white bg-white/10 rounded-lg p-4 flex justify-between items-center">
 										<p onclick={()=> goto(`/c/${chat.id}`)} class="cursor-pointer">{chat.title}</p>
 										<p>{new Date(chat.created_at * 1000).toLocaleDateString("en-US",{ day: 'numeric', month: 'long',year:"numeric" })}</p>
