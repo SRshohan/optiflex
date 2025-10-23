@@ -15,6 +15,7 @@
             let oldState = $addedProjects;
             oldState = oldState.filter(prev=>prev.id !== $deleteProjectId)
             $addedProjects = oldState;
+            $deleteProjectId  = ""
             onClose();
         }
     }
