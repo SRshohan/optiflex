@@ -105,7 +105,7 @@ def create_virtual_key(user_id: str, plan: str = "free", user_email: str = "admi
     Creates a virtual key in LiteLLM for a given user and plan.
 
     Args:
-        user_id: The unique identifier for the user (from Open WebUI).
+        user_id: The unique identifier for the user (from Optiflex).
         plan: The subscription plan (e.g., "starter", "pro").
 
     Returns:
@@ -148,7 +148,7 @@ def create_virtual_key(user_id: str, plan: str = "free", user_email: str = "admi
         # "max_budget": budgets.get(plan, {}).get("budget", 0.0),
         "duration": budgets.get(plan, {}).get("duration", "30d"),
         "metadata": {
-            "saas_user_id": user_id, # Use the original Open WebUI user ID for tracking
+            "saas_user_id": user_id, # Use the original Optiflex user ID for tracking
             "subscription_tier": plan,
             "email": user_email
         }

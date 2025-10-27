@@ -125,7 +125,15 @@ FROM_INIT_PY = os.environ.get("FROM_INIT_PY", "False").lower() == "true"
 if FROM_INIT_PY:
     PACKAGE_DATA = {"version": importlib.metadata.version("optiflex")}
 else:
-    PACKAGE_DATA = json.loads((BASE_DIR / "package.json").read_text())
+    # Try to read package.json, fallback to default if not found
+    package_json_path = BASE_DIR / "package.json"
+    if package_json_path.exists():
+        try:
+            PACKAGE_DATA = json.loads(package_json_path.read_text())
+        except (json.JSONDecodeError, FileNotFoundError):
+            PACKAGE_DATA = {"version": "1.0.0"}
+    else:
+        PACKAGE_DATA = {"version": "1.0.0"}
 
 
 VERSION = PACKAGE_DATA["version"]
@@ -152,16 +160,14 @@ def parse_section(section):
 
 
 
+# Try to read CHANGELOG.md, fallback to empty if not found
 changelog_path = BASE_DIR / "CHANGELOG.md"
 if changelog_path.exists():
-    with open(str(changelog_path.absolute()), "r", encoding="utf8") as file:
-        changelog_content = file.read()
-# else:
-#     changelog_content = (pkgutil.get_data("open_webui", "CHANGELOG.md") or b"").decode()
-
-
-#changelog_content = (pkgutil.get_data("open_webui", "CHANGELOG.md") or b"").decode()
-
+    try:
+        with open(str(changelog_path.absolute()), "r", encoding="utf8") as file:
+            changelog_content = file.read()
+    except (FileNotFoundError, UnicodeDecodeError):
+        changelog_content = ""
 else:
     changelog_content = ""
 
@@ -252,12 +258,19 @@ STATIC_DIR = Path(os.getenv("STATIC_DIR", OPEN_WEBUI_DIR / "static"))
 
 FONTS_DIR = Path(os.getenv("FONTS_DIR", OPEN_WEBUI_DIR / "static" / "fonts"))
 
-FRONTEND_BUILD_DIR = Path(os.getenv("FRONTEND_BUILD_DIR", BASE_DIR / "build")).resolve()
-
+# Set frontend build directory with fallback
 if FROM_INIT_PY:
     FRONTEND_BUILD_DIR = Path(
         os.getenv("FRONTEND_BUILD_DIR", OPEN_WEBUI_DIR / "frontend")
     ).resolve()
+else:
+    # Try to use BASE_DIR/build, fallback to OPEN_WEBUI_DIR if not found
+    frontend_build_path = BASE_DIR / "build"
+    if frontend_build_path.exists():
+        FRONTEND_BUILD_DIR = Path(os.getenv("FRONTEND_BUILD_DIR", frontend_build_path)).resolve()
+    else:
+        # Fallback to OPEN_WEBUI_DIR for backend-only deployments
+        FRONTEND_BUILD_DIR = Path(os.getenv("FRONTEND_BUILD_DIR", OPEN_WEBUI_DIR)).resolve()
 
 ####################################
 # Database
@@ -550,7 +563,7 @@ ENABLE_OTEL_METRICS = os.environ.get("ENABLE_OTEL_METRICS", "False").lower() == 
 OTEL_EXPORTER_OTLP_ENDPOINT = os.environ.get(
     "OTEL_EXPORTER_OTLP_ENDPOINT", "http://localhost:4317"
 )
-OTEL_SERVICE_NAME = os.environ.get("OTEL_SERVICE_NAME", "open-webui")
+OTEL_SERVICE_NAME = os.environ.get("OTEL_SERVICE_NAME", "optiflex")
 OTEL_RESOURCE_ATTRIBUTES = os.environ.get(
     "OTEL_RESOURCE_ATTRIBUTES", ""
 )  # e.g. key1=val1,key2=val2
