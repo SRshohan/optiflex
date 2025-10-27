@@ -1984,8 +1984,10 @@
 			currentChatPage.set(1);
 			if(isFromProject && projectId.length > 0){
 				let res = await addChatToProject(localStorage.token,projectId,_chatId);
+				$allChatsInProjects = await getChatsOfProject(localStorage.token,projectId);
+				console.log("called inside");
+				
 			}
-			$allChatsInProjects = await getChatsOfProject(localStorage.token,projectId)
 			//window.history.replaceState(history.state, '', `/c/${_chatId}`);
 			goto(`/c/${_chatId}`);
 		} else {
