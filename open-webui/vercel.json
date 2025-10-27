@@ -1,0 +1,4 @@
+{
+    "buildCommand": "npm run pyodide:fetch && vite build",
+    "outputDirectory": "build"
+}

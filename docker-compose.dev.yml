@@ -1,19 +1,30 @@
 services:
+  cloud-sql-proxy:
+    image: gcr.io/cloudsql-docker/gce-proxy
+    command: >
+      /cloud_sql_proxy
+      -instances=newsletter-412722:us-central1:openwebui-db=tcp:5432
+      -credential_file=/secrets/cloudsql/credentials.json
+    volumes:
+      # Mount credentials.json from root folder to /secrets/cloudsql/ inside container
+      - ./credentials.json:/secrets/cloudsql/credentials.json:ro
+    networks:
+      - litellm_network
+
   open-webui:
-    # Use the same build context and Dockerfile as the production setup.
-    # The image will be the same, but we will run it differently.
     build:
       context: ./open-webui
-      dockerfile: Dockerfile.prod
+      dockerfile: Dockerfile.crun
     ports:
-      # Expose the same port
       - "8080:8080"
     environment:
-      # For development, use localhost to reach the LiteLLM service
+      - DATABASE_URL=postgresql://postgres:M1xcoff33!@cloud-sql-proxy:5432/openwebui
+      - WEBUI_SECRET_KEY=your_secret_key_here
+      - WEBUI_AUTH=true
+      - ENABLE_SIGNUP=false
+      - WEBUI_URL=http://localhost:8080
       - LITELLM_API_URL=http://localhost:4000
       - LITELLM_MASTER_KEY=sk-1234
-      # This tells the backend where the frontend is running, so it can create correct redirect URLs for Stripe.
-      - WEBUI_URL=http://localhost:5173
       - PLAN_TEST=pro
       - STRIPE_PRICE_ID=price_1RnVuMRoIzbn9VW9UJ5PimsV
       - STRIPE_SECRET_KEY=sk_test_51RnVkeRoIzbn9VW93cGgiTl3K3XuncMdCP2D3WkEEKc2qLGiAe4V2gBHKRSAOdTKgzBBZY3CTqFOwNDHqzUgmP7900Yv2TTFvH
@@ -21,9 +32,6 @@ services:
     networks:
       - litellm_network
     volumes:
-      # This is the magic part for development:
-      # It mounts your local 'open-webui' folder into the '/app' directory inside the container.
-      # Any change you save on your machine is instantly available in the container.
       - ./open-webui:/app
     command: >
       bash -c "
@@ -31,8 +39,10 @@ services:
         uvicorn open_webui.main:app --host 0.0.0.0 --port 8080 --reload --log-level debug
       "
     restart: unless-stopped
+    depends_on:
+      - cloud-sql-proxy
 
 networks:
   litellm_network:
     name: litellm_network
-    external: true 
+    external: true

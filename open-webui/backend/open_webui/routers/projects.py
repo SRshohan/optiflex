@@ -75,7 +75,6 @@ async def delete_project_by_id(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Project not found or access denied"
         )
-    
     return {"message": "Project deleted successfully"}
 
 @router.get("/{project_id}/chats")
