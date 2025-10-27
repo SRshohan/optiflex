@@ -100,7 +100,6 @@ class ProjectTable:
             return ProjectModel.model_validate(result) if result else None
 
     # Get chats by project_id already exists in chats.py
-
     def get_projects_by_user_id(self, user_id: str, include_shared: bool = True) -> List[ProjectModel]:
         with get_db() as db:
             query = db.query(Project)
@@ -169,6 +168,7 @@ class ProjectTable:
                 print(f"add chat to project result: {result}")
                 if result is None:
                     return False
+                db.commit()
                 return True
         except Exception as e:
             print(e)
@@ -194,6 +194,8 @@ class ProjectTable:
             with get_db() as db:
                 result = Chats.update_chat_folder_id_by_id_and_user_id(chat_id, user_id, project_id)
                 print(f"update chat in project result: {result}")
+                db.commit()
+                db.refresh(result)
                 return result
         except Exception as e:
             print(f"Error updating chat in project: {project_id}, {chat_id}, {user_id}")
