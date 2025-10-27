@@ -495,7 +495,6 @@ print(
 
 v{VERSION} - building the best AI user interface.
 {f"Commit: {WEBUI_BUILD_HASH}" if WEBUI_BUILD_HASH != "dev-build" else ""}
-https://github.com/open-webui/open-webui
 """
 )
 
@@ -781,8 +780,8 @@ app.state.config.RAG_AZURE_OPENAI_BASE_URL = RAG_AZURE_OPENAI_BASE_URL
 app.state.config.RAG_AZURE_OPENAI_API_KEY = RAG_AZURE_OPENAI_API_KEY
 app.state.config.RAG_AZURE_OPENAI_API_VERSION = RAG_AZURE_OPENAI_API_VERSION
 
-app.state.config.RAG_OLLAMA_BASE_URL = RAG_OLLAMA_BASE_URL
-app.state.config.RAG_OLLAMA_API_KEY = RAG_OLLAMA_API_KEY
+# app.state.config.RAG_OLLAMA_BASE_URL = RAG_OLLAMA_BASE_URL
+# app.state.config.RAG_OLLAMA_API_KEY = RAG_OLLAMA_API_KEY
 
 app.state.config.PDF_EXTRACT_IMAGES = PDF_EXTRACT_IMAGES
 
@@ -877,27 +876,28 @@ app.state.EMBEDDING_FUNCTION = get_embedding_function(
     (
         app.state.config.RAG_OPENAI_API_BASE_URL
         if app.state.config.RAG_EMBEDDING_ENGINE == "openai"
-        else (
-            app.state.config.RAG_OLLAMA_BASE_URL
-            if app.state.config.RAG_EMBEDDING_ENGINE == "ollama"
-            else app.state.config.RAG_AZURE_OPENAI_BASE_URL
-        )
+        else None
+        #     app.state.config.RAG_OLLAMA_BASE_URL
+        #     if app.state.config.RAG_EMBEDDING_ENGINE == "ollama"
+        #     else app.state.config.RAG_AZURE_OPENAI_BASE_URL
+        # )
     ),
     (
         app.state.config.RAG_OPENAI_API_KEY
         if app.state.config.RAG_EMBEDDING_ENGINE == "openai"
-        else (
-            app.state.config.RAG_OLLAMA_API_KEY
-            if app.state.config.RAG_EMBEDDING_ENGINE == "ollama"
-            else app.state.config.RAG_AZURE_OPENAI_API_KEY
-        )
+        else None
+        #(
+        #     app.state.config.RAG_OLLAMA_API_KEY
+        #     if app.state.config.RAG_EMBEDDING_ENGINE == "ollama"
+        #     else app.state.config.RAG_AZURE_OPENAI_API_KEY
+        # )
     ),
     app.state.config.RAG_EMBEDDING_BATCH_SIZE,
-    azure_api_version=(
-        app.state.config.RAG_AZURE_OPENAI_API_VERSION
-        if app.state.config.RAG_EMBEDDING_ENGINE == "azure_openai"
-        else None
-    ),
+    # azure_api_version=(
+    #     app.state.config.RAG_AZURE_OPENAI_API_VERSION
+    #     if app.state.config.RAG_EMBEDDING_ENGINE == "azure_openai"
+    #     else None
+    # ),
 )
 
 ########################################
@@ -1131,7 +1131,7 @@ app.add_middleware(
 app.mount("/ws", socket_app)
 
 
-app.include_router(ollama.router, prefix="/ollama", tags=["ollama"])
+# app.include_router(ollama.router, prefix="/ollama", tags=["ollama"])
 app.include_router(openai.router, prefix="/openai", tags=["openai"])
 
 
@@ -1645,7 +1645,7 @@ async def get_app_latest_release_version(user=Depends(get_verified_user)):
         timeout = aiohttp.ClientTimeout(total=1)
         async with aiohttp.ClientSession(timeout=timeout, trust_env=True) as session:
             async with session.get(
-                "https://api.github.com/repos/open-webui/open-webui/releases/latest",
+                "", # removed: https://api.github.com/repos/open-webui/open-webui/releases/latest
                 ssl=AIOHTTP_CLIENT_SESSION_SSL,
             ) as response:
                 response.raise_for_status()

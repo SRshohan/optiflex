@@ -62,15 +62,15 @@ async def get_all_base_models(request: Request, user: UserModel = None):
         if request.app.state.config.ENABLE_OPENAI_API
         else asyncio.sleep(0, result=[])
     )
-    ollama_task = (
-        fetch_ollama_models(request, user)
-        if request.app.state.config.ENABLE_OLLAMA_API
-        else asyncio.sleep(0, result=[])
-    )
+    # ollama_task = (
+    #     fetch_ollama_models(request, user)
+    #     if request.app.state.config.ENABLE_OLLAMA_API
+    #     else asyncio.sleep(0, result=[])
+    # )
     function_task = get_function_models(request)
 
     openai_models, ollama_models, function_models = await asyncio.gather(
-        openai_task, ollama_task, function_task
+        openai_task, asyncio.sleep(0, result=[]), function_task # Removed ollama_models for now
     )
 
     return function_models + openai_models + ollama_models
@@ -83,40 +83,40 @@ async def get_all_models(request, user: UserModel = None):
     if len(models) == 0:
         return []
 
-    # Add arena models
-    if request.app.state.config.ENABLE_EVALUATION_ARENA_MODELS:
-        arena_models = []
-        if len(request.app.state.config.EVALUATION_ARENA_MODELS) > 0:
-            arena_models = [
-                {
-                    "id": model["id"],
-                    "name": model["name"],
-                    "info": {
-                        "meta": model["meta"],
-                    },
-                    "object": "model",
-                    "created": int(time.time()),
-                    "owned_by": "arena",
-                    "arena": True,
-                }
-                for model in request.app.state.config.EVALUATION_ARENA_MODELS
-            ]
-        else:
-            # Add default arena model
-            arena_models = [
-                {
-                    "id": DEFAULT_ARENA_MODEL["id"],
-                    "name": DEFAULT_ARENA_MODEL["name"],
-                    "info": {
-                        "meta": DEFAULT_ARENA_MODEL["meta"],
-                    },
-                    "object": "model",
-                    "created": int(time.time()),
-                    "owned_by": "arena",
-                    "arena": True,
-                }
-            ]
-        models = models + arena_models
+    # removed arena models for now
+    # if request.app.state.config.ENABLE_EVALUATION_ARENA_MODELS:
+    #     arena_models = []
+    #     if len(request.app.state.config.EVALUATION_ARENA_MODELS) > 0:
+    #         arena_models = [
+    #             {
+    #                 "id": model["id"],
+    #                 "name": model["name"],
+    #                 "info": {
+    #                     "meta": model["meta"],
+    #                 },
+    #                 "object": "model",
+    #                 "created": int(time.time()),
+    #                 "owned_by": "arena",
+    #                 "arena": True,
+    #             }
+    #             for model in request.app.state.config.EVALUATION_ARENA_MODELS
+    #         ]
+        # else:
+        #     # Add default arena model
+        #     arena_models = [
+        #         {
+        #             "id": DEFAULT_ARENA_MODEL["id"],
+        #             "name": DEFAULT_ARENA_MODEL["name"],
+        #             "info": {
+        #                 "meta": DEFAULT_ARENA_MODEL["meta"],
+        #             },
+        #             "object": "model",
+        #             "created": int(time.time()),
+        #             "owned_by": "arena",
+        #             "arena": True,
+        #         }
+        #     ]
+        # models = models + arena_models
 
     global_action_ids = [
         function.id for function in Functions.get_global_action_functions()
