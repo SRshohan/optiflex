@@ -88,11 +88,11 @@
 	let selectedModelIds = $derived(atSelectedModel !== undefined ? [atSelectedModel.id] : selectedModels);
 	let project = $state([]);
 
-	onMount(async()=>{
+	$effect(async()=>{
 		project = await getProject(localStorage.token,projectId);		
 	})
 
-	onMount(async()=>{
+	$effect(async()=>{
 		$allChatsInProjects = await getChatsOfProject(localStorage.token,projectId)
 	})
 
