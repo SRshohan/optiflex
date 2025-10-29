@@ -1954,7 +1954,6 @@
 			console.error(e);
 		}
 	};
-
 	const initChatHandler = async (history) => {
 		let _chatId = $chatId;
 		let projectId:string;

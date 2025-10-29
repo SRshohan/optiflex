@@ -87,13 +87,20 @@
 
 	let selectedModelIds = $derived(atSelectedModel !== undefined ? [atSelectedModel.id] : selectedModels);
 	let project = $state([]);
+	$inspect(projectId,"projectId")
 
 	$effect(async()=>{
-		project = await getProject(localStorage.token,projectId);		
+		if(projectId.length > 0){
+			project = await getProject(localStorage.token,projectId);		
+		}
 	})
 
 	$effect(async()=>{
-		$allChatsInProjects = await getChatsOfProject(localStorage.token,projectId)
+		if(projectId.length > 0){
+			$allChatsInProjects = await getChatsOfProject(localStorage.token,projectId)
+		}else{
+			$allChatsInProjects = []
+		}
 	})
 
 	$effect(()=>{
@@ -604,7 +611,7 @@
 					? 'max-w-full'
 					: 'max-w-6xl'} px-2.5 mx-auto inset-x-0"
 			>
-				<div class="">
+				<div class="flex flex-col gap-4">
 					<input
 						bind:this={filesInputElement}
 						bind:files={inputFiles}
@@ -651,14 +658,14 @@
 					{:else}
 						<form
 							method="POST"
-							class="w-full flex flex-col gap-1.5"
+							class={`w-full flex flex-col gap-1.5 ${projectId.length > 0 ? "h-fit" :"h-32"}`}
 							onsubmit={(e)=>{
 								e.preventDefault();
 								modelFormHandler(prompt);
 							}}
 						>
 							<div
-								class="flex-1 flex flex-col relative w-full shadow-lg rounded-3xl border-2 border-gray-50 dark:border-primary hover:border-gray-100 focus-within:border-gray-100 hover:dark:border-secondary focus-within:dark:border-secondary transition px-1 bg-white/90 dark:bg-gray-400/5 dark:text-gray-100"
+								class={`${projectId.length > 0 ? "h-fit" :"h-60"} flex flex-col relative w-full shadow-lg rounded-3xl border-2 border-gray-50 dark:border-primary hover:border-gray-100 focus-within:border-gray-100 hover:dark:border-secondary focus-within:dark:border-secondary transition px-1 bg-white/90 dark:bg-gray-400/5 dark:text-gray-100`}
 								dir={$settings?.chatDirection ?? 'auto'}
 							>
 								{#if files.length > 0}
@@ -756,7 +763,7 @@
 									</div>
 								{/if}
 
-								<div class="px-2.5">
+								<div class="px-2.5 h-full">
 									{#if $settings?.richTextInput ?? true}
 										<div
 											class="scrollbar-hidden rtl:text-right ltr:text-left bg-transparent dark:text-gray-100 outline-hidden w-full pt-2.5 pb-[5px] px-1 resize-none h-fit max-h-80 overflow-auto"
@@ -975,6 +982,7 @@
 															}
 														}
 													}}
+													className="h-full"
 												/>
 											{/await}
 										</div>
