@@ -543,7 +543,7 @@
 
 		let backendConfig = null;
 		try {
-			backendConfig = await getBackendConfig() || null;
+			backendConfig = await getBackendConfig();
 			console.log('Backend config:', backendConfig);
 		} catch (error) {
 			console.error('Error loading backend config:', error);

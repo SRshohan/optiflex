@@ -33,9 +33,9 @@ export default defineConfig({
 	server: {
 		proxy: {
 			'/api': {
-				target: 'https://openwebui-backend-953676742197.us-central1.run.app',
+				target: 'http://localhost:8080',
 				changeOrigin: true,
-				secure: true
+				secure: false
 			}
 		}
 	},
