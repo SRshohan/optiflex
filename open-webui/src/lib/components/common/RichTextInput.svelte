@@ -452,4 +452,4 @@
 	};
 </script>
 
-<div bind:this={element} class="relative w-full min-w-full h-[100px] min-h-fit pt-3 {className}" />
+<div bind:this={element} class="relative w-full min-w-full h-fit py-3 {className}" />
