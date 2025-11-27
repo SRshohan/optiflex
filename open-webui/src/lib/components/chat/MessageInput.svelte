@@ -658,7 +658,7 @@
 							}}
 						>
 							<div
-								class="flex-1 flex flex-col relative w-full shadow-lg rounded-3xl border-2 border-gray-50 dark:border-primary hover:border-gray-100 focus-within:border-gray-100 hover:dark:border-secondary focus-within:dark:border-secondary transition px-1 bg-white/90 dark:bg-gray-400/5 dark:text-gray-100"
+								class="h-fit flex flex-col relative w-full shadow-lg rounded-3xl border-2 border-gray-50 dark:border-primary hover:border-gray-100 focus-within:border-gray-100 hover:dark:border-secondary focus-within:dark:border-secondary transition px-1 bg-white/90 dark:bg-gray-400/5 dark:text-gray-100"
 								dir={$settings?.chatDirection ?? 'auto'}
 							>
 								{#if files.length > 0}
@@ -721,6 +721,7 @@
 													</div>
 												</div>
 											{:else}
+											
 												{#await import('../common/FileItem.svelte') then {default:FileItem}}
 													<FileItem
 														item={file}
@@ -759,7 +760,7 @@
 								<div class="px-2.5">
 									{#if $settings?.richTextInput ?? true}
 										<div
-											class="scrollbar-hidden rtl:text-right ltr:text-left bg-transparent dark:text-gray-100 outline-hidden w-full pt-2.5 pb-[5px] px-1 resize-none h-fit max-h-80 overflow-auto"
+											class="z-10 rtl:text-right ltr:text-left bg-transparent dark:text-gray-100 outline-hidden mx-auto w-[80%] pt-2.5 pb-[5px] px-1 resize-none h-full overflow-auto"
 											id="chat-input-container"
 										>
 											{#await import('../common/RichTextInput.svelte') then {default:RichTextInput}}
@@ -1214,8 +1215,8 @@
 									
 								</div>
 
-								<div class=" flex justify-between mt-0.5 mb-2.5 mx-0.5 max-w-full" dir="ltr">
-									<div class="ml-1 self-end flex items-center flex-1 max-w-[80%]">
+								<!-- <div class="absolute flex justify-between mt-0.5 mb-2.5 mx-0.5 top-5 w-full" dir="ltr"> -->
+									<div class="absolute mx-0.5 top-1/2 -translate-y-1/2 left-1 ml-1 self-end flex items-center flex-1 max-w-[80%]">
 										{#await import('./MessageInput/InputMenu.svelte') then {default:InputMenu}}
 											<InputMenu
 												bind:selectedToolIds
@@ -1286,7 +1287,7 @@
 												</button>
 											</InputMenu>
 										{/await}	
-										{#if $_user && (showToolsButton || (toggleFilters && toggleFilters.length > 0) || showWebSearchButton || showImageGenerationButton || showCodeInterpreterButton)}
+										<!-- {#if $_user && (showToolsButton || (toggleFilters && toggleFilters.length > 0) || showWebSearchButton || showImageGenerationButton || showCodeInterpreterButton)}
 											<div
 												class="flex self-center w-[1px] h-4 mx-1.5 bg-gray-50 dark:bg-gray-800"
 											/>
@@ -1416,10 +1417,10 @@
 													</Tooltip>
 												{/if}
 											</div>
-										{/if}
+										{/if} -->
 									</div>
 
-									<div class="self-end flex space-x-1 mr-1 shrink-0">
+									<div class="absolute mx-0.5 top-1/2 -translate-y-1/2  right-1 self-end flex space-x-1 mr-1 shrink-0">
 										{#if (!history?.currentId || history.messages[history.currentId]?.done == true) && ($_user?.role === 'admin' || ($_user?.permissions?.chat?.stt ?? true))}
 											<!-- {$i18n.t('Record voice')} -->
 											<Tooltip content={$i18n.t('Dictate')}>
@@ -1585,7 +1586,7 @@
 											</div>
 										{/if}
 									</div>
-								</div>
+								<!-- </div> -->
 							</div>
 
 							{#if $config?.license_metadata?.input_footer}

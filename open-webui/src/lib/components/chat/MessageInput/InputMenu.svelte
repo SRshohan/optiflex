@@ -17,6 +17,7 @@
 	import CameraSolid from '$lib/components/icons/CameraSolid.svelte';
 	import PhotoSolid from '$lib/components/icons/PhotoSolid.svelte';
 	import CommandLineSolid from '$lib/components/icons/CommandLineSolid.svelte';
+	import CommandLine from '$lib/components/icons/CommandLine.svelte';
 
 	const i18n = getContext('i18n');
 
@@ -34,6 +35,8 @@
 
 	export let onClose: Function;
 
+	let showCodeInterpreterButton = true;
+	let codeInterpreterEnabled = false;
 	let tools = {};
 	let show = false;
 	let showAllTools = false;
@@ -385,6 +388,26 @@
 						</DropdownMenu.SubContent>
 					</DropdownMenu.Sub>
 				{/if}
+			{/if}
+
+			{#if showCodeInterpreterButton}
+				<Tooltip content={$i18n.t('Execute code for analysis')} placement="top">
+					<button
+						on:click={(e) =>
+							{e.preventDefault();
+							codeInterpreterEnabled = !codeInterpreterEnabled}}
+						type="button"
+						class="flex gap-2 items-center px-3 py-2 text-sm  font-medium cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800  rounded-xl {!fileUploadEnabled
+							? 'opacity-50'
+							: ''}"						
+						>
+						<CommandLine className="size-4" strokeWidth="1.75" />
+						<span
+							class="line-clamp-1"
+							>Code Interpreter</span
+						>
+					</button>
+				</Tooltip>
 			{/if}
 		</DropdownMenu.Content>
 	</div>
