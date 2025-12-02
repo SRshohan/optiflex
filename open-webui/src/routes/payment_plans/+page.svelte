@@ -126,12 +126,13 @@
   overflow-y: auto;
   overflow-x: auto;
   background: #181c23;
+  z-index: 100;
 }
 
 /* Header section */
 .pricing-header {
   text-align: center;
-  margin: 3rem 0 2.5rem;
+  margin: 0.5rem 0 0.5rem;
 }
 .pricing-title {
   font-size: 2.8rem;
@@ -139,6 +140,7 @@
   letter-spacing: -0.03em;
   color: #fff;
   margin-bottom: 0.5rem;
+  cursor: pointer;
 }
 .pricing-subtitle {
   font-size: 2rem;
@@ -149,7 +151,7 @@
 .pricing-desc {
   font-size: 1.15rem;
   color: #b0b6c3;
-  margin-bottom: 2.5rem;
+  margin-bottom: 0.5rem;
 }
 
 /* Responsive grid for the cards */
@@ -250,7 +252,7 @@
 
 <div class="pricing-root">
 	<div class="pricing-header">
-		<div class="pricing-title">Optiflex.Ai</div>
+		<div class="pricing-title"><a href="/">Optiflex.Ai</a></div>
 		<div class="pricing-subtitle">Pricing</div>
 		<div class="pricing-desc">See pricing for individual needs</div>
 	</div>
@@ -372,5 +374,9 @@
 			</ul>
 			<button class="text-xl bg-gradient-to-r from-primary to-secondary w-full rounded-xl px-4 py-2 mt-auto" on:click={() => handleUpgrade('custom')}>Contact Sales</button>
 		</div>
+	</div>
+
+	<div class="flex flex-col items-center justify-center gap-8 w-full">
+		<button on:click={()=>goto("/")} class="text-lg bg-gradient-to-r from-primary to-secondary w-fit rounded-xl px-4 py-2 mt-auto">Go to Home</button>
 	</div>
 </div>

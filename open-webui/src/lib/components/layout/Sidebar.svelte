@@ -581,16 +581,16 @@
 			</div>
 		{/if} -->
 
-		<div class="px-1.5 py-1 flex justify-center text-gray-800 dark:text-gray-200 bg-gray-800 rounded-lg">
+		<div class="px-1.5 py-1 flex justify-center bg-white text-gray-900 dark:bg-gray-950/40 dark:text-gray-200 rounded-lg">
 			<button
-				class="grow flex items-center space-x-3 rounded-lg px-2 py-[7px] hover:bg-gray-800 dark:hover:bg-gray-800 transition outline-none relative"
+				class="grow flex items-center space-x-3 rounded-lg px-2 py-[7px] hover:bg-gray-50 dark:hover:text-white dark:hover:bg-gray-800/40 transition outline-none relative"
 				on:click={() => {
 					showSearch.set(true);
 				}}
 				draggable="false"
 			>
 				<div class="flex self-center translate-y-[0.5px]">
-					<div class=" self-center font-medium text-sm font-primary">{$i18n.t('Search')}</div>
+					<div class="self-center font-medium text-sm font-primary">{$i18n.t('Search')}</div>
 				</div>
 
 				<div class="absolute right-2">

@@ -11,7 +11,7 @@
 	import About from './Settings/About.svelte';
 	import General from './Settings/General.svelte';
 	import Interface from './Settings/Interface.svelte';
-	import Audio from './Settings/Audio.svelte';
+	// import Audio from './Settings/Audio.svelte';
 	import Chats from './Settings/Chats.svelte';
 	import User from '../icons/User.svelte';
 	import Personalization from './Settings/Personalization.svelte';
@@ -253,82 +253,82 @@
 		// 		'userpreferences'
 		// 	]
 		// },
-		{
-			id: 'audio',
-			title: 'Audio',
-			keywords: [
-				'audio config',
-				'audio control',
-				'audio features',
-				'audio input',
-				'audio output',
-				'audio playback',
-				'audio voice',
-				'audioconfig',
-				'audiocontrol',
-				'audiofeatures',
-				'audioinput',
-				'audiooutput',
-				'audioplayback',
-				'audiovoice',
-				'auto playback response',
-				'autoplaybackresponse',
-				'auto transcribe',
-				'autotranscribe',
-				'instant auto send after voice transcription',
-				'instantautosendaftervoicetranscription',
-				'language',
-				'non local voices',
-				'nonlocalvoices',
-				'save settings',
-				'savesettings',
-				'set voice',
-				'setvoice',
-				'sound settings',
-				'soundsettings',
-				'speech config',
-				'speech mode',
-				'speech playback speed',
-				'speech rate',
-				'speech recognition',
-				'speech settings',
-				'speech speed',
-				'speech synthesis',
-				'speech to text engine',
-				'speechconfig',
-				'speechmode',
-				'speechplaybackspeed',
-				'speechrate',
-				'speechrecognition',
-				'speechsettings',
-				'speechspeed',
-				'speechsynthesis',
-				'speechtotextengine',
-				'speedch playback rate',
-				'speedchplaybackrate',
-				'stt settings',
-				'sttsettings',
-				'text to speech engine',
-				'text to speech',
-				'textospeechengine',
-				'texttospeech',
-				'texttospeechvoice',
-				'text to speech voice',
-				'voice control',
-				'voice modes',
-				'voice options',
-				'voice playback',
-				'voice recognition',
-				'voice speed',
-				'voicecontrol',
-				'voicemodes',
-				'voiceoptions',
-				'voiceplayback',
-				'voicerecognition',
-				'voicespeed',
-				'volume'
-			]
-		},
+		// {
+		// 	id: 'audio',
+		// 	title: 'Audio',
+		// 	keywords: [
+		// 		'audio config',
+		// 		'audio control',
+		// 		'audio features',
+		// 		'audio input',
+		// 		'audio output',
+		// 		'audio playback',
+		// 		'audio voice',
+		// 		'audioconfig',
+		// 		'audiocontrol',
+		// 		'audiofeatures',
+		// 		'audioinput',
+		// 		'audiooutput',
+		// 		'audioplayback',
+		// 		'audiovoice',
+		// 		'auto playback response',
+		// 		'autoplaybackresponse',
+		// 		'auto transcribe',
+		// 		'autotranscribe',
+		// 		'instant auto send after voice transcription',
+		// 		'instantautosendaftervoicetranscription',
+		// 		'language',
+		// 		'non local voices',
+		// 		'nonlocalvoices',
+		// 		'save settings',
+		// 		'savesettings',
+		// 		'set voice',
+		// 		'setvoice',
+		// 		'sound settings',
+		// 		'soundsettings',
+		// 		'speech config',
+		// 		'speech mode',
+		// 		'speech playback speed',
+		// 		'speech rate',
+		// 		'speech recognition',
+		// 		'speech settings',
+		// 		'speech speed',
+		// 		'speech synthesis',
+		// 		'speech to text engine',
+		// 		'speechconfig',
+		// 		'speechmode',
+		// 		'speechplaybackspeed',
+		// 		'speechrate',
+		// 		'speechrecognition',
+		// 		'speechsettings',
+		// 		'speechspeed',
+		// 		'speechsynthesis',
+		// 		'speechtotextengine',
+		// 		'speedch playback rate',
+		// 		'speedchplaybackrate',
+		// 		'stt settings',
+		// 		'sttsettings',
+		// 		'text to speech engine',
+		// 		'text to speech',
+		// 		'textospeechengine',
+		// 		'texttospeech',
+		// 		'texttospeechvoice',
+		// 		'text to speech voice',
+		// 		'voice control',
+		// 		'voice modes',
+		// 		'voice options',
+		// 		'voice playback',
+		// 		'voice recognition',
+		// 		'voice speed',
+		// 		'voicecontrol',
+		// 		'voicemodes',
+		// 		'voiceoptions',
+		// 		'voiceplayback',
+		// 		'voicerecognition',
+		// 		'voicespeed',
+		// 		'volume'
+		// 	]
+		// },
 		// {
 		// 	id: 'chats',
 		// 	title: 'Chats',
@@ -731,7 +731,7 @@
 								</div>
 								<div class=" self-center">{$i18n.t('Personalization')}</div>
 							</button>
-						{:else if tabId === 'audio'}
+						<!-- {:else if tabId === 'audio'}
 							<button
 								role="tab"
 								aria-controls="tab-audio"
@@ -763,7 +763,7 @@
 									</svg>
 								</div>
 								<div class=" self-center">{$i18n.t('Audio')}</div>
-							</button>
+							</button> -->
 						{:else if tabId === 'chats'}
 							<button
 								role="tab"
@@ -935,13 +935,13 @@
 							toast.success($i18n.t('Settings saved successfully!'));
 						}}
 					/>
-				{:else if selectedTab === 'audio'}
+				<!-- {:else if selectedTab === 'audio'}
 					<Audio
 						{saveSettings}
 						on:save={() => {
 							toast.success($i18n.t('Settings saved successfully!'));
 						}}
-					/>
+					/> -->
 				{:else if selectedTab === 'chats'}
 					<Chats {saveSettings} />
 				{:else if selectedTab === 'account'}

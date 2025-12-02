@@ -30,7 +30,7 @@
 			>
 				<button
 					id="sidebar-toggle-button"
-					class="cursor-pointer px-2 py-2 flex rounded-xl hover:bg-gray-50 dark:hover:bg-gray-850 transition"
+					class="cursor-pointer px-2 py-2 flex rounded-xl hover:bg-gray-50 text-black dark:text-gray-50 bg-gray-50 dark:bg-gray-900/4 transition"
 					on:click={() => {
 						showSidebar.set(!$showSidebar);
 					}}
@@ -67,7 +67,7 @@
 						}}
 					>
 						<button
-							class="select-none flex rounded-xl p-1.5 w-full hover:bg-gray-50 dark:hover:bg-gray-850 transition"
+							class="select-none flex rounded-xl p-1.5 w-full text-black dark:text-gray-50 bg-gray-50 dark:bg-gray-900/4 transition"
 							aria-label="User Menu"
 						>
 							<div class=" self-center">

@@ -656,7 +656,7 @@
 	<link rel="stylesheet" type="text/css" href="/themes/rosepine-dawn.css" /> -->
 </svelte:head>
 <div class="text-gray-700 w-screen dark:text-gray-100 bg-white dark:bg-gray-900 h-screen max-h-[100dvh] overflow-hidden relative">
-	<div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_rgba(0,255,200,0.15),_transparent_50%)]">
+	<div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_rgba(0,255,200,0.15),_transparent_50%)] -z-10">
 		
 	</div>
 	

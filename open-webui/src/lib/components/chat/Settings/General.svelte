@@ -248,7 +248,7 @@
 				</div> -->
 			</div>
 			{#if $i18n.language === 'en-US'}
-				<div class="mb-2 text-xs text-gray-400 dark:text-gray-500">
+				<!-- <div class="mb-2 text-xs text-gray-400 dark:text-gray-500">
 					Couldn't find your language?
 					<a
 						class=" text-gray-300 font-medium underline"
@@ -257,7 +257,7 @@
 					>
 					Let us know!
 					</a>
-				</div>
+				</div> -->
 			{/if}
 
 			<div>

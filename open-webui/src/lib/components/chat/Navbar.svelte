@@ -157,7 +157,7 @@
 							}}
 						>
 							<button
-								class="select-none flex rounded-xl p-1.5 w-full hover:bg-gray-800 bg-gray-850/40 px-2 py-1 transition"
+								class="select-none flex rounded-xl p-1.5 w-full hover:bg-gray-100 text-black dark:text-gray-50 bg-gray-50 dark:bg-gray-900/4 px-2 py-1 transition"
 								aria-label="User Menu"
 							>
 								<div class="flex justify-start gap-2 w-[200px]">

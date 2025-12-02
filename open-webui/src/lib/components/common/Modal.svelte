@@ -78,7 +78,7 @@
 		bind:this={modalElement}
 		aria-modal="true"
 		role="dialog"
-		class="modal fixed top-0 right-0 left-0 bottom-0 bg-black/10 backdrop-blur-sm w-full h-screen max-h-[100dvh] rounded-xl {containerClassName} flex justify-center z-9999 overflow-y-auto overscroll-contain"
+		class="modal fixed top-0 right-0 left-0 bottom-0 bg-gray-50/10 dark:bg-black/10 backdrop-blur-sm w-full h-screen max-h-[100dvh] rounded-xl {containerClassName} flex justify-center z-9999 overflow-y-auto overscroll-contain"
 		in:fade={{ duration: 10 }}
 		on:mousedown={() => {
 			show = false;
@@ -87,7 +87,7 @@
 		<div
 			class="m-auto max-w-full {sizeToWidth(size)} {size !== 'full'
 				? 'mx-2'
-				: ''} shadow-3xl min-h-fit scrollbar-hidden bg-black/20 backdrop-blur-sm shadow-2xl shadow-gray-900/30 rounded-2xl {className}"
+				: ''} shadow-3xl min-h-fit scrollbar-hidden bg-gray-50/20 dark:bg-black/20 backdrop-blur-sm shadow-2xl shadow-gray-900/30 rounded-2xl {className}"
 			in:flyAndScale
 			on:mousedown={(e) => {
 				e.stopPropagation();
