@@ -73,7 +73,7 @@ def handle_peewee_migration(DATABASE_URL):
             assert db.is_closed(), "Database connection is still open."
 
 
-handle_peewee_migration(DATABASE_URL)
+# handle_peewee_migration(DATABASE_URL)
 
 
 SQLALCHEMY_DATABASE_URL = DATABASE_URL
@@ -104,6 +104,8 @@ SessionLocal = sessionmaker(
 metadata_obj = MetaData(schema=DATABASE_SCHEMA)
 Base = declarative_base(metadata=metadata_obj)
 Session = scoped_session(SessionLocal)
+
+# Base.metadata.create_all(engine)
 
 
 def get_session():

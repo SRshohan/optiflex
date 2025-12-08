@@ -63,7 +63,7 @@ from open_webui.socket.main import (
 from open_webui.routers import (
     audio,
     images,
-    ollama,
+    # ollama,
     openai,
     retrieval,
     pipelines,
@@ -87,6 +87,7 @@ from open_webui.routers import (
     utils,
     payment,
     projects,
+
 )
 
 from open_webui.routers.retrieval import (
@@ -105,9 +106,9 @@ from open_webui.models.chats import Chats
 from open_webui.config import (
     LICENSE_KEY,
     # Ollama
-    ENABLE_OLLAMA_API,
-    OLLAMA_BASE_URLS,
-    OLLAMA_API_CONFIGS,
+    # ENABLE_OLLAMA_API,
+    # OLLAMA_BASE_URLS,
+    # OLLAMA_API_CONFIGS,
     # OpenAI
     ENABLE_OPENAI_API,
     ONEDRIVE_CLIENT_ID,
@@ -220,8 +221,8 @@ from open_webui.config import (
     RAG_AZURE_OPENAI_BASE_URL,
     RAG_AZURE_OPENAI_API_KEY,
     RAG_AZURE_OPENAI_API_VERSION,
-    RAG_OLLAMA_BASE_URL,
-    RAG_OLLAMA_API_KEY,
+    # RAG_OLLAMA_BASE_URL,
+    # RAG_OLLAMA_API_KEY,
     CHUNK_OVERLAP,
     CHUNK_SIZE,
     CONTENT_EXTRACTION_ENGINE,
@@ -508,6 +509,10 @@ async def lifespan(app: FastAPI):
     if RESET_CONFIG_ON_START:
         reset_config()
 
+    # Auto-create tables for new models in dev (requires models to be imported)
+    from open_webui.internal.db import Base, engine
+    Base.metadata.create_all(bind=engine)
+
     if LICENSE_KEY:
         get_license_data(app, LICENSE_KEY)
 
@@ -534,6 +539,37 @@ async def lifespan(app: FastAPI):
         limiter.total_tokens = THREAD_POOL_SIZE
 
     asyncio.create_task(periodic_usage_pool_cleanup())
+
+    # --- Initialize LiteLLM Router ---
+    from litellm import Router as LiteLLMRouter
+    import litellm
+    
+    # Configure Postgres Callback
+    litellm.success_callback = ["postgres"]
+    # Reuse existing DATABASE_URL. LiteLLM expects it in env 'DATABASE_URL'
+    # It is likely already set in env.py or environment variables
+    
+    # Define your model list here (or load from config/DB)
+    model_list = [
+        {
+            "model_name": "gpt-4o",
+            "litellm_params": {
+                "model": "openai/gpt-4o",
+                "api_key": os.environ.get("OPENAI_API_KEY") # Ensure this env var is set
+            }
+        },
+        {
+            "model_name": "claude-3-sonnet",
+            "litellm_params": {
+                "model": "anthropic/claude-3-sonnet-20240229",
+                "api_key": os.environ.get("ANTHROPIC_API_KEY")
+            }
+        },
+    ]
+    
+    app.state.litellm_router = LiteLLMRouter(model_list=model_list)
+    log.info("LiteLLM Router initialized in app.state")
+    # ---------------------------------
 
     yield
 
@@ -581,11 +617,11 @@ if ENABLE_OTEL:
 ########################################
 
 
-app.state.config.ENABLE_OLLAMA_API = ENABLE_OLLAMA_API
-app.state.config.OLLAMA_BASE_URLS = OLLAMA_BASE_URLS
-app.state.config.OLLAMA_API_CONFIGS = OLLAMA_API_CONFIGS
+# app.state.config.ENABLE_OLLAMA_API = ENABLE_OLLAMA_API
+# app.state.config.OLLAMA_BASE_URLS = OLLAMA_BASE_URLS
+# app.state.config.OLLAMA_API_CONFIGS = OLLAMA_API_CONFIGS
 
-app.state.OLLAMA_MODELS = {}
+# app.state.OLLAMA_MODELS = {}
 
 ########################################
 #
@@ -1170,6 +1206,7 @@ app.include_router(
 app.include_router(utils.router, prefix="/api/v1/utils", tags=["utils"])
 app.include_router(payment.router, prefix="/api/v1/payment", tags=["payment"])
 app.include_router(projects.router, prefix="/api/v1/projects", tags=["projects"])
+
 
 try:
     audit_level = AuditLevel(AUDIT_LOG_LEVEL)

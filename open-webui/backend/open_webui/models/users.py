@@ -9,8 +9,17 @@ from open_webui.models.groups import Groups
 
 
 from pydantic import BaseModel, ConfigDict
-from sqlalchemy import BigInteger, Column, String, Text
+from sqlalchemy import BigInteger, Column, String, Text, Enum as SQLEnum
 from sqlalchemy import or_
+from sqlalchemy.orm import relationship
+
+from enum import Enum
+
+
+class Subscription(Enum):
+    FREE = "free"
+    PRO = "pro"
+    ULTRA = "ultra"
 
 
 ####################
@@ -36,6 +45,10 @@ class User(Base):
     info = Column(JSONField, nullable=True)
 
     oauth_sub = Column(Text, unique=True)
+    subscription = Column(SQLEnum(Subscription), nullable=True)
+
+    virtual_keys = relationship("VirtualKey", back_populates="user")
+
 
 
 class UserSettings(BaseModel):
@@ -62,6 +75,8 @@ class UserModel(BaseModel):
     oauth_sub: Optional[str] = None
 
     model_config = ConfigDict(from_attributes=True)
+    subscription: Optional[Subscription] = Subscription.FREE
+
 
 
 ####################
@@ -111,6 +126,8 @@ class UsersTable:
         profile_image_url: str = "/user.png",
         role: str = "pending",
         oauth_sub: Optional[str] = None,
+        subscription: Optional[Subscription] = Subscription.FREE,
+        litellm_key: Optional[str] = None,
     ) -> Optional[UserModel]:
         with get_db() as db:
             user = UserModel(
@@ -124,6 +141,8 @@ class UsersTable:
                     "created_at": int(time.time()),
                     "updated_at": int(time.time()),
                     "oauth_sub": oauth_sub,
+                    "subscription": subscription,
+                    "litellm_key": litellm_key,
                 }
             )
             result = User(**user.model_dump())

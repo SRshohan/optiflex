@@ -69,11 +69,14 @@ async def get_all_base_models(request: Request, user: UserModel = None):
     # )
     function_task = get_function_models(request)
 
+    # litellm_task = fetch_all_litellm_models(request)
+
     openai_models, ollama_models, function_models = await asyncio.gather(
-        openai_task, asyncio.sleep(0, result=[]), function_task # Removed ollama_models for now
+        openai_task, asyncio.sleep(0, result=[]), function_task # Removed ollama_models and added litellm for now
     )
 
     return function_models + openai_models + ollama_models
+
 
 
 async def get_all_models(request, user: UserModel = None):

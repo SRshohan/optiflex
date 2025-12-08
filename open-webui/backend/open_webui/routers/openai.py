@@ -2,6 +2,7 @@ import asyncio
 import hashlib
 import json
 import logging
+import os
 from pathlib import Path
 from typing import Literal, Optional, overload
 
@@ -275,6 +276,13 @@ async def get_all_models_responses(request: Request, user: UserModel) -> list:
     if not request.app.state.config.ENABLE_OPENAI_API:
         return []
 
+    # Override with LITELLM_API_URL for local development if set
+    # litellm_url = os.environ.get("LITELLM_API_URL", "")
+    # if litellm_url and litellm_url not in request.app.state.config.OPENAI_API_BASE_URLS:
+    #     # Force use localhost LiteLLM instead of proxy server
+    #     request.app.state.config.OPENAI_API_BASE_URLS = [litellm_url]
+    #     log.info(f"Overriding OPENAI_API_BASE_URLS to use LITELLM_API_URL: {litellm_url}")
+
     # Check if API KEYS length is same than API URLS length
     num_urls = len(request.app.state.config.OPENAI_API_BASE_URLS)
     num_keys = len(request.app.state.config.OPENAI_API_KEYS)
@@ -460,6 +468,13 @@ async def get_models(
     if url_idx is None:
         models = await get_all_models(request, user=user)
     else:
+        # Override with LITELLM_API_URL for local development if set
+        litellm_url = os.environ.get("LITELLM_API_URL", "")
+        if litellm_url and url_idx == 0:
+            # Force use localhost LiteLLM for first URL index
+            request.app.state.config.OPENAI_API_BASE_URLS = [litellm_url]
+            log.info(f"Overriding OPENAI_API_BASE_URLS to use LITELLM_API_URL: {litellm_url}")
+        
         url = request.app.state.config.OPENAI_API_BASE_URLS[url_idx]
         key = request.app.state.config.OPENAI_API_KEYS[url_idx]
 
@@ -830,61 +845,86 @@ async def generate_chat_completion(
 
     r = None
     session = None
-    streaming = False
+    streaming = True
     response = None
 
-    try:
-        session = aiohttp.ClientSession(
-            trust_env=True, timeout=aiohttp.ClientTimeout(total=AIOHTTP_CLIENT_TIMEOUT)
-        )
-
-        r = await session.request(
-            method="POST",
-            url=request_url,
-            data=payload,
-            headers=headers,
-            ssl=AIOHTTP_CLIENT_SESSION_SSL,
-        )
-
-        # Check if response is SSE
-        if "text/event-stream" in r.headers.get("Content-Type", ""):
-            streaming = True
-            return StreamingResponse(
-                r.content,
-                status_code=r.status,
-                headers=dict(r.headers),
-                background=BackgroundTask(
-                    cleanup_response, response=r, session=session
-                ),
+    if hasattr(request.app.state, "litellm_router"):
+        try:
+            response = await request.app.state.litellm_router.acompletion(
+                model=payload.get("model", ""),
+                messages=payload.get("messages", []),
+                stream=streaming,
+                user=user.id,
+                headers=headers,
             )
-        else:
-            try:
-                response = await r.json()
-            except Exception as e:
-                log.error(e)
-                response = await r.text()
 
-            r.raise_for_status()
-            return response
-    except Exception as e:
-        log.exception(e)
+            if streaming:
+                return StreamingResponse(
+                    response.content,
+                    status_code=response.status,
+                    headers=dict(response.headers),
+                    background=BackgroundTask(
+                        cleanup_response, response=response, session=session
+                    ),
+                )
+            else:
+                return response
+        except Exception as e:
+            log.exception(e)
+            raise HTTPException(status_code=500, detail=str(e))
 
-        detail = None
-        if isinstance(response, dict):
-            if "error" in response:
-                detail = f"{response['error']['message'] if 'message' in response['error'] else response['error']}"
-        elif isinstance(response, str):
-            detail = response
+    # try:
+    #     session = aiohttp.ClientSession(
+    #         trust_env=True, timeout=aiohttp.ClientTimeout(total=AIOHTTP_CLIENT_TIMEOUT)
+    #     )
 
-        raise HTTPException(
-            status_code=r.status if r else 500,
-            detail=detail if detail else "Optiflex: Server Connection Error",
-        )
-    finally:
-        if not streaming and session:
-            if r:
-                r.close()
-            await session.close()
+    #     r = await session.request(
+    #         method="POST",
+    #         url=request_url,
+    #         data=payload,
+    #         headers=headers,
+    #         ssl=AIOHTTP_CLIENT_SESSION_SSL,
+    #     )
+
+    #     # Check if response is SSE
+    #     if "text/event-stream" in r.headers.get("Content-Type", ""):
+    #         streaming = True
+    #         return StreamingResponse(
+    #             r.content,
+    #             status_code=r.status,
+    #             headers=dict(r.headers),
+    #             background=BackgroundTask(
+    #                 cleanup_response, response=r, session=session
+    #             ),
+    #         )
+    #     else:
+    #         try:
+    #             response = await r.json()
+    #         except Exception as e:
+    #             log.error(e)
+    #             response = await r.text()
+
+    #         r.raise_for_status()
+    #         return response
+    # except Exception as e:
+    #     log.exception(e)
+
+            # detail = None
+            # if isinstance(response, dict):
+            #     if "error" in response:
+            #         detail = f"{response['error']['message'] if 'message' in response['error'] else response['error']}"
+            # elif isinstance(response, str):
+            #     detail = response
+
+            # raise HTTPException(
+            #     status_code=r.status if r else 500,
+            #     detail=detail if detail else "Optiflex: Server Connection Error",
+            # )
+        finally:
+            if not streaming and session:
+                if r:
+                    r.close()
+                await session.close()
 
 
 async def embeddings(request: Request, form_data: dict, user):

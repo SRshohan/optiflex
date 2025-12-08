@@ -29,7 +29,7 @@ from open_webui.env import (
     WEBUI_NAME,
     log,
 )
-from open_webui.internal.db import Base, get_db
+from open_webui.internal.db import Base, get_db, engine
 from open_webui.utils.redis import get_redis_connection
 
 
@@ -50,10 +50,14 @@ logging.getLogger("uvicorn.access").addFilter(EndpointFilter())
 def run_migrations():
     log.info("Running migrations")
     try:
-        from alembic import command
-        from alembic.config import Config
+        # Force create Config table if it doesn't exist
+        # This ensures get_config() doesn't crash on startup
+        Config.__table__.create(bind=engine, checkfirst=True)
 
-        alembic_cfg = Config(OPEN_WEBUI_DIR / "alembic.ini")
+        from alembic import command
+        from alembic.config import Config as AlembicConfig
+
+        alembic_cfg = AlembicConfig(OPEN_WEBUI_DIR / "alembic.ini")
 
         # Set the script location dynamically
         migrations_path = OPEN_WEBUI_DIR / "migrations"
@@ -64,17 +68,11 @@ def run_migrations():
         log.exception(f"Error running migrations: {e}")
 
 
+
+from open_webui.models.config import Config
+
 run_migrations()
 
-
-class Config(Base):
-    __tablename__ = "config"
-
-    id = Column(Integer, primary_key=True)
-    data = Column(JSON, nullable=False)
-    version = Column(Integer, nullable=False, default=0)
-    created_at = Column(DateTime, nullable=False, server_default=func.now())
-    updated_at = Column(DateTime, nullable=True, onupdate=func.now())
 
 
 def load_json_config():
@@ -782,59 +780,59 @@ ENABLE_DIRECT_CONNECTIONS = PersistentConfig(
 # OLLAMA_BASE_URL
 ####################################
 
-ENABLE_OLLAMA_API = PersistentConfig(
-    "ENABLE_OLLAMA_API",
-    "ollama.enable",
-    os.environ.get("ENABLE_OLLAMA_API", "True").lower() == "true",
-)
+# ENABLE_OLLAMA_API = PersistentConfig(
+#     "ENABLE_OLLAMA_API",
+#     "ollama.enable",
+#     os.environ.get("ENABLE_OLLAMA_API", "True").lower() == "true",
+# )
 
-OLLAMA_API_BASE_URL = os.environ.get(
-    "OLLAMA_API_BASE_URL", "http://localhost:11434/api"
-)
+# OLLAMA_API_BASE_URL = os.environ.get(
+#     "OLLAMA_API_BASE_URL", "http://localhost:11434/api"
+# )
 
-OLLAMA_BASE_URL = os.environ.get("OLLAMA_BASE_URL", "")
-if OLLAMA_BASE_URL:
-    # Remove trailing slash
-    OLLAMA_BASE_URL = (
-        OLLAMA_BASE_URL[:-1] if OLLAMA_BASE_URL.endswith("/") else OLLAMA_BASE_URL
-    )
-
-
-K8S_FLAG = os.environ.get("K8S_FLAG", "")
-USE_OLLAMA_DOCKER = os.environ.get("USE_OLLAMA_DOCKER", "false")
-
-if OLLAMA_BASE_URL == "" and OLLAMA_API_BASE_URL != "":
-    OLLAMA_BASE_URL = (
-        OLLAMA_API_BASE_URL[:-4]
-        if OLLAMA_API_BASE_URL.endswith("/api")
-        else OLLAMA_API_BASE_URL
-    )
-
-if ENV == "prod":
-    if OLLAMA_BASE_URL == "/ollama" and not K8S_FLAG:
-        if USE_OLLAMA_DOCKER.lower() == "true":
-            # if you use all-in-one docker container (Optiflex + Ollama)
-            # with the docker build arg USE_OLLAMA=true (--build-arg="USE_OLLAMA=true") this only works with http://localhost:11434
-            OLLAMA_BASE_URL = "http://localhost:11434"
-        else:
-            OLLAMA_BASE_URL = "http://host.docker.internal:11434"
-    elif K8S_FLAG:
-        OLLAMA_BASE_URL = "http://ollama-service.optiflex.svc.cluster.local:11434"
+# OLLAMA_BASE_URL = os.environ.get("OLLAMA_BASE_URL", "")
+# if OLLAMA_BASE_URL:
+#     # Remove trailing slash
+#     OLLAMA_BASE_URL = (
+#         OLLAMA_BASE_URL[:-1] if OLLAMA_BASE_URL.endswith("/") else OLLAMA_BASE_URL
+#     )
 
 
-OLLAMA_BASE_URLS = os.environ.get("OLLAMA_BASE_URLS", "")
-OLLAMA_BASE_URLS = OLLAMA_BASE_URLS if OLLAMA_BASE_URLS != "" else OLLAMA_BASE_URL
+# K8S_FLAG = os.environ.get("K8S_FLAG", "")
+# USE_OLLAMA_DOCKER = os.environ.get("USE_OLLAMA_DOCKER", "false")
 
-OLLAMA_BASE_URLS = [url.strip() for url in OLLAMA_BASE_URLS.split(";")]
-OLLAMA_BASE_URLS = PersistentConfig(
-    "OLLAMA_BASE_URLS", "ollama.base_urls", OLLAMA_BASE_URLS
-)
+# if OLLAMA_BASE_URL == "" and OLLAMA_API_BASE_URL != "":
+#     OLLAMA_BASE_URL = (
+#         OLLAMA_API_BASE_URL[:-4]
+#         if OLLAMA_API_BASE_URL.endswith("/api")
+#         else OLLAMA_API_BASE_URL
+#     )
 
-OLLAMA_API_CONFIGS = PersistentConfig(
-    "OLLAMA_API_CONFIGS",
-    "ollama.api_configs",
-    {},
-)
+# if ENV == "prod":
+#     if OLLAMA_BASE_URL == "/ollama" and not K8S_FLAG:
+#         if USE_OLLAMA_DOCKER.lower() == "true":
+#             # if you use all-in-one docker container (Optiflex + Ollama)
+#             # with the docker build arg USE_OLLAMA=true (--build-arg="USE_OLLAMA=true") this only works with http://localhost:11434
+#             OLLAMA_BASE_URL = "http://localhost:11434"
+#         else:
+#             OLLAMA_BASE_URL = "http://host.docker.internal:11434"
+#     elif K8S_FLAG:
+#         OLLAMA_BASE_URL = "http://ollama-service.optiflex.svc.cluster.local:11434"
+
+
+# OLLAMA_BASE_URLS = os.environ.get("OLLAMA_BASE_URLS", "")
+# OLLAMA_BASE_URLS = OLLAMA_BASE_URLS if OLLAMA_BASE_URLS != "" else OLLAMA_BASE_URL
+
+# OLLAMA_BASE_URLS = [url.strip() for url in OLLAMA_BASE_URLS.split(";")]
+# OLLAMA_BASE_URLS = PersistentConfig(
+#     "OLLAMA_BASE_URLS", "ollama.base_urls", OLLAMA_BASE_URLS
+# )
+
+# OLLAMA_API_CONFIGS = PersistentConfig(
+#     "OLLAMA_API_CONFIGS",
+#     "ollama.api_configs",
+#     {},
+# )
 
 ####################################
 # OPENAI_API
@@ -2307,11 +2305,11 @@ RAG_AZURE_OPENAI_API_VERSION = PersistentConfig(
     os.getenv("RAG_AZURE_OPENAI_API_VERSION", ""),
 )
 
-RAG_OLLAMA_BASE_URL = PersistentConfig(
-    "RAG_OLLAMA_BASE_URL",
-    "rag.ollama.url",
-    os.getenv("RAG_OLLAMA_BASE_URL", OLLAMA_BASE_URL),
-)
+# RAG_OLLAMA_BASE_URL = PersistentConfig(
+#     "RAG_OLLAMA_BASE_URL",
+#     "rag.ollama.url",
+#     os.getenv("RAG_OLLAMA_BASE_URL", OLLAMA_BASE_URL),
+# )
 
 RAG_OLLAMA_API_KEY = PersistentConfig(
     "RAG_OLLAMA_API_KEY",

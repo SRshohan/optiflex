@@ -108,7 +108,7 @@ log.setLevel(SRC_LOG_LEVELS["CONFIG"])
 
 WEBUI_NAME = os.environ.get("WEBUI_NAME", "Optiflex")
 if WEBUI_NAME != "Optiflex":
-    WEBUI_NAME += " (Optiflex)"
+    WEBUI_NAME += " Optiflex"
 
 WEBUI_FAVICON_URL = ""
 
