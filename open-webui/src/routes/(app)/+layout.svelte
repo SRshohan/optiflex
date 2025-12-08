@@ -112,6 +112,7 @@
 					$config?.features?.enable_direct_connections && ($settings?.directConnections ?? null)
 				)
 			);
+			console.log('models', $models);
 
 			banners.set(await getBanners(localStorage.token));
 			tools.set(await getTools(localStorage.token));

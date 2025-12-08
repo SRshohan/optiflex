@@ -82,10 +82,13 @@ class MyLogger(CustomLogger):
     def log_success_event(self, kwargs, response_obj, start_time, end_time):
         """Called ONLY on success"""
         cost = kwargs.get("response_cost", 0)
+        if kwargs["response_cost"]:
+            print(kwargs["response_cost"])
         print(f"Success! Cost: ${cost}")
 
         if hasattr(response_obj, 'usage') and response_obj.usage:
             usage = response_obj.usage
+            print(response_obj)
             print(f"Tokens: {usage.total_tokens} (Prompt: {usage.prompt_tokens})")
 
     
