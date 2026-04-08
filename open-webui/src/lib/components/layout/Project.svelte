@@ -58,10 +58,10 @@
                 <div class="flex items-center gap-2 cursor-pointer">
                     <span onclick={()=> {showChats = !showChats; projectId = project.id }}>
                         {#if showChats && projectId === project.id}
-							<ChevronDown className="coursor-pointer size-3" strokeWidth="2.5" />
-						{:else}
-							<ChevronRight className="coursor-pointer size-3" strokeWidth="2.5" />
-						{/if}
+                            <ChevronDown className="coursor-pointer size-3" strokeWidth="2.5" />
+                        {:else}
+                            <ChevronRight className="coursor-pointer size-3" strokeWidth="2.5" />
+                        {/if}
                     </span>
                     <span onclick={()=>handleEdit(project.id)}>
                         <img  class="h-4" src="/Icons/Edit.svg" alt="edit" />

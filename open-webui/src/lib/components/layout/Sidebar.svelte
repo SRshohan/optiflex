@@ -24,7 +24,10 @@
 		showAddProjectModal,
 		addedProjects,
 		showDeleteProjectModal,
-		editProjectId
+		editProjectId,
+
+		showDeleteChatOfProjectModal
+
 	} from '$lib/stores';
 	import { onMount, getContext, tick, onDestroy } from 'svelte';
 
@@ -67,6 +70,7 @@
 	import Project from './Project.svelte';
 	import DeleteProject from './DeleteProject.svelte';
 	import ProjectEditAndAdd from './ProjectEditAndAdd.svelte';
+	import DeleteChatFromProject from './DeleteChatFromProject.svelte';
 
 	const BREAKPOINT = 768;
 
@@ -466,6 +470,12 @@
 	}} 
 />
 
+<DeleteChatFromProject bind:show={$showDeleteChatOfProjectModal} 
+	onClose={() => {
+		showDeleteChatOfProjectModal.set(false);
+	}} 
+/>
+
 <div
 	bind:this={navElement}
 	id="sidebar"
@@ -842,7 +852,6 @@
 						{#if $chats}
 							{#each $chats as chat, idx (`chat-${chat?.id ?? idx}`)}
 								{#if !chat.folder_id}
-
 									{#if idx === 0 || (idx > 0 && chat.time_range !== $chats[idx - 1].time_range)}
 										<div
 											class="w-full text-sm text-gray-500 dark:text-gray-500 font-medium {idx ===

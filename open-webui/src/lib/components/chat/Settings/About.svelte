@@ -58,7 +58,7 @@
 							v{WEBUI_VERSION}
 						</Tooltip>
 
-						<a
+						<!-- <a
 							href="https://github.com/open-webui/open-webui/releases/tag/v{version.latest}"
 							target="_blank"
 						>
@@ -67,7 +67,7 @@
 								: updateAvailable
 									? `(v${version.latest} ${$i18n.t('available!')})`
 									: $i18n.t('(latest)')}
-						</a>
+						</a> -->
 					</div>
 
 					<button
@@ -106,7 +106,7 @@
 
 		<hr class=" border-gray-100 dark:border-gray-850" />
 
-		{#if $config?.license_metadata}
+		<!-- {#if $config?.license_metadata}
 			<div class="mb-2 text-xs">
 				{#if !$WEBUI_NAME.includes('Optiflex')}
 					<span class=" text-gray-500 dark:text-gray-300 font-medium">{$WEBUI_NAME}</span> -
@@ -138,7 +138,7 @@
 					/>
 				</a>
 			</div>
-		{/if}
+		{/if} -->
 
 		<div class="mt-2 text-xs text-gray-400 dark:text-gray-500">
 			Emoji graphics provided by
@@ -149,7 +149,7 @@
 		<div>
 			<pre
 				class="text-xs text-gray-400 dark:text-gray-500">Copyright (c) {new Date().getFullYear()} <a
-					href="https://openwebui.com"
+					href="#"
 					target="_blank"
 					class="underline">Optiflex (Timothy Jaeryang Baek)</a
 				>
@@ -190,10 +190,15 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 		<div class="mt-2 text-xs text-gray-400 dark:text-gray-500">
 			{$i18n.t('Created by')}
-			<a
+			<!-- <a
 				class=" text-gray-500 dark:text-gray-300 font-medium"
 				href="https://github.com/tjbck"
 				target="_blank">Timothy J. Baek</a
+			> -->
+				<a
+				class=" text-gray-500 dark:text-gray-300 font-medium"
+				href="#"
+				target="_blank">Optiflex</a
 			>
 		</div>
 	</div>
